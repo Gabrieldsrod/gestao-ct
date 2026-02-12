@@ -1,0 +1,56 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# JetBrains IDEs (IntelliJ IDEA, PyCharm, WebStorm, Rider, etc.)
+/.idea/
+*.iml
+*.iws
+out/
+
+# VS Code
+.vscode/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# NetBeans
+nbproject/private/
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Misc
+*.log
+*.tmp
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node
+node_modules/
+
+# Build folders
+build/
+dist/
+
+# Environment folders
+.env
+venv/
+ENV/
+
+# Ignore JetBrains project file included in this workspace
+*.iml
+
