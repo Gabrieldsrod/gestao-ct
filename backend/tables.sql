@@ -9,7 +9,7 @@ CREATE TABLE categorias (
 CREATE TABLE transacoes (
     id SERIAL PRIMARY KEY,
     descricao VARCHAR(200),
-    valor NUMERIC(10, 2) NOT NULL, -- 10 dígitos, 2 decimais
+    valor NUMERIC(19, 2) NOT NULL, -- 19 dígitos, 2 decimais
     tipo VARCHAR(20) NOT NULL, -- 'RECEITA' ou 'DESPESA'
     data_movimento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     categoria_id INTEGER NOT NULL,
@@ -32,11 +32,11 @@ CREATE TABLE alunos_pagamentos (
 
     -- Dados da Cobrança (Previsão)
     data_vencimento DATE NOT NULL,
-    valor_cobrado NUMERIC(10, 2) NOT NULL,
+    valor_cobrado NUMERIC(19, 2) NOT NULL,
 
     -- Dados da Baixa (Realização) - NULLABLE!
     data_pagamento DATE,
-    valor_pago NUMERIC(10, 2),
+    valor_pago NUMERIC(19, 2),
 
     -- A Conexão com o Caixa
     transacao_id INTEGER UNIQUE, -- Unique para garantir 1 pagamento = 1 transação
