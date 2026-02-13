@@ -1,11 +1,11 @@
--- 1. Categorias (Sem dependências)
+-- 1. Categorias
 CREATE TABLE categorias (
-    id SERIAL PRIMARY KEY, -- 'SERIAL' é o auto-incremento do PostgreSQL
+    id SERIAL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
     tipo VARCHAR(20) NOT NULL -- 'RECEITA' ou 'DESPESA'
 );
 
--- 2. Transações (Depende de Categoria)
+-- 2. Transações
 CREATE TABLE transacoes (
     id SERIAL PRIMARY KEY,
     descricao VARCHAR(200),
@@ -20,12 +20,12 @@ CREATE TABLE transacoes (
 CREATE TABLE alunos (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    whatsapp VARCHAR(20), -- Adicionei contato, importante para cobrança!
+    whatsapp VARCHAR(20),
     data_nascimento DATE NOT NULL,
     dia_preferencia_pagamento INTEGER NOT NULL
 );
 
--- 4. AlunosPagamento (O Elo Perdido)
+-- 4. AlunosPagamento
 CREATE TABLE alunos_pagamentos (
     id SERIAL PRIMARY KEY,
     aluno_id INTEGER NOT NULL,
