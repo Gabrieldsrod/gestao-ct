@@ -3,6 +3,7 @@ package com.gabrieldsrod.gestao_ct.Model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -28,4 +29,10 @@ public class Aluno {
 
     @Column(nullable = false)
     private Integer diaPreferenciaPagamento;
+
+    @Column(nullable = false)
+    private Boolean ativo = true;
+
+    @Column(nullable = false)
+    private BigDecimal valorMensalidade;
 }

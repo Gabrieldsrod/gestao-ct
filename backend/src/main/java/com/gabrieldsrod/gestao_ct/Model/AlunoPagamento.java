@@ -1,5 +1,6 @@
 package com.gabrieldsrod.gestao_ct.Model;
 
+import com.gabrieldsrod.gestao_ct.Enums.MetodoPagamento;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -9,7 +10,7 @@ import java.util.Date;
 @Entity
 @Table(name = "alunos_pagamentos")
 @Data
-public class AlunosPagamento {
+public class AlunoPagamento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +31,10 @@ public class AlunosPagamento {
     private Date dataPagamento;
     @Column(name = "valor_pago", precision = 19, scale = 2)
     private BigDecimal valorPago;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "metodo_pagamento", nullable = false)
+    private MetodoPagamento metodoPagamento;
 
     @OneToOne
     @JoinColumn(name = "transacao_id", unique = true)
