@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface AlunosPagamentoRepository extends JpaRepository<AlunoPagamento, Long> {
+public interface AlunoPagamentoRepository extends JpaRepository<AlunoPagamento, Long> {
 
     // LISTA DE INADIMPLENTES / A RECEBER
     // Traz tudo onde a Data de Pagamento está vazia (NULL)
