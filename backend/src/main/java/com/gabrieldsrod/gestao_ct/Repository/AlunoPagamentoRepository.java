@@ -3,10 +3,12 @@ package com.gabrieldsrod.gestao_ct.Repository;
 import com.gabrieldsrod.gestao_ct.Model.Aluno;
 import com.gabrieldsrod.gestao_ct.Model.AlunoPagamento;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Repository
 public interface AlunosPagamentoRepository extends JpaRepository<AlunoPagamento, Long> {
 
     // LISTA DE INADIMPLENTES / A RECEBER

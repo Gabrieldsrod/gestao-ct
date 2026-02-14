@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "alunos_pagamentos")
@@ -21,20 +21,16 @@ public class AlunoPagamento {
     private Aluno aluno;
 
     @Column(name = "data_vencimento", nullable = false)
-    private Date dataVencimento;
+    private LocalDate dataVencimento;
     @Column(name = "valor_cobrado",nullable = false , precision = 19, scale = 2)
     private BigDecimal valorCobrado;
 
     // Campos para controle de pagamento, preenchidos quando o pagamento for realizado
 
     @Column(name = "data_pagamento")
-    private Date dataPagamento;
+    private LocalDate dataPagamento;
     @Column(name = "valor_pago", precision = 19, scale = 2)
     private BigDecimal valorPago;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "metodo_pagamento", nullable = false)
-    private MetodoPagamento metodoPagamento;
 
     @OneToOne
     @JoinColumn(name = "transacao_id", unique = true)
