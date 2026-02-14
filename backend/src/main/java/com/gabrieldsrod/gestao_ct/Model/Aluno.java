@@ -2,37 +2,21 @@ package com.gabrieldsrod.gestao_ct.Model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "alunos")
 @Data
-public class Aluno {
+@EqualsAndHashCode(callSuper = true)
+public class Aluno extends DadosPessoais{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, length = 100)
-    private String nome;
-
-    @Column(nullable = false, length = 100)
-    private String email;
-
-    @Column(length = 20, nullable = false)
-    private String whatsapp;
-
-    @Column(nullable = false)
-    private LocalDate dataNascimento;
-
-    @Column(nullable = false)
+    @Column(name = "dia_preferencia_pagamento", nullable = false)
     private Integer diaPreferenciaPagamento;
 
     @Column(nullable = false)
     private Boolean ativo = true;
 
-    @Column(nullable = false)
-    private BigDecimal valorMensalidade;
+    @JoinColumn(name = "plano_id", nullable = false)
+    @ManyToOne
+    private Plano plano;
 }

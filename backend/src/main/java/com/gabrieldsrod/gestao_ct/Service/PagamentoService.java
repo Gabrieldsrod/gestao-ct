@@ -31,7 +31,7 @@ public class PagamentoService {
         AlunoPagamento pagamento = new AlunoPagamento();
         pagamento.setAluno(aluno);
         pagamento.setDataVencimento(dataVencimento);
-        pagamento.setValorCobrado(aluno.getValorMensalidade());
+        pagamento.setValorCobrado(aluno.getPlano().getValorMensalidade());
 
         pagamento.setDataPagamento(null); // Ainda não pago
         pagamento.setValorPago(null);
@@ -40,7 +40,7 @@ public class PagamentoService {
     }
 
     @Transactional
-    public AlunoPagamento registrarPagamento (Long pagamentoId, MetodoPagamento metodoPagamento) {
+    public AlunoPagamento registrarPagamento(Long pagamentoId, MetodoPagamento metodoPagamento) {
         AlunoPagamento pagamento = pagamentoRepo.findById(pagamentoId)
                 .orElseThrow(() -> new RuntimeException("Pagamento não encontrado"));
 
