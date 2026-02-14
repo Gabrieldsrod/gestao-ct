@@ -50,7 +50,7 @@ public class PagamentoService {
 
         Transacao entrada = new Transacao();
         entrada.setDescricao("Mensalidade - " + pagamento.getAluno().getNome());
-        entrada.setValor(pagamento.getValorPago());
+        entrada.setValor(pagamento.getValorCobrado());
         entrada.setMetodoPagamento(metodoPagamento);
         entrada.setTipo(TipoTransacao.RECEITA);
         entrada.setDataMovimento(LocalDate.now());
