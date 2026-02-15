@@ -1,6 +1,6 @@
-package com.gabrieldsrod.gestao_ct.repository;
+package com.gabrieldsrod.gestao_ct.Repository;
 
-import com.gabrieldsrod.gestao_ct.model.Plano;
+import com.gabrieldsrod.gestao_ct.Model.Plano;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

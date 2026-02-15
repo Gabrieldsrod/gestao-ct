@@ -1,15 +1,14 @@
 package com.gabrieldsrod.gestao_ct.Controller;
 
 import com.gabrieldsrod.gestao_ct.DTO.request.BaixaPagamentoDTO;
-
 import com.gabrieldsrod.gestao_ct.DTO.response.PagamentoPendenteDTO;
-import com.gabrieldsrod.gestao_ct.model.Aluno;
-import com.gabrieldsrod.gestao_ct.model.AlunoPagamento;
-import com.gabrieldsrod.gestao_ct.repository.AlunoPagamentoRepository;
-import com.gabrieldsrod.gestao_ct.repository.AlunoRepository;
-import com.gabrieldsrod.gestao_ct.repository.PlanoRepository;
-import com.gabrieldsrod.gestao_ct.service.PagamentoService;
-import com.gabrieldsrod.gestao_ct.utils.DateUtils;
+import com.gabrieldsrod.gestao_ct.Model.Aluno;
+import com.gabrieldsrod.gestao_ct.Model.AlunoPagamento;
+import com.gabrieldsrod.gestao_ct.Repository.AlunoPagamentoRepository;
+import com.gabrieldsrod.gestao_ct.Repository.AlunoRepository;
+import com.gabrieldsrod.gestao_ct.Repository.PlanoRepository;
+import com.gabrieldsrod.gestao_ct.Service.PagamentoService;
+import com.gabrieldsrod.gestao_ct.Utils.DateUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +40,7 @@ public class PagamentoController {
     @GetMapping("/teste")
     public ResponseEntity<?> teste() {
         return ResponseEntity.ok().body(Map.of(
-                "mensagem", "Endpoint de pagamentos funcionando corretamente, como deveria ser",
+                "mensagem", "Endpoint de pagamentos funcionando corretamente",
                 "status", "OK",
                 "timestamp", LocalDate.now()
         ));
@@ -91,7 +90,8 @@ public class PagamentoController {
                     .orElseThrow(() -> new RuntimeException("Plano não encontrado")));
 
             alunoRepository.save(aluno);
-            pagamentoRepo.save(pagamentoService.gerarCobranca(aluno, LocalDate.now().plusDays(30)));
+            LocalDate proximaDataVencimento = LocalDate.now().plusDays(30);
+            pagamentoRepo.save(pagamentoService.gerarCobranca(aluno, proximaDataVencimento));
 
             return ResponseEntity.ok().body(Map.of(
                     "mensagem", "Dados de teste gerados com sucesso",

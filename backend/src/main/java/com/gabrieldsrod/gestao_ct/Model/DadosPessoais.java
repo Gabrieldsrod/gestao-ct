@@ -1,4 +1,4 @@
-package com.gabrieldsrod.gestao_ct.model;
+package com.gabrieldsrod.gestao_ct.Model;
 
 import jakarta.persistence.*;
 import lombok.Data;

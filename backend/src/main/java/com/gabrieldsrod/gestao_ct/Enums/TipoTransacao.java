@@ -1,4 +1,4 @@
-package com.gabrieldsrod.gestao_ct.enums;
+package com.gabrieldsrod.gestao_ct.Enums;
 
 public enum TipoTransacao {
     RECEITA,

@@ -1,4 +1,4 @@
-package com.gabrieldsrod.gestao_ct.utils;
+package com.gabrieldsrod.gestao_ct.Utils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

@@ -1,7 +1,7 @@
-package com.gabrieldsrod.gestao_ct.repository;
+package com.gabrieldsrod.gestao_ct.Repository;
 
-import com.gabrieldsrod.gestao_ct.enums.TipoTransacao;
-import com.gabrieldsrod.gestao_ct.model.Categoria;
+import com.gabrieldsrod.gestao_ct.Enums.TipoTransacao;
+import com.gabrieldsrod.gestao_ct.Model.Categoria;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

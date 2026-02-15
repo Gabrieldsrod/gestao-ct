@@ -1,4 +1,4 @@
-package com.gabrieldsrod.gestao_ct.model;
+package com.gabrieldsrod.gestao_ct.Model;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -17,6 +17,6 @@ public class Plano {
     @Column(nullable = false, length = 50)
     private String nome;
 
-    @Column(name = "valor_mensalidade", nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valorMensalidade;
 }

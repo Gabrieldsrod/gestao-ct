@@ -1,7 +1,7 @@
-package com.gabrieldsrod.gestao_ct.model;
+package com.gabrieldsrod.gestao_ct.Model;
 
-import com.gabrieldsrod.gestao_ct.enums.MetodoPagamento;
-import com.gabrieldsrod.gestao_ct.enums.TipoTransacao;
+import com.gabrieldsrod.gestao_ct.Enums.MetodoPagamento;
+import com.gabrieldsrod.gestao_ct.Enums.TipoTransacao;
 import jakarta.persistence.*;
 import lombok.Data;
 

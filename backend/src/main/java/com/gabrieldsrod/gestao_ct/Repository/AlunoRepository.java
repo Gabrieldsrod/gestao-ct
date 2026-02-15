@@ -1,6 +1,6 @@
-package com.gabrieldsrod.gestao_ct.repository;
+package com.gabrieldsrod.gestao_ct.Repository;
 
-import com.gabrieldsrod.gestao_ct.model.Aluno;
+import com.gabrieldsrod.gestao_ct.Model.Aluno;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

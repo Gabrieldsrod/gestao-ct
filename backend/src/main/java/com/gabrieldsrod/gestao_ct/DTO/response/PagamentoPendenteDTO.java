@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class PagamentoPendenteDTO {
 
+    private Long pagamentoId;
     private Long alunoId;
     private String nomeAluno;
     private String emailAluno;

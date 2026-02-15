@@ -1,14 +1,14 @@
-package com.gabrieldsrod.gestao_ct.service;
+package com.gabrieldsrod.gestao_ct.Service;
 
-import com.gabrieldsrod.gestao_ct.enums.MetodoPagamento;
-import com.gabrieldsrod.gestao_ct.enums.TipoTransacao;
-import com.gabrieldsrod.gestao_ct.model.Aluno;
-import com.gabrieldsrod.gestao_ct.model.AlunoPagamento;
-import com.gabrieldsrod.gestao_ct.model.Categoria;
-import com.gabrieldsrod.gestao_ct.model.Transacao;
-import com.gabrieldsrod.gestao_ct.repository.AlunoPagamentoRepository;
-import com.gabrieldsrod.gestao_ct.repository.CategoriaRepository;
-import com.gabrieldsrod.gestao_ct.repository.TransacaoRepository;
+import com.gabrieldsrod.gestao_ct.Enums.MetodoPagamento;
+import com.gabrieldsrod.gestao_ct.Enums.TipoTransacao;
+import com.gabrieldsrod.gestao_ct.Model.Aluno;
+import com.gabrieldsrod.gestao_ct.Model.AlunoPagamento;
+import com.gabrieldsrod.gestao_ct.Model.Categoria;
+import com.gabrieldsrod.gestao_ct.Model.Transacao;
+import com.gabrieldsrod.gestao_ct.Repository.AlunoPagamentoRepository;
+import com.gabrieldsrod.gestao_ct.Repository.CategoriaRepository;
+import com.gabrieldsrod.gestao_ct.Repository.TransacaoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
