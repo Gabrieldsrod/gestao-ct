@@ -1,6 +1,5 @@
-package com.gabrieldsrod.gestao_ct.Model;
+package com.gabrieldsrod.gestao_ct.model;
 
-import com.gabrieldsrod.gestao_ct.Enums.MetodoPagamento;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,12 +20,11 @@ public class AlunoPagamento {
     private Aluno aluno;
 
     @Column(name = "data_vencimento", nullable = false)
-    private LocalDate dataVencimento;
+    private LocalDate dataVencimento;       // Data de vencimento da mensalidade
     @Column(name = "valor_cobrado",nullable = false , precision = 19, scale = 2)
     private BigDecimal valorCobrado;
 
     // Campos para controle de pagamento, preenchidos quando o pagamento for realizado
-
     @Column(name = "data_pagamento")
     private LocalDate dataPagamento;
     @Column(name = "valor_pago", precision = 19, scale = 2)

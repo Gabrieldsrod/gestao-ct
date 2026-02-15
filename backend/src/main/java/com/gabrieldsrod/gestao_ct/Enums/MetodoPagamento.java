@@ -1,4 +1,4 @@
-package com.gabrieldsrod.gestao_ct.Enums;
+package com.gabrieldsrod.gestao_ct.enums;
 
 public enum MetodoPagamento {
     PIX,

@@ -1,14 +1,14 @@
-package com.gabrieldsrod.gestao_ct.Service;
+package com.gabrieldsrod.gestao_ct.service;
 
-import com.gabrieldsrod.gestao_ct.Enums.MetodoPagamento;
-import com.gabrieldsrod.gestao_ct.Enums.TipoTransacao;
-import com.gabrieldsrod.gestao_ct.Model.Aluno;
-import com.gabrieldsrod.gestao_ct.Model.AlunoPagamento;
-import com.gabrieldsrod.gestao_ct.Model.Categoria;
-import com.gabrieldsrod.gestao_ct.Model.Transacao;
-import com.gabrieldsrod.gestao_ct.Repository.AlunoPagamentoRepository;
-import com.gabrieldsrod.gestao_ct.Repository.CategoriaRepository;
-import com.gabrieldsrod.gestao_ct.Repository.TransacaoRepository;
+import com.gabrieldsrod.gestao_ct.enums.MetodoPagamento;
+import com.gabrieldsrod.gestao_ct.enums.TipoTransacao;
+import com.gabrieldsrod.gestao_ct.model.Aluno;
+import com.gabrieldsrod.gestao_ct.model.AlunoPagamento;
+import com.gabrieldsrod.gestao_ct.model.Categoria;
+import com.gabrieldsrod.gestao_ct.model.Transacao;
+import com.gabrieldsrod.gestao_ct.repository.AlunoPagamentoRepository;
+import com.gabrieldsrod.gestao_ct.repository.CategoriaRepository;
+import com.gabrieldsrod.gestao_ct.repository.TransacaoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -28,12 +28,19 @@ public class PagamentoService {
     }
 
     public AlunoPagamento gerarCobranca(Aluno aluno, LocalDate dataVencimento) {
+        if (!aluno.getAtivo() || aluno.getPlano() == null) {
+            return null; // Ignora se o aluno está inativo ou sem plano
+        }
+
         AlunoPagamento pagamento = new AlunoPagamento();
         pagamento.setAluno(aluno);
-        pagamento.setDataVencimento(dataVencimento);
-        pagamento.setValorCobrado(aluno.getPlano().getValorMensalidade());
 
-        pagamento.setDataPagamento(null); // Ainda não pago
+        LocalDate proximoMes = dataVencimento.plusMonths(1).withDayOfMonth(1);
+        int diaVencimento = Math.min(aluno.getDiaPreferenciaPagamento(), proximoMes.lengthOfMonth());
+        pagamento.setDataVencimento(proximoMes.withDayOfMonth(diaVencimento));
+
+        pagamento.setValorCobrado(aluno.getPlano().getValorMensalidade());
+        pagamento.setDataPagamento(null);
         pagamento.setValorPago(null);
         pagamento.setTransacao(null);
         return pagamentoRepo.save(pagamento);
@@ -64,6 +71,8 @@ public class PagamentoService {
         pagamento.setDataPagamento(LocalDate.now());
         pagamento.setValorPago(pagamento.getValorCobrado());
         pagamento.setTransacao(entrada);
+
+        gerarCobranca(pagamento.getAluno(), pagamento.getDataVencimento());
 
         return pagamentoRepo.save(pagamento);
     }
