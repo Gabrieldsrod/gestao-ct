@@ -2,13 +2,13 @@ package com.gabrieldsrod.gestao_ct.Controller;
 
 import com.gabrieldsrod.gestao_ct.DTO.request.BaixaPagamentoDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PagamentoPendenteDTO;
+import com.gabrieldsrod.gestao_ct.DTO.response.ReciboPagamentoDTO;
 import com.gabrieldsrod.gestao_ct.Model.Aluno;
 import com.gabrieldsrod.gestao_ct.Model.AlunoPagamento;
 import com.gabrieldsrod.gestao_ct.Repository.AlunoPagamentoRepository;
 import com.gabrieldsrod.gestao_ct.Repository.AlunoRepository;
 import com.gabrieldsrod.gestao_ct.Repository.PlanoRepository;
 import com.gabrieldsrod.gestao_ct.Service.PagamentoService;
-import com.gabrieldsrod.gestao_ct.Utils.DateUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,32 +48,23 @@ public class PagamentoController {
 
     @GetMapping("/pendentes")
     public List<PagamentoPendenteDTO> listarPagamentosPendentes() {
-        List<AlunoPagamento> pagamentosPendentes = pagamentoRepo.findByDataPagamentoIsNull();
-        return pagamentosPendentes.stream().map(p -> {
-            PagamentoPendenteDTO dto = new PagamentoPendenteDTO();
-            dto.setPagamentoId(p.getId());
-            dto.setAlunoId(p.getAluno().getId());
-            dto.setNomeAluno(p.getAluno().getNome());
-            dto.setEmailAluno(p.getAluno().getEmail());
-            dto.setTelefoneAluno(p.getAluno().getWhatsapp());
-            dto.setNomePlano(p.getAluno().getPlano().getNome());
-            dto.setDiaPreferenciaPagamento(p.getAluno().getDiaPreferenciaPagamento());
-            dto.setDataVencimento(p.getDataVencimento().format(DateUtils.BR_FORMATTER));
-            dto.setValorCobrado(String.format("R$ %.2f", p.getValorCobrado()));
-            return dto;
-        }).toList();
+        return pagamentoRepo.findByDataPagamentoIsNull()
+                .stream()
+                .map(PagamentoPendenteDTO::fromEntity)
+                .toList();
     }
 
 
     @PostMapping("/{id}/registrar")
     public ResponseEntity<?> registrarPagamento(@PathVariable Long id, @RequestBody BaixaPagamentoDTO metodoPagamento) {
-        try {
-            AlunoPagamento pagamentoRegistrado = pagamentoService.registrarPagamento(id,
+        AlunoPagamento pagamentoRegistrado = pagamentoService.registrarPagamento(id,
                     metodoPagamento.getMetodoPagamento());
-            return ResponseEntity.ok(pagamentoRegistrado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        ReciboPagamentoDTO recibo = new ReciboPagamentoDTO(
+                    pagamentoRegistrado.getId(),
+                    pagamentoRegistrado.getAluno().getNome(),
+                    "PAGO");
+
+        return ResponseEntity.ok(recibo);
     }
 
     @PostMapping("/gerar-teste")
@@ -86,7 +77,7 @@ public class PagamentoController {
             aluno.setDataNascimento(LocalDate.of(2000, 1, 1));
             aluno.setDiaPreferenciaPagamento(5);
             aluno.setAtivo(true);
-            aluno.setPlano(planoRepo.findByNome("Plano 1")
+            aluno.setPlano(planoRepo.findByNome("Plano Básico")
                     .orElseThrow(() -> new RuntimeException("Plano não encontrado")));
 
             alunoRepository.save(aluno);
