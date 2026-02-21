@@ -4,6 +4,8 @@ import com.gabrieldsrod.gestao_ct.Model.AlunoPagamento;
 import com.gabrieldsrod.gestao_ct.Utils.DateUtils;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class PagamentoPendenteDTO {
 
@@ -15,7 +17,7 @@ public class PagamentoPendenteDTO {
     private String nomePlano;
     private Integer diaPreferenciaPagamento;
     private String dataVencimento; // Formato "dd/MM/yyyy"
-    private String valorCobrado;   // Formato "R$ 100,00"
+    private BigDecimal valorCobrado;
 
     public static PagamentoPendenteDTO fromEntity(AlunoPagamento pagamento){
         PagamentoPendenteDTO dto = new PagamentoPendenteDTO();
@@ -26,8 +28,8 @@ public class PagamentoPendenteDTO {
         dto.setTelefoneAluno(pagamento.getAluno().getWhatsapp());
         dto.setNomePlano(pagamento.getAluno().getPlano().getNome());
         dto.setDiaPreferenciaPagamento(pagamento.getAluno().getDiaPreferenciaPagamento());
-        dto.setDataVencimento(pagamento.getDataVencimento().format(DateUtils.BR_FORMATTER));
-        dto.setValorCobrado(String.format("R$ %.2f", pagamento.getValorCobrado()));
+        dto.setDataVencimento(pagamento.getDataVencimento().format(DateUtils.BR_FORMATTER));    // Formata a data para "dd/MM/yyyy"
+        dto.setValorCobrado(pagamento.getValorCobrado());
         return dto;
     }
 }
