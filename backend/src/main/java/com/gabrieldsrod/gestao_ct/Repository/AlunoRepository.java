@@ -16,6 +16,9 @@ public interface AlunoRepository extends JpaRepository<Aluno, Long> {
     // Para buscar alunos pelo nome (parcial, ignore case)
     List<Aluno> findByNomeContainingIgnoreCase(String nome);
 
+    // Para listar apenas os alunos ativos
+    List<Aluno> findByAtivoTrue();
+
     // Para listar quem prefere pagar no dia X
     List<Aluno> findByDiaPreferenciaPagamento(Integer dia);
 }
