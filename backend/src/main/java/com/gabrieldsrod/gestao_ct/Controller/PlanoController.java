@@ -1,7 +1,6 @@
 package com.gabrieldsrod.gestao_ct.Controller;
 
 import com.gabrieldsrod.gestao_ct.DTO.response.PlanoDTO;
-import com.gabrieldsrod.gestao_ct.Model.Plano;
 import com.gabrieldsrod.gestao_ct.Repository.PlanoRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -37,15 +37,6 @@ public class PagamentoController {
         this.alunoRepository = alunoRepository;
     }
 
-    @GetMapping("/teste")
-    public ResponseEntity<?> teste() {
-        return ResponseEntity.ok().body(Map.of(
-                "mensagem", "Endpoint de pagamentos funcionando corretamente",
-                "status", "OK",
-                "timestamp", LocalDate.now()
-        ));
-    }
-
     @GetMapping("/pendentes")
     public List<PagamentoPendenteDTO> listarPagamentosPendentes() {
         return pagamentoRepo.findByDataPagamentoIsNull()
