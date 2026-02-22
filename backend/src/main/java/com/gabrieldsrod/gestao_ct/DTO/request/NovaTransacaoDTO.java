@@ -4,7 +4,6 @@ import com.gabrieldsrod.gestao_ct.Enums.MetodoPagamento;
 import com.gabrieldsrod.gestao_ct.Enums.TipoTransacao;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 public record NovaTransacaoDTO(
         String descricao,

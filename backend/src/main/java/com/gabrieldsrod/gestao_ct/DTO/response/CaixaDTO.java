@@ -1,7 +1,5 @@
 package com.gabrieldsrod.gestao_ct.DTO.response;
 
-import com.gabrieldsrod.gestao_ct.Model.Transacao;
-
 import java.math.BigDecimal;
 import java.util.List;
 

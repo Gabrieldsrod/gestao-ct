@@ -1,6 +1,5 @@
 package com.gabrieldsrod.gestao_ct.DTO.response;
 
-import com.gabrieldsrod.gestao_ct.Enums.TipoTransacao;
 import com.gabrieldsrod.gestao_ct.Model.Transacao;
 import com.gabrieldsrod.gestao_ct.Utils.DateUtils;
 
