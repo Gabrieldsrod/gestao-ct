@@ -20,5 +20,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findByActiveTrue();
 
     // Para listar quem prefere pagar no dia X
-    List<Member> findByPreferencePaymentDate(Integer day);
+    List<Member> findByPreferredPaymentDate(Integer day);
 }
