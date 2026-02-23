@@ -5,7 +5,7 @@ import com.gabrieldsrod.gestao_ct.Utils.DateUtils;
 
 import java.math.BigDecimal;
 
-public record TransactionDTO(
+public record TransactionResponseDTO(
         Long id,
         String description,
         String category,
@@ -14,7 +14,7 @@ public record TransactionDTO(
         String transactionDate,
         BigDecimal amount
 ) {
-    public TransactionDTO(Transaction transaction) {
+    public TransactionResponseDTO(Transaction transaction) {
         this(transaction.getId(),
                 transaction.getDescription(),
                 transaction.getCategory().getName(),

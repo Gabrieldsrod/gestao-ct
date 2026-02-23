@@ -4,12 +4,12 @@ import com.gabrieldsrod.gestao_ct.Model.Plan;
 
 import java.math.BigDecimal;
 
-public record PlanDTO(
+public record PlanResponseDTO(
         Long id,
         String name,
         BigDecimal price
 ) {
-    public PlanDTO(Plan plan) {
+    public PlanResponseDTO(Plan plan) {
         this(plan.getId(), plan.getName(), plan.getPrice());
     }
 }

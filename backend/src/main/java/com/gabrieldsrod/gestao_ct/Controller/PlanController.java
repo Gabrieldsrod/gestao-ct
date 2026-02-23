@@ -1,6 +1,6 @@
 package com.gabrieldsrod.gestao_ct.Controller;
 
-import com.gabrieldsrod.gestao_ct.DTO.response.PlanDTO;
+import com.gabrieldsrod.gestao_ct.DTO.response.PlanResponseDTO;
 import com.gabrieldsrod.gestao_ct.Repository.PlanRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,9 +19,9 @@ public class PlanController {
     }
 
     @GetMapping
-    public List<PlanDTO> getAllPlanos() {
+    public List<PlanResponseDTO> getAllPlanos() {
         return planRepo.findAll().stream()
-                                .map(PlanDTO::new)
+                                .map(PlanResponseDTO::new)
                                 .toList();
     }
 }

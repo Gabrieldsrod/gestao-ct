@@ -2,7 +2,7 @@ package com.gabrieldsrod.gestao_ct.Controller;
 
 import com.gabrieldsrod.gestao_ct.DTO.request.NewTransactionDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.CashFlowDTO;
-import com.gabrieldsrod.gestao_ct.DTO.response.TransactionDTO;
+import com.gabrieldsrod.gestao_ct.DTO.response.TransactionResponseDTO;
 import com.gabrieldsrod.gestao_ct.Enums.TransactionType;
 import com.gabrieldsrod.gestao_ct.Model.Category;
 import com.gabrieldsrod.gestao_ct.Model.Transaction;
@@ -53,10 +53,10 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionDTO>> listarTransacoes() {
+    public ResponseEntity<List<TransactionResponseDTO>> listarTransacoes() {
         try {
-            List<TransactionDTO> transacoes = transactionRepo.findAllByOrderByTransactionDateDesc().stream()
-                    .map(TransactionDTO::new)
+            List<TransactionResponseDTO> transacoes = transactionRepo.findAllByOrderByTransactionDateDesc().stream()
+                    .map(TransactionResponseDTO::new)
                     .toList();
             return ResponseEntity.ok(transacoes);
         }
@@ -82,8 +82,8 @@ public class TransactionController {
 
         BigDecimal saldoFinal = totalEntradas.subtract(totalSaidas);
 
-        List<TransactionDTO> listaTransacoesDto = transacoes.stream()
-                .map(TransactionDTO::new)
+        List<TransactionResponseDTO> listaTransacoesDto = transacoes.stream()
+                .map(TransactionResponseDTO::new)
                 .toList();
 
         CashFlowDTO resumo = new CashFlowDTO(totalEntradas, totalSaidas, saldoFinal, listaTransacoesDto);

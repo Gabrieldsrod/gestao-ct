@@ -7,6 +7,6 @@ public record CashFlowDTO(
         BigDecimal totalIncome,
         BigDecimal totalExpenses,
         BigDecimal netBalance,
-        List<TransactionDTO> lastTransactions
+        List<TransactionResponseDTO> lastTransactions
 ) {
 }
