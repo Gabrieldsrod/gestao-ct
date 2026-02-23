@@ -8,15 +8,15 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "planos")
 @Data
-public class Plano {
+public class Plan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 50)
-    private String nome;
+    private String name;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal valorMensalidade;
+    private BigDecimal price;
 }

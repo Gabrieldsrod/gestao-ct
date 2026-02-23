@@ -7,13 +7,13 @@ import java.time.LocalDate;
 
 @MappedSuperclass
 @Data
-public abstract class DadosPessoais {
+public abstract class PersonalData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 100)
-    private String nome;
+    private String name;
 
     @Column(nullable = false, length = 100)
     private String email;
@@ -22,5 +22,5 @@ public abstract class DadosPessoais {
     private String whatsapp;
 
     @Column(nullable = false)
-    private LocalDate dataNascimento;
+    private LocalDate birthDate;
 }

@@ -9,11 +9,11 @@ import java.time.LocalDate;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/v1/api/teste")
-public class TesteController {
+@RequestMapping("/v1/api/test")
+public class TestController {
 
     @GetMapping
-    public ResponseEntity<?> teste() {
+    public ResponseEntity<?> test() {
         return ResponseEntity.ok().body(Map.of(
                 "mensagem", "Endpoint de teste funcionando corretamente",
                 "status", "OK",

@@ -1,13 +1,13 @@
 package com.gabrieldsrod.gestao_ct.Repository;
 
-import com.gabrieldsrod.gestao_ct.Model.Plano;
+import com.gabrieldsrod.gestao_ct.Model.Plan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface PlanoRepository extends JpaRepository<Plano, Long> {
+public interface PlanRepository extends JpaRepository<Plan, Long> {
 
-    Optional<Plano> findByNome(String nome);
+    Optional<Plan> findByName(String name);
 }

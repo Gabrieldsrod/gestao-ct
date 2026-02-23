@@ -1,7 +1,7 @@
 package com.gabrieldsrod.gestao_ct.DTO.response;
 
-public record ReciboPagamentoDTO(
+public record PaymentReceiptDTO(
         Long id,
-        String nome,
+        String name,
         String status
 ) {}
