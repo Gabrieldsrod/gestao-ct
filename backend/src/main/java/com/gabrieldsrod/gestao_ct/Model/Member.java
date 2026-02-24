@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class Member extends PersonalData {
 
-    @Column(name = "preference_payment_day", nullable = false)
+    @Column(name = "preferred_payment_day", nullable = false)
     private Integer preferredPaymentDay;
 
     @Column(nullable = false)
