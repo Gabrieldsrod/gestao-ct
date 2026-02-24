@@ -35,14 +35,13 @@ public class PaymentService {
         MemberPayment pagamento = new MemberPayment();
         pagamento.setMember(member);
 
-        LocalDate proximoMes = dataVencimento.plusMonths(1).withDayOfMonth(1);
-        int diaVencimento = Math.min(member.getPreferredPaymentDay(), proximoMes.lengthOfMonth());
-        pagamento.setDueDate(proximoMes.withDayOfMonth(diaVencimento));
+        pagamento.setDueDate(dataVencimento);
 
         pagamento.setAmountCharged(member.getPlan().getPrice());
         pagamento.setPaymentDate(null);
         pagamento.setAmountPaid(null);
         pagamento.setTransaction(null);
+
         return pagamentoRepo.save(pagamento);
     }
 
