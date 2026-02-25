@@ -1,7 +1,7 @@
 package com.gabrieldsrod.gestao_ct.Controller;
 
 import com.gabrieldsrod.gestao_ct.DTO.response.PlanResponseDTO;
-import com.gabrieldsrod.gestao_ct.Repository.PlanRepository;
+import com.gabrieldsrod.gestao_ct.Service.PlanService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,15 +14,14 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class PlanController {
 
-    private final PlanRepository planRepo;
+    private final PlanService planService;
 
-    public PlanController(PlanRepository planRepo) {
-        this.planRepo = planRepo;
+    public PlanController(PlanService planService) {
+        this.planService = planService;
     }
 
     @GetMapping
-    public List<PlanResponseDTO> getAllPlanos() {
-        return planRepo.findAll().stream()
-                .map(PlanResponseDTO::new).toList();
+    public List<PlanResponseDTO> getAllPlans() {
+        return planService.getAll();
     }
 }
