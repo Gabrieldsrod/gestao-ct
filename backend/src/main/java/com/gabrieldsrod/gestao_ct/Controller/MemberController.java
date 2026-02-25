@@ -54,7 +54,7 @@ public class MemberController {
         return ResponseEntity.ok(activeMembers);
     }
 
-    @GetMapping
+    @GetMapping("/search")
     public ResponseEntity<List<MemberResponseDTO>> searchMembersByName(@RequestParam(name = "nome") String partialName) {
         return ResponseEntity.ok(memberService.searchByPartialName(partialName));
     }
