@@ -2,6 +2,8 @@ package com.gabrieldsrod.gestao_ct.Repository;
 
 import com.gabrieldsrod.gestao_ct.Enums.TransactionType;
 import com.gabrieldsrod.gestao_ct.Model.Transaction;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +14,8 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     List<Transaction> findByTransactionDateBetween(LocalDate start, LocalDate end);
+
+    Page<Transaction> findByTransactionDateBetween(LocalDate start, LocalDate end, Pageable pageable);
 
     List<Transaction> findByType(TransactionType tipo);
 

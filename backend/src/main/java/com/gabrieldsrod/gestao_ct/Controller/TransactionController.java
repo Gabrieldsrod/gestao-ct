@@ -8,6 +8,8 @@ import com.gabrieldsrod.gestao_ct.Model.Category;
 import com.gabrieldsrod.gestao_ct.Model.Transaction;
 import com.gabrieldsrod.gestao_ct.Repository.CategoryRepository;
 import com.gabrieldsrod.gestao_ct.Repository.TransactionRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,20 +56,24 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionResponseDTO>> listarTransacoes() {
-        try {
-            List<TransactionResponseDTO> transacoes = transactionRepo.findAllByOrderByTransactionDateDesc().stream()
-                    .map(TransactionResponseDTO::new)
-                    .toList();
-            return ResponseEntity.ok(transacoes);
-        }
-        catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
-        }
+    public ResponseEntity<Page<TransactionResponseDTO>> listTransactions(
+            @RequestParam int month,
+            @RequestParam int year,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+
+        Page<TransactionResponseDTO> transactionsPageDto = transactionRepo.findByTransactionDateBetween(start, end, pageable).map(TransactionResponseDTO::new);
+
+        return ResponseEntity.ok(transactionsPageDto);
     }
 
     @GetMapping("/caixa")
-    public ResponseEntity<?> obterResumoCaixa() {
+    public ResponseEntity<?> cashFlowResume() {
 
         List<Transaction> transacoes = transactionRepo.findAll();
 

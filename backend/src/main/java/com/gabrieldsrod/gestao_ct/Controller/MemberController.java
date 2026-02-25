@@ -6,6 +6,8 @@ import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Model.Plan;
 import com.gabrieldsrod.gestao_ct.Repository.MemberRepository;
 import com.gabrieldsrod.gestao_ct.Repository.PlanRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,8 +54,12 @@ public class MemberController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MemberListingDTO>> listMembers() {
-        return ResponseEntity.ok(memberRepo.findAll().stream().map(MemberListingDTO::new).toList());
+    public ResponseEntity<Page<MemberListingDTO>> listMembers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+        Page<MemberListingDTO> membersPageDto = memberRepo.findAll(pageable).map(MemberListingDTO::new);
+        return ResponseEntity.ok(membersPageDto);
     }
 
     @GetMapping("/search/{id}")
@@ -65,8 +71,11 @@ public class MemberController {
     }
 
     @GetMapping("/search/active")
-    public ResponseEntity<List<MemberListingDTO>> listActiveMembers() {
-        List<MemberListingDTO> alunosAtivos = memberRepo.findByActiveTrue().stream().map(MemberListingDTO::new).toList();
+    public ResponseEntity<Page<MemberListingDTO>> listActiveMembers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+        Page<MemberListingDTO> alunosAtivos = memberRepo.findByActiveTrue(pageable).map(MemberListingDTO::new);
         return ResponseEntity.ok(alunosAtivos);
     }
 
