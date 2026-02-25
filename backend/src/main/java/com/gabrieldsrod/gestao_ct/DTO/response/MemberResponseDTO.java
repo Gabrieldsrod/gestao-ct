@@ -2,7 +2,7 @@ package com.gabrieldsrod.gestao_ct.DTO.response;
 
 import com.gabrieldsrod.gestao_ct.Model.Member;
 
-public record MemberListingDTO(
+public record MemberResponseDTO(
         Long id,
         String nome,
         String whatsapp,
@@ -10,7 +10,7 @@ public record MemberListingDTO(
         String nomePlano,
         Boolean status
 ) {
-    public MemberListingDTO(Member member) {
+    public MemberResponseDTO(Member member) {
         this(member.getId(), member.getName(), member.getWhatsapp(), member.getEmail(), member.getPlan().getName(),
                 member.getActive());
     }

@@ -13,6 +13,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Member findByEmail(String email);
 
+    Boolean existsByEmail(String email);
+
     Member findByWhatsapp(String whatsapp);
 
     // Para buscar alunos pelo nome (parcial, ignore case)
