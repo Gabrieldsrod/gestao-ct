@@ -1,5 +1,7 @@
 package com.gabrieldsrod.gestao_ct.Service;
 
+import com.gabrieldsrod.gestao_ct.DTO.response.PaymentReceiptDTO;
+import com.gabrieldsrod.gestao_ct.DTO.response.PendingPaymentDTO;
 import com.gabrieldsrod.gestao_ct.Enums.PaymentMethod;
 import com.gabrieldsrod.gestao_ct.Enums.TransactionType;
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.BusinessRuleException;
@@ -15,6 +17,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class PaymentService {
@@ -29,11 +32,15 @@ public class PaymentService {
         this.categoriaRepo = categoriaRepo;
     }
 
-    public MemberPayment generateCharge(Member member, LocalDate dataVencimento) {
-        if (!member.getActive() || member.getPlan() == null) {
-            return null; // Ignora se o aluno está inativo ou sem plano
-        }
+    public List<PendingPaymentDTO> listPending() {
+        return pagamentoRepo.findByPaymentDateIsNull()
+                .stream()
+                .map(PendingPaymentDTO::fromEntity)
+                .toList();
+    }
 
+    @Transactional
+    public void generateCharge(Member member, LocalDate dataVencimento) {
         MemberPayment pagamento = new MemberPayment();
         pagamento.setMember(member);
 
@@ -44,11 +51,11 @@ public class PaymentService {
         pagamento.setAmountPaid(null);
         pagamento.setTransaction(null);
 
-        return pagamentoRepo.save(pagamento);
+        pagamentoRepo.save(pagamento);
     }
 
     @Transactional
-    public MemberPayment registerPayment(Long pagamentoId, PaymentMethod paymentMethod) {
+    public PaymentReceiptDTO register(Long pagamentoId, PaymentMethod paymentMethod) {
         MemberPayment pagamento = pagamentoRepo.findById(pagamentoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado"));
 
@@ -73,8 +80,12 @@ public class PaymentService {
         pagamento.setAmountPaid(pagamento.getAmountCharged());
         pagamento.setTransaction(entrada);
 
-        generateCharge(pagamento.getMember(), pagamento.getDueDate());
+        pagamento = pagamentoRepo.save(pagamento);
 
-        return pagamentoRepo.save(pagamento);
+        return new PaymentReceiptDTO(
+                pagamento.getId(),
+                pagamento.getMember().getName(),
+                "PAGO"
+        );
     }
 }
