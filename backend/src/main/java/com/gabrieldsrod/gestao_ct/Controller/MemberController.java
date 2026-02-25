@@ -86,4 +86,48 @@ public class MemberController {
         return ResponseEntity.ok(alunos);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateMember(@PathVariable Long id, @RequestBody MemberRegistrationDTO data) {
+
+        Member member = memberRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado com ID: " + id));
+
+        Plan plan = planoRepo.findById(data.getPlanId())
+                .orElseThrow(() -> new RuntimeException("Plano não encontrado com ID: " + data.getPlanId()));
+
+        member.setName(data.getName());
+        member.setEmail(data.getEmail());
+        member.setPreferredPaymentDay(data.getPreferredPaymentDay());
+        member.setWhatsapp(data.getWhatsapp());
+        member.setBirthDate(data.getBirthDate());
+        member.setPlan(plan);
+
+        memberRepo.save(member);
+
+        return ResponseEntity.ok().body(Map.of(
+                "mensagem", "Aluno atualizado com sucesso",
+                "alunoId", member.getId()));
+    }
+
+    @PatchMapping("/{id}/inactivate")
+    public ResponseEntity<?> inactivateMember(@PathVariable Long id) {
+        Member member = memberRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado com ID: " + id));
+        member.setActive(false);
+        memberRepo.save(member);
+        return ResponseEntity.ok().body(Map.of(
+                "mensagem", "Aluno inativado com sucesso. Ele não receberá novas cobranças. ",
+                "alunoId", member.getId()));
+    }
+
+     @PatchMapping("/{id}/activate")
+    public ResponseEntity<?> activateMember(@PathVariable Long id) {
+     Member member = memberRepo.findById(id)
+             .orElseThrow(() -> new RuntimeException("Aluno não encontrado com ID: " + id));
+     member.setActive(true);
+     memberRepo.save(member);
+     return ResponseEntity.ok().body(Map.of(
+             "mensagem", "Aluno ativado com sucesso. Ele passará a receber cobranças normalmente. ",
+             "alunoId", member.getId()));
+    }
 }
