@@ -5,9 +5,6 @@ import com.gabrieldsrod.gestao_ct.DTO.response.CategoryResponseDTO;
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.BusinessRuleException;
 import com.gabrieldsrod.gestao_ct.Model.Category;
 import com.gabrieldsrod.gestao_ct.Repository.CategoryRepository;
-import com.gabrieldsrod.gestao_ct.Repository.MemberPaymentRepository;
-import com.gabrieldsrod.gestao_ct.Repository.TransactionRepository;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,13 +13,9 @@ import java.util.List;
 @Service
 public class CategoryService {
 
-    private final MemberPaymentRepository pagamentoRepo;
-    private final TransactionRepository transacaoRepo;
     private final CategoryRepository categoryRepo;
 
-    public CategoryService(MemberPaymentRepository pagamentoRepo, TransactionRepository transacaoRepo, CategoryRepository categoriaRepo) {
-        this.pagamentoRepo = pagamentoRepo;
-        this.transacaoRepo = transacaoRepo;
+    public CategoryService(CategoryRepository categoriaRepo) {
         this.categoryRepo = categoriaRepo;
     }
 
