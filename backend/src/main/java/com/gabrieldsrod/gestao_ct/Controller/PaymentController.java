@@ -3,6 +3,7 @@ package com.gabrieldsrod.gestao_ct.Controller;
 import com.gabrieldsrod.gestao_ct.DTO.request.PaymentClearenceDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PendingPaymentDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PaymentReceiptDTO;
+import com.gabrieldsrod.gestao_ct.Infra.Exceptions.ResourceNotFoundException;
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Model.MemberPayment;
 import com.gabrieldsrod.gestao_ct.Repository.MemberPaymentRepository;
@@ -69,7 +70,7 @@ public class PaymentController {
             member.setPreferredPaymentDay(5);
             member.setActive(true);
             member.setPlan(planoRepo.findByName("Plano Básico")
-                    .orElseThrow(() -> new RuntimeException("Plano não encontrado")));
+                    .orElseThrow(() -> new ResourceNotFoundException("Plano não encontrado")));
 
             alunoRepository.save(member);
             LocalDate proximaDataVencimento = LocalDate.now().plusDays(30);

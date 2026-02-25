@@ -4,6 +4,7 @@ import com.gabrieldsrod.gestao_ct.DTO.request.NewTransactionDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.CashFlowDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.TransactionResponseDTO;
 import com.gabrieldsrod.gestao_ct.Enums.TransactionType;
+import com.gabrieldsrod.gestao_ct.Infra.Exceptions.ResourceNotFoundException;
 import com.gabrieldsrod.gestao_ct.Model.Category;
 import com.gabrieldsrod.gestao_ct.Model.Transaction;
 import com.gabrieldsrod.gestao_ct.Repository.CategoryRepository;
@@ -35,7 +36,7 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<?> createTransaction(@RequestBody NewTransactionDTO dados) {
         Category category = categoryRepo.findById(dados.categoryId())
-                .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
 
         Transaction newTransaction = new Transaction();
         newTransaction.setDescription(dados.description());

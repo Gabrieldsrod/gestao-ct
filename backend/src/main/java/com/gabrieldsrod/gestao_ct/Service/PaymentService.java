@@ -2,6 +2,8 @@ package com.gabrieldsrod.gestao_ct.Service;
 
 import com.gabrieldsrod.gestao_ct.Enums.PaymentMethod;
 import com.gabrieldsrod.gestao_ct.Enums.TransactionType;
+import com.gabrieldsrod.gestao_ct.Infra.Exceptions.BusinessRuleException;
+import com.gabrieldsrod.gestao_ct.Infra.Exceptions.ResourceNotFoundException;
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Model.MemberPayment;
 import com.gabrieldsrod.gestao_ct.Model.Category;
@@ -48,10 +50,10 @@ public class PaymentService {
     @Transactional
     public MemberPayment registerPayment(Long pagamentoId, PaymentMethod paymentMethod) {
         MemberPayment pagamento = pagamentoRepo.findById(pagamentoId)
-                .orElseThrow(() -> new RuntimeException("Pagamento não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado"));
 
         if (pagamento.getPaymentDate() != null) {
-            throw new RuntimeException("Pagamento já registrado");
+            throw new BusinessRuleException("Pagamento já registrado");
         }
 
         Transaction entrada = new Transaction();
@@ -62,7 +64,7 @@ public class PaymentService {
         entrada.setTransactionDate(LocalDate.now());
 
         Category category = categoriaRepo.findByName("Mensalidade")
-                .orElseThrow(() -> new RuntimeException("Categoria 'Mensalidade' não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria 'Mensalidade' não encontrada"));
         entrada.setCategory(category);
 
         transacaoRepo.save(entrada);

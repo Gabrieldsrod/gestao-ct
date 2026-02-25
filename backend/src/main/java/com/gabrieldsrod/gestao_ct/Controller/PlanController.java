@@ -23,7 +23,6 @@ public class PlanController {
     @GetMapping
     public List<PlanResponseDTO> getAllPlanos() {
         return planRepo.findAll().stream()
-                                .map(PlanResponseDTO::new)
-                                .toList();
+                .map(PlanResponseDTO::new).toList();
     }
 }

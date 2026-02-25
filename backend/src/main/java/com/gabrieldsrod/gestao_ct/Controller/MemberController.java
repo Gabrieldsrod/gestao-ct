@@ -2,6 +2,7 @@ package com.gabrieldsrod.gestao_ct.Controller;
 
 import com.gabrieldsrod.gestao_ct.DTO.request.MemberRegistrationDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberListingDTO;
+import com.gabrieldsrod.gestao_ct.Infra.Exceptions.ResourceNotFoundException;
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Model.Plan;
 import com.gabrieldsrod.gestao_ct.Repository.MemberRepository;
@@ -31,7 +32,7 @@ public class MemberController {
     @PostMapping("/register")
     public ResponseEntity<?> registerMember(@RequestBody MemberRegistrationDTO dados) {
         try {
-            Plan plan = planoRepo.findById(dados.getPlanId()).orElseThrow(() -> new RuntimeException("Plano não " +
+            Plan plan = planoRepo.findById(dados.getPlanId()).orElseThrow(() -> new ResourceNotFoundException("Plano não " +
                     "encontrado com ID: " + dados.getPlanId()));
 
             Member newMember = new Member();
@@ -65,7 +66,7 @@ public class MemberController {
     @GetMapping("/search/{id}")
     public ResponseEntity<MemberListingDTO> getMemberById(@PathVariable Long id) {
         Member member =
-                memberRepo.findById(id).orElseThrow(() -> new RuntimeException("Aluno não encontrado com ID: " + id));
+                memberRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + id));
 
         return ResponseEntity.ok(new MemberListingDTO(member));
     }
@@ -90,10 +91,10 @@ public class MemberController {
     public ResponseEntity<?> updateMember(@PathVariable Long id, @RequestBody MemberRegistrationDTO data) {
 
         Member member = memberRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Aluno não encontrado com ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + id));
 
         Plan plan = planoRepo.findById(data.getPlanId())
-                .orElseThrow(() -> new RuntimeException("Plano não encontrado com ID: " + data.getPlanId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Plano não encontrado com ID: " + data.getPlanId()));
 
         member.setName(data.getName());
         member.setEmail(data.getEmail());
@@ -112,7 +113,7 @@ public class MemberController {
     @PatchMapping("/{id}/inactivate")
     public ResponseEntity<?> inactivateMember(@PathVariable Long id) {
         Member member = memberRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Aluno não encontrado com ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + id));
         member.setActive(false);
         memberRepo.save(member);
         return ResponseEntity.ok().body(Map.of(
@@ -123,7 +124,7 @@ public class MemberController {
      @PatchMapping("/{id}/activate")
     public ResponseEntity<?> activateMember(@PathVariable Long id) {
      Member member = memberRepo.findById(id)
-             .orElseThrow(() -> new RuntimeException("Aluno não encontrado com ID: " + id));
+             .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + id));
      member.setActive(true);
      memberRepo.save(member);
      return ResponseEntity.ok().body(Map.of(

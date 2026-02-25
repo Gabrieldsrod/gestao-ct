@@ -2,7 +2,6 @@ package com.gabrieldsrod.gestao_ct.Infra;
 
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.BusinessRuleException;
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.ResourceNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
