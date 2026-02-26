@@ -25,5 +25,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Page<Member> findByActiveTrue(Pageable pageable);
 
+    List<Member> findByActiveTrueAndHolderIsNull();
+
     Page<Member> findByNameContainingIgnoreCase(String name, Pageable pageable);
 }

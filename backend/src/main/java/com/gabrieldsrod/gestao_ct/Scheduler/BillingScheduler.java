@@ -33,7 +33,7 @@ public class BillingScheduler {
         int currentMonth = today.getMonthValue();
         int currentYear = today.getYear();
 
-        List<Member> activeMembers = memberRepo.findByActiveTrue();
+        List<Member> activeMembers = memberRepo.findByActiveTrueAndHolderIsNull();
 
         for (Member member : activeMembers) {
             boolean alreadyCharged = memberPaymentRepo.existsByMemberAndMonthAndYear(member, currentMonth, currentYear);

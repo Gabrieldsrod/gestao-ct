@@ -19,4 +19,8 @@ public class Member extends PersonalData {
     @JoinColumn(name = "plan_id", nullable = false)
     @ManyToOne
     private Plan plan;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "titular_id")
+    private Member holder;
 }
