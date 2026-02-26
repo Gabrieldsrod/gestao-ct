@@ -31,12 +31,12 @@ public class TransactionController {
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(transactionService.list(month, year, pageable));
+        return ResponseEntity.ok(transactionService.listTransactions(month, year, pageable));
     }
 
     @PostMapping
     public ResponseEntity<TransactionResponseDTO> createTransaction(@RequestBody NewTransactionDTO dados) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.create(dados));
+        return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.createTransaction(dados));
     }
 
     @GetMapping("/cashflow")

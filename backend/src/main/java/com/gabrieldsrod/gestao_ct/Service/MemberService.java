@@ -7,7 +7,6 @@ import com.gabrieldsrod.gestao_ct.Infra.Exceptions.ResourceNotFoundException;
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Model.Plan;
 import com.gabrieldsrod.gestao_ct.Repository.MemberRepository;
-import com.gabrieldsrod.gestao_ct.Repository.PlanRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,17 +19,16 @@ public class MemberService {
 
     private final MemberRepository memberRepo;
 
-    private final PlanRepository planRepo;
+    private final PlanService planService;
 
-    public MemberService(MemberRepository memberRepo, PlanRepository planoRepo) {
+    public MemberService(MemberRepository memberRepo, PlanService planService) {
         this.memberRepo = memberRepo;
-        this.planRepo = planoRepo;
+        this.planService = planService;
     }
 
     @Transactional
     public MemberResponseDTO register(MemberRegistrationDTO data) {
-        Plan plan = planRepo.findById(data.getPlanId())
-                .orElseThrow(() -> new ResourceNotFoundException("Plano não encontrado com ID: " + data.getPlanId()));
+        Plan plan = planService.getById(data.getPlanId());
 
         if(memberRepo.existsByEmail(data.getEmail())) {
             throw new IllegalArgumentException("Já existe um aluno cadastrado com o email: " + data.getEmail());
@@ -81,8 +79,7 @@ public class MemberService {
     public MemberUpdateResponseDTO updateMember(Long id, MemberRegistrationDTO data) {
         Member member = this.getMemberById(id);
 
-        Plan plan = planRepo.findById(data.getPlanId())
-                .orElseThrow(() -> new ResourceNotFoundException("Plano não encontrado com ID: " + data.getPlanId()));
+        Plan plan = planService.getById(data.getPlanId());
 
         member.setName(data.getName());
         member.setEmail(data.getEmail());

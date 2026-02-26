@@ -38,4 +38,14 @@ public class CategoryService {
         category = categoryRepo.save(category);
         return new CategoryResponseDTO(category);
     }
+
+    public Category getCategoryById(Long id) {
+        return categoryRepo.findById(id)
+                .orElseThrow(() -> new BusinessRuleException("Categoria não encontrada."));
+    }
+
+    public Category getCategoryByName(String name) {
+        return categoryRepo.findByName(name)
+                .orElseThrow(() -> new BusinessRuleException("Categoria " + name + "não encontrada."));
+    }
 }

@@ -3,16 +3,12 @@ package com.gabrieldsrod.gestao_ct.Service;
 import com.gabrieldsrod.gestao_ct.DTO.response.PaymentReceiptDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PendingPaymentDTO;
 import com.gabrieldsrod.gestao_ct.Enums.PaymentMethod;
-import com.gabrieldsrod.gestao_ct.Enums.TransactionType;
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.BusinessRuleException;
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.ResourceNotFoundException;
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Model.MemberPayment;
-import com.gabrieldsrod.gestao_ct.Model.Category;
 import com.gabrieldsrod.gestao_ct.Model.Transaction;
 import com.gabrieldsrod.gestao_ct.Repository.MemberPaymentRepository;
-import com.gabrieldsrod.gestao_ct.Repository.CategoryRepository;
-import com.gabrieldsrod.gestao_ct.Repository.TransactionRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +19,11 @@ import java.util.List;
 public class PaymentService {
 
     private final MemberPaymentRepository paymentRepo;
-    private final TransactionRepository transactionRepo;
-    private final CategoryRepository categoryRepo;
+    private final TransactionService transactionService;
 
-    public PaymentService(MemberPaymentRepository paymentRepo, TransactionRepository transactionRepo, CategoryRepository categoriaRepo) {
+    public PaymentService(MemberPaymentRepository paymentRepo, TransactionService transactionService) {
         this.paymentRepo = paymentRepo;
-        this.transactionRepo = transactionRepo;
-        this.categoryRepo = categoriaRepo;
+        this.transactionService = transactionService;
     }
 
     public List<PendingPaymentDTO> listPending() {
@@ -59,7 +53,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentReceiptDTO register(Long paymentId, PaymentMethod paymentMethod) {
+    public PaymentReceiptDTO registerPayment(Long paymentId, PaymentMethod paymentMethod) {
         MemberPayment payment = paymentRepo.findById(paymentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado"));
 
@@ -67,18 +61,7 @@ public class PaymentService {
             throw new BusinessRuleException("Pagamento já registrado");
         }
 
-        Transaction income = new Transaction();
-        income.setDescription("Mensalidade - " + payment.getMember().getName());
-        income.setAmount(payment.getAmountCharged());
-        income.setPaymentMethod(paymentMethod);
-        income.setType(TransactionType.INCOME);
-        income.setTransactionDate(LocalDate.now());
-
-        Category category = categoryRepo.findByName("Mensalidade")
-                .orElseThrow(() -> new ResourceNotFoundException("Categoria 'Mensalidade' não encontrada"));
-        income.setCategory(category);
-
-        transactionRepo.save(income);
+        Transaction income = transactionService.saveMembershipTransaction(payment, paymentMethod);
 
         payment.setPaymentDate(LocalDate.now());
         payment.setAmountPaid(payment.getAmountCharged());
