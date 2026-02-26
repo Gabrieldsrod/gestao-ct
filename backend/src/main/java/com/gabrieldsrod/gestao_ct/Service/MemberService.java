@@ -9,6 +9,7 @@ import com.gabrieldsrod.gestao_ct.Model.Plan;
 import com.gabrieldsrod.gestao_ct.Repository.MemberRepository;
 import com.gabrieldsrod.gestao_ct.Repository.PlanRepository;
 import jakarta.transaction.Transactional;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,12 @@ public class MemberService {
         newMember.setPlan(plan);
         newMember.setActive(true);
 
+        if (data.getHolderId() != null) {
+            Member holder = memberRepo.findById(data.getHolderId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Aluno titular não encontrado com ID: " + data.getHolderId()));
+            newMember.setHolder(holder);
+        }
+
         newMember = memberRepo.save(newMember);
 
         return new MemberResponseDTO(newMember);
@@ -62,8 +69,7 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDTO getById(Long id) {
-        Member member = memberRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + id));
-
+        Member member = this.getMemberById(id);
         return new MemberResponseDTO(member);
     }
 
@@ -73,9 +79,8 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberUpdateResponseDTO update(Long id, MemberRegistrationDTO data) {
-        Member member = memberRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + id));
+    public MemberUpdateResponseDTO updateMember(Long id, MemberRegistrationDTO data) {
+        Member member = this.getMemberById(id);
 
         Plan plan = planRepo.findById(data.getPlanId())
                 .orElseThrow(() -> new ResourceNotFoundException("Plano não encontrado com ID: " + data.getPlanId()));
@@ -95,8 +100,7 @@ public class MemberService {
 
     @Transactional
     public MemberUpdateResponseDTO inactivate(Long id) {
-        Member member = memberRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + id));
+        Member member = this.getMemberById(id);
         member.setActive(false);
         member = memberRepo.save(member);
 
@@ -106,13 +110,17 @@ public class MemberService {
 
     @Transactional
     public MemberUpdateResponseDTO activate(Long id) {
-        Member member = memberRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + id));
+        Member member = this.getMemberById(id);
         member.setActive(true);
         member = memberRepo.save(member);
 
         String message = "Aluno ativado com sucesso. Ele receberá cobranças normalmente a partir de agora.";
 
         return new MemberUpdateResponseDTO(message, member.getId());
+    }
+
+    private Member getMemberById(Long id) {
+        return memberRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + id));
     }
 }
