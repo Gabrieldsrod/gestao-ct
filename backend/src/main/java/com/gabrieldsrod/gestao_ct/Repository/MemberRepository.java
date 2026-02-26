@@ -18,7 +18,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Member findByWhatsapp(String whatsapp);
 
     // Para buscar alunos pelo nome (parcial, ignore case)
-    List<Member> findByNameContainingIgnoreCase(String name);
+    List<Member> findTop10ByNameContainingIgnoreCase(String name);
 
     // Para listar apenas os alunos ativos
     List<Member> findByActiveTrue();
@@ -27,5 +27,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     List<Member> findByActiveTrueAndHolderIsNull();
 
-    Page<Member> findByNameContainingIgnoreCase(String name, Pageable pageable);
+    Page<Member> findTop10ByNameContainingIgnoreCase(String name, Pageable pageable);
 }

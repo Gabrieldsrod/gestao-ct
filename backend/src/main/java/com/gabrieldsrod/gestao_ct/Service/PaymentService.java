@@ -22,18 +22,18 @@ import java.util.List;
 @Service
 public class PaymentService {
 
-    private final MemberPaymentRepository pagamentoRepo;
-    private final TransactionRepository transacaoRepo;
-    private final CategoryRepository categoriaRepo;
+    private final MemberPaymentRepository paymentRepo;
+    private final TransactionRepository transactionRepo;
+    private final CategoryRepository categoryRepo;
 
-    public PaymentService(MemberPaymentRepository pagamentoRepo, TransactionRepository transacaoRepo, CategoryRepository categoriaRepo) {
-        this.pagamentoRepo = pagamentoRepo;
-        this.transacaoRepo = transacaoRepo;
-        this.categoriaRepo = categoriaRepo;
+    public PaymentService(MemberPaymentRepository paymentRepo, TransactionRepository transactionRepo, CategoryRepository categoriaRepo) {
+        this.paymentRepo = paymentRepo;
+        this.transactionRepo = transactionRepo;
+        this.categoryRepo = categoriaRepo;
     }
 
     public List<PendingPaymentDTO> listPending() {
-        return pagamentoRepo.findByPaymentDateIsNull()
+        return paymentRepo.findByPaymentDateIsNull()
                 .stream()
                 .map(PendingPaymentDTO::fromEntity)
                 .toList();
@@ -54,13 +54,13 @@ public class PaymentService {
         pagamento.setAmountPaid(null);
         pagamento.setTransaction(null);
 
-        pagamentoRepo.save(pagamento);
+        paymentRepo.save(pagamento);
         return pagamento;
     }
 
     @Transactional
     public PaymentReceiptDTO register(Long paymentId, PaymentMethod paymentMethod) {
-        MemberPayment payment = pagamentoRepo.findById(paymentId)
+        MemberPayment payment = paymentRepo.findById(paymentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado"));
 
         if (payment.getPaymentDate() != null) {
@@ -74,17 +74,17 @@ public class PaymentService {
         income.setType(TransactionType.INCOME);
         income.setTransactionDate(LocalDate.now());
 
-        Category category = categoriaRepo.findByName("Mensalidade")
+        Category category = categoryRepo.findByName("Mensalidade")
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria 'Mensalidade' não encontrada"));
         income.setCategory(category);
 
-        transacaoRepo.save(income);
+        transactionRepo.save(income);
 
         payment.setPaymentDate(LocalDate.now());
         payment.setAmountPaid(payment.getAmountCharged());
         payment.setTransaction(income);
 
-        payment = pagamentoRepo.save(payment);
+        payment = paymentRepo.save(payment);
 
         return new PaymentReceiptDTO(
                 payment.getId(),

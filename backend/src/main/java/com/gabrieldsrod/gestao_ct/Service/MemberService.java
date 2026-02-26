@@ -9,7 +9,6 @@ import com.gabrieldsrod.gestao_ct.Model.Plan;
 import com.gabrieldsrod.gestao_ct.Repository.MemberRepository;
 import com.gabrieldsrod.gestao_ct.Repository.PlanRepository;
 import jakarta.transaction.Transactional;
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -75,7 +74,7 @@ public class MemberService {
 
     @Transactional
     public List<MemberResponseDTO> searchByPartialName(String partialName) {
-        return memberRepo.findByNameContainingIgnoreCase(partialName).stream().map(MemberResponseDTO::new).toList();
+        return memberRepo.findTop10ByNameContainingIgnoreCase(partialName).stream().map(MemberResponseDTO::new).toList();
     }
 
     @Transactional
