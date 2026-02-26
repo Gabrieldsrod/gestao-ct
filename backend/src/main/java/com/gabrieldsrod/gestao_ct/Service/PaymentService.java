@@ -40,11 +40,14 @@ public class PaymentService {
     }
 
     @Transactional
-    public void generateCharge(Member member, LocalDate dataVencimento) {
+    public MemberPayment generateCharge(Member member, LocalDate dueDate) {
+        if (member == null || !member.getActive() || member.getPlan() == null) {
+            return null;
+        }
         MemberPayment pagamento = new MemberPayment();
         pagamento.setMember(member);
 
-        pagamento.setDueDate(dataVencimento);
+        pagamento.setDueDate(dueDate);
 
         pagamento.setAmountCharged(member.getPlan().getPrice());
         pagamento.setPaymentDate(null);
@@ -52,39 +55,40 @@ public class PaymentService {
         pagamento.setTransaction(null);
 
         pagamentoRepo.save(pagamento);
+        return pagamento;
     }
 
     @Transactional
-    public PaymentReceiptDTO register(Long pagamentoId, PaymentMethod paymentMethod) {
-        MemberPayment pagamento = pagamentoRepo.findById(pagamentoId)
+    public PaymentReceiptDTO register(Long paymentId, PaymentMethod paymentMethod) {
+        MemberPayment payment = pagamentoRepo.findById(paymentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado"));
 
-        if (pagamento.getPaymentDate() != null) {
+        if (payment.getPaymentDate() != null) {
             throw new BusinessRuleException("Pagamento já registrado");
         }
 
-        Transaction entrada = new Transaction();
-        entrada.setDescription("Mensalidade - " + pagamento.getMember().getName());
-        entrada.setAmount(pagamento.getAmountCharged());
-        entrada.setPaymentMethod(paymentMethod);
-        entrada.setType(TransactionType.INCOME);
-        entrada.setTransactionDate(LocalDate.now());
+        Transaction income = new Transaction();
+        income.setDescription("Mensalidade - " + payment.getMember().getName());
+        income.setAmount(payment.getAmountCharged());
+        income.setPaymentMethod(paymentMethod);
+        income.setType(TransactionType.INCOME);
+        income.setTransactionDate(LocalDate.now());
 
         Category category = categoriaRepo.findByName("Mensalidade")
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria 'Mensalidade' não encontrada"));
-        entrada.setCategory(category);
+        income.setCategory(category);
 
-        transacaoRepo.save(entrada);
+        transacaoRepo.save(income);
 
-        pagamento.setPaymentDate(LocalDate.now());
-        pagamento.setAmountPaid(pagamento.getAmountCharged());
-        pagamento.setTransaction(entrada);
+        payment.setPaymentDate(LocalDate.now());
+        payment.setAmountPaid(payment.getAmountCharged());
+        payment.setTransaction(income);
 
-        pagamento = pagamentoRepo.save(pagamento);
+        payment = pagamentoRepo.save(payment);
 
         return new PaymentReceiptDTO(
-                pagamento.getId(),
-                pagamento.getMember().getName(),
+                payment.getId(),
+                payment.getMember().getName(),
                 "PAGO"
         );
     }
