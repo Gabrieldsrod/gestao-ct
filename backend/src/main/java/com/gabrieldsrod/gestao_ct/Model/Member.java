@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "members")
 @Data
@@ -25,4 +28,7 @@ public class Member extends PersonalData {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "titular_id")
     private Member holder;
+
+    @OneToMany(mappedBy = "holder", cascade = CascadeType.ALL)
+    private List<Member> dependents = new ArrayList<>();
 }

@@ -33,14 +33,18 @@ public class MemberStatusScheduler {
         List<MemberPayment> overduePayments = paymentRepo.findOverduePaymentsForActiveMembers(today);
 
         int count = 0;
-        for (MemberPayment pagamento : overduePayments) {
-            Member aluno = pagamento.getMember();
-            aluno.setStatus(MemberStatus.DELINQUENT);
-            memberRepo.save(aluno);
+        for (MemberPayment payment : overduePayments) {
+            Member holder = payment.getMember();
+            holder.setStatus(MemberStatus.DELINQUENT);
+            if (holder.getDependents() != null && !holder.getDependents().isEmpty()) {
+                for (Member dependente : holder.getDependents()) {
+                    dependente.setStatus(MemberStatus.DELINQUENT);
+                }
+                memberRepo.save(holder);
+                count++;
+            }
             count++;
         }
-
         System.out.println("Verificação concluída. " + count + " alunos marcados como INADIMPLENTES.");
     }
-
 }
