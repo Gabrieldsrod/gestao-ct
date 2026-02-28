@@ -28,6 +28,9 @@ public interface MemberPaymentRepository extends JpaRepository<MemberPayment, Lo
     // Ex: Todos os vencimentos entre 01/02 e 28/02
     List<MemberPayment> findByPaymentDateBetween(LocalDate start, LocalDate end);
 
+    @Query("SELECT p FROM MemberPayment p WHERE p.paymentDate IS NULL AND p.dueDate < :today AND p.member.status = 'ACTIVE'")
+    List<MemberPayment> findOverduePaymentsForActiveMembers(@Param("today") LocalDate today);
+
     @Query("SELECT COUNT(p) > 0 FROM MemberPayment p WHERE p.member = :member AND EXTRACT(MONTH FROM p.dueDate) = :month AND EXTRACT(YEAR FROM p.dueDate) = :year")
     boolean existsByMemberAndMonthAndYear(@Param("member") Member member, @Param("month") Integer month, @Param("year") Integer year);
 }
