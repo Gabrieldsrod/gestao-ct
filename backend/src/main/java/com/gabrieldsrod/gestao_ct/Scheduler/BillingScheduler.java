@@ -1,5 +1,6 @@
 package com.gabrieldsrod.gestao_ct.Scheduler;
 
+import com.gabrieldsrod.gestao_ct.Enums.MemberStatus;
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Repository.MemberPaymentRepository;
 import com.gabrieldsrod.gestao_ct.Repository.MemberRepository;
@@ -33,7 +34,7 @@ public class BillingScheduler {
         int currentMonth = today.getMonthValue();
         int currentYear = today.getYear();
 
-        List<Member> activeMembers = memberRepo.findByActiveTrueAndHolderIsNull();
+        List<Member> activeMembers = memberRepo.findByStatusAndHolderIsNull(MemberStatus.ACTIVE);
 
         for (Member member : activeMembers) {
             boolean alreadyCharged = memberPaymentRepo.existsByMemberAndMonthAndYear(member, currentMonth, currentYear);

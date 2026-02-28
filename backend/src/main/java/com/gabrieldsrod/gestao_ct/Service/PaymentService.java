@@ -2,6 +2,7 @@ package com.gabrieldsrod.gestao_ct.Service;
 
 import com.gabrieldsrod.gestao_ct.DTO.response.PaymentReceiptDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PendingPaymentDTO;
+import com.gabrieldsrod.gestao_ct.Enums.MemberStatus;
 import com.gabrieldsrod.gestao_ct.Enums.PaymentMethod;
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.BusinessRuleException;
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.ResourceNotFoundException;
@@ -35,7 +36,7 @@ public class PaymentService {
 
     @Transactional
     public MemberPayment generateCharge(Member member, LocalDate dueDate) {
-        if (member == null || !member.getActive() || member.getPlan() == null) {
+        if (member == null || member.getStatus() != MemberStatus.ACTIVE || member.getPlan() == null) {
             return null;
         }
         MemberPayment pagamento = new MemberPayment();
@@ -66,6 +67,10 @@ public class PaymentService {
         payment.setPaymentDate(LocalDate.now());
         payment.setAmountPaid(payment.getAmountCharged());
         payment.setTransaction(income);
+
+        Member member = payment.getMember();
+        if (member.getStatus() == MemberStatus.DELINQUENT)
+            member.setStatus(MemberStatus.ACTIVE);
 
         payment = paymentRepo.save(payment);
 

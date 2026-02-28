@@ -1,5 +1,6 @@
 package com.gabrieldsrod.gestao_ct.service;
 
+import com.gabrieldsrod.gestao_ct.Enums.MemberStatus;
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Model.MemberPayment;
 import com.gabrieldsrod.gestao_ct.Model.Plan;
@@ -35,7 +36,7 @@ class PaymentServiceTest {
     void shouldReturnNullWhenMemberIsInactive() {
         // Arrange (Preparação)
         Member inativo = new Member();
-        inativo.setActive(false);
+        inativo.setStatus(MemberStatus.INACTIVE);
         LocalDate dataVencimento = LocalDate.of(2026, 3, 5);
 
         // Act (Ação)
@@ -54,7 +55,7 @@ class PaymentServiceTest {
         plano.setPrice(new BigDecimal("99.90"));
 
         Member ativo = new Member();
-        ativo.setActive(true);
+        ativo.setStatus(MemberStatus.ACTIVE);
         ativo.setPlan(plano);
 
         LocalDate dataVencimento = LocalDate.of(2026, 3, 5);

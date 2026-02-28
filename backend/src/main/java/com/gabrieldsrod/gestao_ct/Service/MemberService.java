@@ -3,6 +3,7 @@ package com.gabrieldsrod.gestao_ct.Service;
 import com.gabrieldsrod.gestao_ct.DTO.request.MemberRegistrationDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberUpdateResponseDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberResponseDTO;
+import com.gabrieldsrod.gestao_ct.Enums.MemberStatus;
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.ResourceNotFoundException;
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Model.Plan;
@@ -41,7 +42,7 @@ public class MemberService {
         newMember.setWhatsapp(data.getWhatsapp());
         newMember.setBirthDate(data.getBirthDate());
         newMember.setPlan(plan);
-        newMember.setActive(true);
+        newMember.setStatus(MemberStatus.ACTIVE);
 
         if (data.getHolderId() != null) {
             Member holder = memberRepo.findById(data.getHolderId())
@@ -61,7 +62,7 @@ public class MemberService {
 
     @Transactional
     public Page<MemberResponseDTO> pageActiveMembers(Pageable pageable) {
-        return memberRepo.findByActiveTrue(pageable).map(MemberResponseDTO::new);
+        return memberRepo.findByStatus(MemberStatus.ACTIVE, pageable).map(MemberResponseDTO::new);
     }
 
     @Transactional
@@ -97,7 +98,7 @@ public class MemberService {
     @Transactional
     public MemberUpdateResponseDTO inactivate(Long id) {
         Member member = this.getMemberById(id);
-        member.setActive(false);
+        member.setStatus(MemberStatus.INACTIVE);
         member = memberRepo.save(member);
 
         String message = "Aluno inativado com sucesso. Ele não receberá mais cobranças, mas seus dados permanecerão no sistema.";
@@ -107,7 +108,7 @@ public class MemberService {
     @Transactional
     public MemberUpdateResponseDTO activate(Long id) {
         Member member = this.getMemberById(id);
-        member.setActive(true);
+        member.setStatus(MemberStatus.ACTIVE);
         member = memberRepo.save(member);
 
         String message = "Aluno ativado com sucesso. Ele receberá cobranças normalmente a partir de agora.";
