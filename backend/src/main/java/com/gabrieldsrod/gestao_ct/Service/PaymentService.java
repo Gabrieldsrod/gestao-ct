@@ -35,6 +35,22 @@ public class PaymentService {
     }
 
     @Transactional
+    public void generateInitialPayment(Member newMember, PaymentMethod paymentMethod) {
+        MemberPayment pagamento = new MemberPayment();
+        pagamento.setMember(newMember);
+        pagamento.setDueDate(LocalDate.now());
+        pagamento.setAmountCharged(newMember.getPlan().getPrice());
+        pagamento.setPaymentDate(LocalDate.now());
+        pagamento.setAmountPaid(newMember.getPlan().getPrice());
+
+        Transaction income = transactionService.saveMembershipTransaction(pagamento, paymentMethod);
+        pagamento.setTransaction(income);
+
+        paymentRepo.save(pagamento);
+
+    }
+
+    @Transactional
     public MemberPayment generateCharge(Member member, LocalDate dueDate) {
         if (member == null || member.getStatus() != MemberStatus.ACTIVE || member.getPlan() == null) {
             return null;

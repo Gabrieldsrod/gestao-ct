@@ -26,8 +26,8 @@ public class PaymentController {
     }
 
     @PostMapping("/{id}/register")
-    public ResponseEntity<PaymentReceiptDTO> registerPayment(@PathVariable Long id, @RequestBody PaymentClearenceDTO metodoPagamento) {
-        return ResponseEntity.ok(paymentService.registerPayment(id, metodoPagamento.getPaymentMethod()));
+    public ResponseEntity<PaymentReceiptDTO> registerPayment(@PathVariable Long id, @RequestBody PaymentClearenceDTO paymentMethod) {
+        return ResponseEntity.ok(paymentService.registerPayment(id, paymentMethod.getPaymentMethod()));
     }
 }
 

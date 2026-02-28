@@ -1,5 +1,6 @@
 package com.gabrieldsrod.gestao_ct.DTO.request;
 
+import com.gabrieldsrod.gestao_ct.Enums.PaymentMethod;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -14,5 +15,7 @@ public class MemberRegistrationDTO {
     private Long planId;
     private Integer preferredPaymentDay;
     private Long holderId; // Opcional, para dependentes
+
+    private PaymentMethod paymentMethod;
 
 }

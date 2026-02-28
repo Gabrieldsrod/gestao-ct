@@ -21,10 +21,12 @@ public class MemberService {
     private final MemberRepository memberRepo;
 
     private final PlanService planService;
+    private final PaymentService paymentService;
 
-    public MemberService(MemberRepository memberRepo, PlanService planService) {
+    public MemberService(MemberRepository memberRepo, PlanService planService, PaymentService paymentService) {
         this.memberRepo = memberRepo;
         this.planService = planService;
+        this.paymentService = paymentService;
     }
 
     @Transactional
@@ -51,6 +53,10 @@ public class MemberService {
         }
 
         newMember = memberRepo.save(newMember);
+
+        if (newMember.getHolder() == null) {
+            paymentService.generateInitialPayment(newMember, data.getPaymentMethod());
+        }
 
         return new MemberResponseDTO(newMember);
     }

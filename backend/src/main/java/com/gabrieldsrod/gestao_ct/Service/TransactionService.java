@@ -9,6 +9,7 @@ import com.gabrieldsrod.gestao_ct.Model.Category;
 import com.gabrieldsrod.gestao_ct.Model.MemberPayment;
 import com.gabrieldsrod.gestao_ct.Model.Transaction;
 import com.gabrieldsrod.gestao_ct.Repository.TransactionRepository;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -53,7 +54,7 @@ public class TransactionService {
         return new TransactionResponseDTO(transaction);
     }
 
-    public Transaction saveMembershipTransaction(MemberPayment payment, PaymentMethod paymentMethod) {
+    public Transaction saveMembershipTransaction(MemberPayment payment, @NotNull PaymentMethod paymentMethod) {
         Transaction income = new Transaction();
         income.setDescription("Mensalidade - " + payment.getMember().getName());
         income.setAmount(payment.getAmountCharged());
