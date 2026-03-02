@@ -4,6 +4,7 @@ public enum MemberStatus {
     ACTIVE,
     INACTIVE,
     DELINQUENT,
+    PENDING,
     SUSPENDED,
     EXPELLED
 }

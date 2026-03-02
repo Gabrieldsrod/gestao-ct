@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -55,7 +56,7 @@ public class MemberService {
         newMember = memberRepo.save(newMember);
 
         if (newMember.getHolder() == null) {
-            paymentService.generateInitialPayment(newMember, data.getPaymentMethod());
+            paymentService.generateCharge(newMember, LocalDate.now());
         }
 
         return new MemberResponseDTO(newMember);

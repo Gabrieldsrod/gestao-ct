@@ -14,7 +14,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class Member extends PersonalData {
 
-    @Column(name = "preferred_payment_day", nullable = false)
+    @Column(name = "preferred_payment_day")
     private Integer preferredPaymentDay;
 
     @Enumerated(EnumType.STRING)
