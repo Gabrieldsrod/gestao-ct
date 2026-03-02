@@ -38,4 +38,7 @@ public interface MemberPaymentRepository extends JpaRepository<MemberPayment, Lo
 
     @Query("SELECT COUNT(p) > 0 FROM MemberPayment p WHERE p.member = :member AND EXTRACT(MONTH FROM p.dueDate) = :month AND EXTRACT(YEAR FROM p.dueDate) = :year")
     boolean existsByMemberAndMonthAndYear(@Param("member") Member member, @Param("month") Integer month, @Param("year") Integer year);
+
+    @Query("SELECT p FROM MemberPayment p WHERE p.paymentDate IS NULL AND p.dueDate < :limitDate AND p.member.status = 'DELINQUENT'")
+    List<MemberPayment> findPaymentsForInactivation(@Param("limitDate") LocalDate limitDate);
 }

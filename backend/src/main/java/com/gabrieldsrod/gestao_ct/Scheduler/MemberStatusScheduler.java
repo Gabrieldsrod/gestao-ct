@@ -36,15 +36,49 @@ public class MemberStatusScheduler {
         for (MemberPayment payment : overduePayments) {
             Member holder = payment.getMember();
             holder.setStatus(MemberStatus.DELINQUENT);
+
             if (holder.getDependents() != null && !holder.getDependents().isEmpty()) {
                 for (Member dependente : holder.getDependents()) {
                     dependente.setStatus(MemberStatus.DELINQUENT);
                 }
-                memberRepo.save(holder);
-                count++;
             }
+
+            memberRepo.save(holder);
             count++;
         }
         System.out.println("Verificação concluída. " + count + " alunos marcados como INADIMPLENTES.");
+    }
+
+    @Transactional
+    @Scheduled(cron = "0 30 2 * * *")
+    public void inactivateDelinquentMembers() {
+        System.out.println("A iniciar a verificação para inativação de alunos...");
+
+        // Define o limite de tempo (em dias) para considerar um aluno como inativo após se tornar inadimplente
+        int toleranceDays = 10;
+        LocalDate dataLimite = LocalDate.now().minusDays(toleranceDays);
+
+        List<MemberPayment> oldPayments = paymentRepo.findPaymentsForInactivation(dataLimite);
+
+        int count = 0;
+        for (MemberPayment payment : oldPayments) {
+            Member holder = payment.getMember();
+
+            // Garantir que não inativamos acidentalmente alguém que não estava inadimplente
+            if (holder.getStatus() == MemberStatus.DELINQUENT) {
+                holder.setStatus(MemberStatus.INACTIVE);
+
+                // Inativa os dependentes, se existirem
+                if (holder.getDependents() != null && !holder.getDependents().isEmpty()) {
+                    for (Member dependente : holder.getDependents()) {
+                        dependente.setStatus(MemberStatus.INACTIVE);
+                    }
+                }
+
+                memberRepo.save(holder);
+                count++;
+            }
+        }
+        System.out.println("Limpeza concluída. " + count + " alunos marcados como INATIVOS (mais de " + toleranceDays + " dias de dívida).");
     }
 }
