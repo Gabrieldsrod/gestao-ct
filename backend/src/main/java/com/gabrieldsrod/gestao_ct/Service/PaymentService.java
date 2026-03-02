@@ -2,6 +2,7 @@ package com.gabrieldsrod.gestao_ct.Service;
 
 import com.gabrieldsrod.gestao_ct.DTO.response.PaymentReceiptDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PendingPaymentDTO;
+import com.gabrieldsrod.gestao_ct.DTO.response.PaidPaymentDTO;
 import com.gabrieldsrod.gestao_ct.Enums.MemberStatus;
 import com.gabrieldsrod.gestao_ct.Enums.PaymentMethod;
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.BusinessRuleException;
@@ -11,10 +12,11 @@ import com.gabrieldsrod.gestao_ct.Model.MemberPayment;
 import com.gabrieldsrod.gestao_ct.Model.Transaction;
 import com.gabrieldsrod.gestao_ct.Repository.MemberPaymentRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,11 +30,14 @@ public class PaymentService {
         this.transactionService = transactionService;
     }
 
-    public List<PendingPaymentDTO> listPending() {
-        return paymentRepo.findByPaymentDateIsNull()
-                .stream()
-                .map(PendingPaymentDTO::fromEntity)
-                .toList();
+    public Page<PendingPaymentDTO> listPending(Pageable pageable) {
+        return paymentRepo.findByPaymentDateIsNull(pageable)
+                .map(PendingPaymentDTO::fromEntity);
+    }
+
+    public Page<PaidPaymentDTO> listPaid(Pageable pageable) {
+        return paymentRepo.findByPaymentDateIsNotNull(pageable)
+                .map(PaidPaymentDTO::fromEntity);
     }
 
     public Optional<MemberPayment> findLastPaymentForMember(Member member) {

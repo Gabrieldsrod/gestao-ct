@@ -2,6 +2,8 @@ package com.gabrieldsrod.gestao_ct.Repository;
 
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Model.MemberPayment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,11 +18,11 @@ public interface MemberPaymentRepository extends JpaRepository<MemberPayment, Lo
 
     // LISTA DE INADIMPLENTES / A RECEBER
     // Traz tudo onde a Data de Pagamento está vazia (NULL)
-    List<MemberPayment> findByPaymentDateIsNull();
+    Page<MemberPayment> findByPaymentDateIsNull(Pageable pageable);
 
     // LISTA DE PAGOS
     // Traz tudo onde a Data de Pagamento NÃO está vazia
-    List<MemberPayment> findByPaymentDateIsNotNull();
+    Page<MemberPayment> findByPaymentDateIsNotNull(Pageable pageable);
 
     // Histórico financeiro de um aluno específico
     List<MemberPayment> findByMember(Member member);

@@ -3,11 +3,12 @@ package com.gabrieldsrod.gestao_ct.Controller;
 import com.gabrieldsrod.gestao_ct.DTO.request.PaymentClearenceDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PendingPaymentDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PaymentReceiptDTO;
+import com.gabrieldsrod.gestao_ct.DTO.response.PaidPaymentDTO;
 import com.gabrieldsrod.gestao_ct.Service.PaymentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1/api/payments")
@@ -21,8 +22,13 @@ public class PaymentController {
     }
 
     @GetMapping("/pending")
-    public List<PendingPaymentDTO> listPendingPayments() {
-        return paymentService.listPending();
+    public Page<PendingPaymentDTO> listPendingPayments(Pageable pageable) {
+        return paymentService.listPending(pageable);
+    }
+
+    @GetMapping("/paid")
+    public Page<PaidPaymentDTO> listPaidPayments(Pageable pageable) {
+        return paymentService.listPaid(pageable);
     }
 
     @PostMapping("/{id}/register")
@@ -30,4 +36,3 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.registerPayment(id, paymentMethod.getPaymentMethod()));
     }
 }
-
