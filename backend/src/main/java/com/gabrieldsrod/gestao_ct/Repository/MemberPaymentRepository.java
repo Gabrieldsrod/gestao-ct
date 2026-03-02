@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MemberPaymentRepository extends JpaRepository<MemberPayment, Long> {
@@ -27,6 +28,8 @@ public interface MemberPaymentRepository extends JpaRepository<MemberPayment, Lo
     // Busca pagamentos que vencem em um mês específico (para gerar boletos)
     // Ex: Todos os vencimentos entre 01/02 e 28/02
     List<MemberPayment> findByPaymentDateBetween(LocalDate start, LocalDate end);
+
+    Optional<MemberPayment> findTopByMemberOrderByDueDateDesc(Member member);
 
     @Query("SELECT p FROM MemberPayment p WHERE p.paymentDate IS NULL AND p.dueDate < :today AND p.member.status = 'ACTIVE'")
     List<MemberPayment> findOverduePaymentsForActiveMembers(@Param("today") LocalDate today);

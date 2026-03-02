@@ -15,7 +15,6 @@ public class PendingPaymentDTO {
     private String memberEmail;
     private String memberPhone;
     private String planName;
-    private Integer preferredPaymentDay;
     private String dueDate; // Formato "dd/MM/yyyy"
     private BigDecimal amountDue;
 
@@ -27,7 +26,6 @@ public class PendingPaymentDTO {
         dto.setMemberEmail(pagamento.getMember().getEmail());
         dto.setMemberPhone(pagamento.getMember().getWhatsapp());
         dto.setPlanName(pagamento.getMember().getPlan().getName());
-        dto.setPreferredPaymentDay(pagamento.getMember().getPreferredPaymentDay());
         dto.setDueDate(pagamento.getDueDate().format(DateUtils.BR_FORMATTER));    // Formata a data para "dd/MM/yyyy"
         dto.setAmountDue(pagamento.getAmountCharged());
         return dto;

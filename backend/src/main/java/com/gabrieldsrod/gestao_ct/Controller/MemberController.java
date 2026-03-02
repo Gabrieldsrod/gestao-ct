@@ -1,10 +1,8 @@
 package com.gabrieldsrod.gestao_ct.Controller;
 
 import com.gabrieldsrod.gestao_ct.DTO.request.MemberRegistrationDTO;
-import com.gabrieldsrod.gestao_ct.DTO.request.PaymentClearenceDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberUpdateResponseDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberResponseDTO;
-import com.gabrieldsrod.gestao_ct.Enums.PaymentMethod;
 import com.gabrieldsrod.gestao_ct.Service.MemberService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

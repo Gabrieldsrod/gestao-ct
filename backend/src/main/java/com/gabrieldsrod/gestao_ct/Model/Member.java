@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,9 +15,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class Member extends PersonalData {
 
-    @Column(name = "preferred_payment_day")
-    private Integer preferredPaymentDay;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private MemberStatus status;
@@ -24,6 +22,9 @@ public class Member extends PersonalData {
     @JoinColumn(name = "plan_id", nullable = false)
     @ManyToOne
     private Plan plan;
+
+    @Column(name = "registration_date", nullable = false)
+    private LocalDate registrationDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "titular_id")

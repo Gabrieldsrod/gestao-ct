@@ -12,7 +12,6 @@ public class MemberRegistrationDTO {
     private String whatsapp;
     private LocalDate birthDate;
     private Long planId;
-    private Integer preferredPaymentDay;
     private Long holderId; // Opcional, para dependentes
 
 }

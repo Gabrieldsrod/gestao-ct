@@ -2,6 +2,7 @@ package com.gabrieldsrod.gestao_ct.Scheduler;
 
 import com.gabrieldsrod.gestao_ct.Enums.MemberStatus;
 import com.gabrieldsrod.gestao_ct.Model.Member;
+import com.gabrieldsrod.gestao_ct.Model.MemberPayment;
 import com.gabrieldsrod.gestao_ct.Repository.MemberPaymentRepository;
 import com.gabrieldsrod.gestao_ct.Repository.MemberRepository;
 import com.gabrieldsrod.gestao_ct.Service.PaymentService;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class BillingScheduler {
@@ -40,13 +42,18 @@ public class BillingScheduler {
             boolean alreadyCharged = memberPaymentRepo.existsByMemberAndMonthAndYear(member, currentMonth, currentYear);
 
             if(!alreadyCharged) {
+                Optional<MemberPayment> lastPayment = paymentService.findLastPaymentForMember(member);
 
-                int maxDayinMonth = today.lengthOfMonth();
-                int safePaymentDay = Math.min(member.getPreferredPaymentDay(), maxDayinMonth);
+                LocalDate nextDueDate;
 
-                LocalDate dueDate = today.withDayOfMonth(safePaymentDay);
+                if (lastPayment.isPresent()) {
+                    nextDueDate = lastPayment.get().getDueDate().plusMonths(1);
+                    paymentService.generateCharge(member, nextDueDate);
+                } else {
+                    nextDueDate = member.getRegistrationDate().withDayOfMonth(1).plusMonths(1);
+                }
 
-                paymentService.generateCharge(member, dueDate);
+                paymentService.generateCharge(member, nextDueDate);
                 System.out.println("Cobrança gerada para: " + member.getName());
             }
         }

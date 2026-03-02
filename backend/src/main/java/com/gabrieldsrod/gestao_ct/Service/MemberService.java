@@ -41,7 +41,7 @@ public class MemberService {
         Member newMember = new Member();
         newMember.setName(data.getName());
         newMember.setEmail(data.getEmail());
-        newMember.setPreferredPaymentDay(data.getPreferredPaymentDay());
+        newMember.setRegistrationDate(LocalDate.now());
         newMember.setWhatsapp(data.getWhatsapp());
         newMember.setBirthDate(data.getBirthDate());
         newMember.setPlan(plan);
@@ -91,7 +91,6 @@ public class MemberService {
 
         member.setName(data.getName());
         member.setEmail(data.getEmail());
-        member.setPreferredPaymentDay(data.getPreferredPaymentDay());
         member.setWhatsapp(data.getWhatsapp());
         member.setBirthDate(data.getBirthDate());
         member.setPlan(plan);
