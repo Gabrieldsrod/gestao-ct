@@ -62,7 +62,7 @@ public class TransactionService {
         income.setType(TransactionType.INCOME);
         income.setTransactionDate(LocalDate.now());
 
-        Category category = categoryService.getCategoryByName("Mensalidade");
+        Category category = categoryService.getCategoryByName("Mensalidades");
         income.setCategory(category);
 
         return transactionRepo.save(income);

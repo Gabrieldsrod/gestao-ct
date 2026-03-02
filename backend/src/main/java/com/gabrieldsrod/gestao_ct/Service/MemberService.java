@@ -45,7 +45,7 @@ public class MemberService {
         newMember.setWhatsapp(data.getWhatsapp());
         newMember.setBirthDate(data.getBirthDate());
         newMember.setPlan(plan);
-        newMember.setStatus(MemberStatus.ACTIVE);
+        newMember.setStatus(MemberStatus.PENDING);
 
         if (data.getHolderId() != null) {
             Member holder = memberRepo.findById(data.getHolderId())

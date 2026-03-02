@@ -46,6 +46,6 @@ public class CategoryService {
 
     public Category getCategoryByName(String name) {
         return categoryRepo.findByName(name)
-                .orElseThrow(() -> new BusinessRuleException("Categoria " + name + "não encontrada."));
+                .orElseThrow(() -> new BusinessRuleException("Categoria " + name + " não encontrada."));
     }
 }
