@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { SummaryCard } from '../components/SummaryCard'
 import { RevenueChart } from '../components/RevenueChart'
-import { StudentsGrowthChart } from '../components/StudentsGrowthChart' // <-- Novo import
+import { StudentsGrowthChart } from '../components/member/MembersGrowthChart' // <-- Novo import
 
 export const Route = createFileRoute('/')({
   component: DashboardHome,

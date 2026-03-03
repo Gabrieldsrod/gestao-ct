@@ -1,16 +1,9 @@
 export interface MemberResponse {
+    id: number;
     name: string;
-    whasapp: string;
+    whatsapp: string;
     email: string;
-    nomePlano: string;
+    planName: string;
     status: string;
-    
-}
-
-export interface Page<T> {
-    content: T[];
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    number: number;
+    registrationDate: string;
 }
