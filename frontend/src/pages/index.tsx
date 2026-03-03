@@ -30,10 +30,10 @@ function DashboardHome() {
 
       {/* ÁREA DA TABELA E GRÁFICO */}
       <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm min-h-[400px] p-6">
+        <div className="col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm min-h-100 p-6">
             <h3 className="font-semibold text-gray-800 mb-4">Lista de Alunos (Em breve)</h3>
         </div>
-        <div className="col-span-1 bg-white rounded-xl border border-gray-200 shadow-sm min-h-[400px] p-6">
+        <div className="col-span-1 bg-white rounded-xl border border-gray-200 shadow-sm min-h-100 p-6">
             <h3 className="font-semibold text-gray-800 mb-4">Receita (Em breve)</h3>
         </div>
       </div>
