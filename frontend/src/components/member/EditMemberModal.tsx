@@ -2,63 +2,67 @@ import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Edit } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
 
-interface Plan {
-  id: number;
-  name: string;
-  price: number;
-}
-
-interface EditMemberModalProps {
-  memberId: number;
-}
-
-// Helper para garantir que o HTML entenda a data vinda do Java
+// Helper para formatar a data que vem do Java para o HTML
 function parseDateForInput(backendDate: any): string {
   if (!backendDate) return '';
-  
-  // Se o Java devolver como Array (ex: [2026, 3, 3])
   if (Array.isArray(backendDate)) {
     return `${backendDate[0]}-${String(backendDate[1]).padStart(2, '0')}-${String(backendDate[2]).padStart(2, '0')}`;
   }
-  
-  // Se for String
   if (typeof backendDate === 'string') {
-    // Se vier com o T do timestamp (ex: 2026-03-03T10:00)
     if (backendDate.includes('T')) return backendDate.split('T')[0];
-    
-    // Se vier com barras (ex: 03/03/2026)
     if (backendDate.includes('/')) {
       const [dia, mes, ano] = backendDate.split('/');
       return `${ano}-${mes}-${dia}`;
     }
-    
-    // Se já estiver certo (2026-03-03)
     return backendDate;
   }
   return '';
 }
+
+// 1. SCHEMA CORRIGIDO: Usando { message: "..." } para evitar o warning de @deprecated
+const editSchema = z.object({
+  name: z.string().min(3, "O nome deve ter pelo menos 3 letras"),
+  whatsapp: z.string().length(11, "WhatsApp deve ter exatamente 11 caracteres").or(z.literal('')),
+  email: z.email({ message: "E-mail inválido" }).or(z.literal('')),
+  birthDate: z.string().min(1, "A data de nascimento é obrigatória"),
+  planId: z.number().min(1, "Selecione um plano válido"),
+
+  dependentName: z.string().optional(),
+  dependentWhatsapp: z.string().length(11, "WhatsApp do dependente deve ter exatamente 11 caracteres").or(z.literal('')).optional(),
+  dependentEmail: z.email({ message: "E-mail inválido" }).or(z.literal('')).optional(),
+  dependentBirthDate: z.string().optional()
+})
+
+type FormValues = z.infer<typeof editSchema>
+
+interface Plan { id: number; name: string; price: number; }
+interface EditMemberModalProps { memberId: number; }
 
 export function EditMemberModal({ memberId }: EditMemberModalProps) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingData, setIsLoadingData] = useState(false)
   const [plans, setPlans] = useState<Plan[]>([])
-
-  // Estado do aluno atual (Titular)
-  const [formData, setFormData] = useState({
-    name: '', email: '', whatsapp: '', birthDate: '', planId: 0
-  })
-
-  // Estado para o NOVO dependente (caso faça upgrade)
-  const [dependentData, setDependentData] = useState({
-    name: '', email: '', whatsapp: '', birthDate: ''
-  })
-
-  // Controla se o plano original era individual e está mudando para casal
   const [originalPlanId, setOriginalPlanId] = useState(0)
 
-  // Quando o modal abre, busca os planos e os dados do aluno
+  const { register, handleSubmit, watch, formState: { errors }, setError, reset } = useForm<FormValues>({
+    resolver: zodResolver(editSchema),
+    defaultValues: {
+      name: '', whatsapp: '', email: '', birthDate: '', planId: 0,
+      dependentName: '', dependentWhatsapp: '', dependentEmail: '', dependentBirthDate: ''
+    }
+  })
+
+  // Regra de Negócio: Fica de olho no select para saber se fez Upgrade para Casal
+  const watchedPlanId = watch("planId")
+  const selectedPlan = plans.find(p => p.id === Number(watchedPlanId))
+  const isCouplePlan = selectedPlan?.name.toLowerCase().includes('casal')
+  const isUpgradingToCouple = isCouplePlan && originalPlanId !== 0 && originalPlanId !== Number(watchedPlanId)
+
   useEffect(() => {
     if (open) {
       fetchPlans()
@@ -81,14 +85,17 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/api/members/${memberId}`)
       if (response.ok) {
         const data = await response.json()
-        setFormData({
+        setOriginalPlanId(data.planId || 1)
+        
+        // Preenche o formulário automaticamente com os dados do banco!
+        reset({
           name: data.name || '',
           email: data.email || '',
           whatsapp: data.whatsapp || '',
-          birthDate: parseDateForInput(data.birthDate), // Converte a data para o formato HTML
-          planId: data.planId || 1 // Idealmente o backend deve devolver o planId
+          birthDate: parseDateForInput(data.birthDate),
+          planId: data.planId || 1,
+          dependentName: '', dependentWhatsapp: '', dependentEmail: '', dependentBirthDate: ''
         })
-        setOriginalPlanId(data.planId || 1)
       }
     } catch (error) {
       console.error("Erro ao buscar dados do aluno:", error)
@@ -97,24 +104,22 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
-
-  const handleDependentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDependentData({ ...dependentData, [e.target.name]: e.target.value })
-  }
-
-  // Verifica se o plano selecionado é um plano "Casal"
-  const selectedPlan = plans.find(p => p.id === Number(formData.planId))
-  const isCouplePlan = selectedPlan?.name.toLowerCase().includes('casal')
-  
-  // Regra de negócio: Só mostra a caixa do dependente se ele mudou para um plano casal AGORA
-  const isUpgradingToCouple = isCouplePlan && originalPlanId !== Number(formData.planId)
-
-  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const onSubmit = async (data: FormValues) => {
     setIsLoading(true)
+
+    // Impede o envio se escolheu Upgrade mas não preencheu o dependente
+    if (isUpgradingToCouple) {
+      if (!data.dependentName || data.dependentName.length < 3) {
+        setError("dependentName", { message: "Nome do dependente é obrigatório" })
+        setIsLoading(false)
+        return
+      }
+      if (!data.dependentBirthDate) {
+        setError("dependentBirthDate", { message: "Data de nascimento é obrigatória" })
+        setIsLoading(false)
+        return
+      }
+    }
 
     try {
       // 1. Atualiza o Titular (PUT)
@@ -122,31 +127,23 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.name, 
-          email: formData.email, 
-          whatsapp: formData.whatsapp,
-          birthDate: formData.birthDate, 
-          planId: Number(formData.planId)
+          name: data.name, email: data.email, whatsapp: data.whatsapp,
+          birthDate: data.birthDate, planId: data.planId
         }),
       })
 
       if (!updateResponse.ok) throw new Error('Erro ao atualizar titular')
 
-      // 2. Se fez upgrade para casal, cria o Dependente (POST)
+      // 2. Cria o novo Dependente caso seja um Upgrade (POST)
       if (isUpgradingToCouple) {
         const dependentResponse = await fetch(`${import.meta.env.VITE_API_URL}/v1/api/members`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name: dependentData.name, 
-            email: dependentData.email, 
-            whatsapp: dependentData.whatsapp,
-            birthDate: dependentData.birthDate, 
-            planId: Number(formData.planId), 
-            holderId: memberId 
+            name: data.dependentName, email: data.dependentEmail, whatsapp: data.dependentWhatsapp,
+            birthDate: data.dependentBirthDate, planId: data.planId, holderId: memberId
           }),
         })
-
         if (!dependentResponse.ok) throw new Error('Erro ao cadastrar o novo dependente')
       }
 
@@ -169,50 +166,55 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-137.5 max-h-[90vh] overflow-y-auto bg-white">
+      <DialogContent aria-describedby="edit-dialog" className="sm:max-w-137.5 max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-800">Editar Perfil do Aluno</DialogTitle>
-          <DialogDescription className="sr-only">
+          <DialogDescription id="edit-dialog" className="sr-only">
             Altere os dados de perfil e plano do aluno e clique em salvar.
           </DialogDescription>
         </DialogHeader>
         
         {isLoadingData ? (
-          <div className="py-8 text-center text-gray-500">A carregar dados do aluno...</div>
+          <div className="py-8 text-center text-gray-500">A carregar dados...</div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
+            
+            {/* SESSÃO DO TITULAR */}
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
               <h3 className="font-semibold text-gray-700 mb-3 text-sm">Dados do Aluno</h3>
               <div className="space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Nome Completo *</label>
-                  <input required type="text" name="name" value={formData.name} onChange={handleChange} 
-                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                  <input {...register("name")} 
+                         className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">WhatsApp</label>
-                    <input type="text" name="whatsapp" value={formData.whatsapp} onChange={handleChange} 
-                           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                    <input {...register("whatsapp")} 
+                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Data Nasc.</label>
-                    <input required type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} 
-                           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Data Nasc. *</label>
+                    <input type="date" {...register("birthDate")} 
+                           className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.birthDate ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                    {errors.birthDate && <p className="text-red-500 text-xs mt-1">{errors.birthDate.message}</p>}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">E-mail</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} 
-                           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                    <input type="email" {...register("email")} 
+                           className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Plano Atual</label>
-                    <select name="planId" value={formData.planId} onChange={handleChange} 
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                    <select {...register("planId", { valueAsNumber: true })} 
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                       {plans.map(plan => (
                         <option key={plan.id} value={plan.id}>
                           {plan.name} - R$ {plan.price.toFixed(2)}
@@ -224,27 +226,38 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
               </div>
             </div>
 
-            {/* SE FIZER UPGRADE PARA CASAL, PEDE O DEPENDENTE AQUI */}
+            {/* SESSÃO DO DEPENDENTE (Aparece no Upgrade) */}
             {isUpgradingToCouple && (
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mt-4">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mt-4 animate-in fade-in slide-in-from-top-4">
                 <h3 className="font-semibold text-blue-800 mb-3 text-sm">Upgrade: Incluir Dependente</h3>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Nome do Dependente *</label>
-                    <input required type="text" name="name" value={dependentData.name} onChange={handleDependentChange} 
-                           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                    <input {...register("dependentName")} 
+                           className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentName ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                    {errors.dependentName && <p className="text-red-500 text-xs mt-1">{errors.dependentName.message}</p>}
                   </div>
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">WhatsApp</label>
-                      <input type="text" name="whatsapp" value={dependentData.whatsapp} onChange={handleDependentChange} 
-                             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                      <input {...register("dependentWhatsapp")} 
+                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">Data Nasc. *</label>
-                      <input required type="date" name="birthDate" value={dependentData.birthDate} onChange={handleDependentChange} 
-                             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                      <input type="date" {...register("dependentBirthDate")} 
+                             className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentBirthDate ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                      {errors.dependentBirthDate && <p className="text-red-500 text-xs mt-1">{errors.dependentBirthDate.message}</p>}
                     </div>
+                  </div>
+
+                  {/* O CAMPO DE E-MAIL QUE ESTAVA FALTANDO! */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">E-mail</label>
+                    <input type="email" {...register("dependentEmail")} 
+                           className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentEmail ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                    {errors.dependentEmail && <p className="text-red-500 text-xs mt-1">{errors.dependentEmail.message}</p>}
                   </div>
                 </div>
               </div>

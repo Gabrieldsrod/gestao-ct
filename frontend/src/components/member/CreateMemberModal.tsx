@@ -1,7 +1,24 @@
 import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
 
-// Tipagem do que vem do seu backend
+const memberSchema = z.object({
+  name: z.string().min(3, "O nome deve ter pelo menos 3 letras"),
+  whatsapp: z.string().length(11, "WhatsApp deve ter exatamente 11 caracteres").or(z.literal('')),
+  email: z.email("E-mail inválido").or(z.literal('')),
+  birthDate: z.string().min(1, "A data de nascimento é obrigatória"),
+  planId: z.number().min(1, "Selecione um plano válido"),
+
+  dependentName: z.string().optional(),
+  dependentWhatsapp: z.string().optional(),
+  dependentEmail: z.email("E-mail inválido").or(z.literal('')).optional(),
+  dependentBirthDate: z.string().optional()
+})
+
+type FormValues = z.infer<typeof memberSchema>
+
 interface Plan {
   id: number;
   name: string;
@@ -13,7 +30,25 @@ export function CreateMemberModal() {
   const [isLoading, setIsLoading] = useState(false)
   const [plans, setPlans] = useState<Plan[]>([])
 
-  // Busca os planos assim que o componente é montado
+  const { 
+    register, 
+    handleSubmit, 
+    watch, 
+    formState: { errors }, 
+    setError,
+    reset 
+  } = useForm<FormValues>({
+    resolver: zodResolver(memberSchema),
+    defaultValues: {
+      name: '', whatsapp: '', email: '', birthDate: '', planId: 0,
+      dependentName: '', dependentWhatsapp: '', dependentEmail: '', dependentBirthDate: ''
+    }
+  })
+
+  const watchedPlanId = watch("planId")
+  const selectedPlan = plans.find(p => p.id === Number(watchedPlanId))
+  const isCouplePlan = selectedPlan?.name.toLowerCase().includes('casal')
+
   useEffect(() => {
     async function fetchPlans() {
       try {
@@ -21,9 +56,8 @@ export function CreateMemberModal() {
         if (response.ok) {
           const data = await response.json()
           setPlans(data)
-          // Se houver planos, define o primeiro como padrão no formulário
           if (data.length > 0) {
-            setFormData(prev => ({ ...prev, planId: data[0].id }))
+            reset(formValues => ({ ...formValues, planId: data[0].id }))
           }
         }
       } catch (error) {
@@ -31,54 +65,44 @@ export function CreateMemberModal() {
       }
     }
     fetchPlans()
-  }, [])
+  }, [reset])
 
-  const [formData, setFormData] = useState({
-    name: '', email: '', whatsapp: '', birthDate: '', planId: 0
-  })
-
-  const [dependentData, setDependentData] = useState({
-    name: '', email: '', whatsapp: '', birthDate: ''
-  })
-
-  const handleHolderChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
-
-  const handleDependentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDependentData({ ...dependentData, [e.target.name]: e.target.value })
-  }
-
-  // Verifica se o plano selecionado contém a palavra "Casal" (Independente do ID)
-  const selectedPlan = plans.find(p => p.id === Number(formData.planId))
-  const isCouplePlan = selectedPlan?.name.toLowerCase().includes('casal')
-
-  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const onSubmit = async (data: FormValues) => {
     setIsLoading(true)
 
+    if (isCouplePlan) {
+      if (!data.dependentName || data.dependentName.length < 3) {
+        setError("dependentName", { message: "Nome do dependente é obrigatório" })
+        setIsLoading(false)
+        return
+      }
+      if (!data.dependentBirthDate) {
+        setError("dependentBirthDate", { message: "Data de nascimento é obrigatória" })
+        setIsLoading(false)
+        return
+      }
+    }
+
     try {
-      // 1. Salvar o Titular
       const holderResponse = await fetch(`${import.meta.env.VITE_API_URL}/v1/api/members`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.name, email: formData.email, whatsapp: formData.whatsapp,
-          birthDate: formData.birthDate, planId: Number(formData.planId), holderId: null
+          name: data.name, email: data.email, whatsapp: data.whatsapp,
+          birthDate: data.birthDate, planId: data.planId, holderId: null
         }),
       })
 
       if (!holderResponse.ok) throw new Error('Erro ao cadastrar titular')
       const holder = await holderResponse.json()
 
-      // 2. Se for Plano Casal, salva o Dependente apontando para o Titular
       if (isCouplePlan) {
         const dependentResponse = await fetch(`${import.meta.env.VITE_API_URL}/v1/api/members`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name: dependentData.name, email: dependentData.email, whatsapp: dependentData.whatsapp,
-            birthDate: dependentData.birthDate, planId: Number(formData.planId), holderId: holder.id
+            name: data.dependentName, email: data.dependentEmail, whatsapp: data.dependentWhatsapp,
+            birthDate: data.dependentBirthDate, planId: data.planId, holderId: holder.id
           }),
         })
 
@@ -86,6 +110,7 @@ export function CreateMemberModal() {
       }
 
       setOpen(false)
+      reset() 
       window.location.reload() 
       
     } catch (error) {
@@ -104,49 +129,52 @@ export function CreateMemberModal() {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-137.5 max-h-[90vh] overflow-y-auto bg-white">
+      <DialogContent aria-describedby="create-dialog" className="sm:max-w-137.5 max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-800">Nova Matrícula</DialogTitle>
-          <p className="text-sm text-gray-500">
+          <p id="create-dialog" className="text-sm text-gray-500">
             Atenção: Use apenas para cadastrar pessoas que ainda não estão no sistema.
           </p>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-          {/* SESSÃO DO TITULAR */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
+          
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
             <h3 className="font-semibold text-gray-700 mb-3 text-sm">Dados do Titular</h3>
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Nome Completo *</label>
-                <input required type="text" name="name" value={formData.name} onChange={handleHolderChange} 
-                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                <input {...register("name")} 
+                       className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">WhatsApp</label>
-                  <input type="text" name="whatsapp" value={formData.whatsapp} onChange={handleHolderChange} placeholder="(00) 00000-0000"
+                  <input {...register("whatsapp")} placeholder="(00) 00000-0000"
                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Data Nasc. *</label>
-                  <input required type="date" name="birthDate" value={formData.birthDate} onChange={handleHolderChange} 
-                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                  <input type="date" {...register("birthDate")} 
+                         className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.birthDate ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                  {errors.birthDate && <p className="text-red-500 text-xs mt-1">{errors.birthDate.message}</p>}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">E-mail</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleHolderChange} 
-                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                  <input type="email" {...register("email")} 
+                         className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Plano Escolhido *</label>
-                  <select name="planId" value={formData.planId} onChange={handleHolderChange} 
+                  {/* 3. A MÁGICA FINAL: Avisamos ao React Hook Form que este valor DEVE ser lido como número */}
+                  <select {...register("planId", { valueAsNumber: true })} 
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                    {/* Renderiza dinamicamente os planos que vieram do Spring Boot */}
                     {plans.map(plan => (
                       <option key={plan.id} value={plan.id}>
                         {plan.name} - R$ {plan.price.toFixed(2)}
@@ -158,34 +186,36 @@ export function CreateMemberModal() {
             </div>
           </div>
 
-          {/* SESSÃO DO DEPENDENTE (APARECE SE O PLANO CONTIVER "CASAL") */}
           {isCouplePlan && (
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mt-4 animate-in fade-in slide-in-from-top-4">
               <h3 className="font-semibold text-blue-800 mb-3 text-sm">Dados do Dependente</h3>
               <div className="space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Nome do Dependente *</label>
-                  <input required type="text" name="name" value={dependentData.name} onChange={handleDependentChange} 
-                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                  <input {...register("dependentName")} 
+                         className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentName ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                  {errors.dependentName && <p className="text-red-500 text-xs mt-1">{errors.dependentName.message}</p>}
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">WhatsApp</label>
-                    <input type="text" name="whatsapp" value={dependentData.whatsapp} onChange={handleDependentChange} 
+                    <input {...register("dependentWhatsapp")} 
                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Data Nasc. *</label>
-                    <input required type="date" name="birthDate" value={dependentData.birthDate} onChange={handleDependentChange} 
-                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    <input type="date" {...register("dependentBirthDate")} 
+                           className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentBirthDate ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                    {errors.dependentBirthDate && <p className="text-red-500 text-xs mt-1">{errors.dependentBirthDate.message}</p>}
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">E-mail</label>
-                  <input type="email" name="email" value={dependentData.email} onChange={handleDependentChange} 
-                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                  <input type="email" {...register("dependentEmail")} 
+                         className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentEmail ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                  {errors.dependentEmail && <p className="text-red-500 text-xs mt-1">{errors.dependentEmail.message}</p>}
                 </div>
               </div>
             </div>
