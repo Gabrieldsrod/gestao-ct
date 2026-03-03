@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: postgres:15-alpine
+    container_name: gestao_ct_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gestao_ct_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: gestao_ct_api
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/gestao_ct_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
