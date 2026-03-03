@@ -7,7 +7,7 @@ public record MemberResponseDTO(
         String nome,
         String whatsapp,
         String email,
-        String nomePlano,
+        String planName,
         String status,
         String registrationDate
 ) {
