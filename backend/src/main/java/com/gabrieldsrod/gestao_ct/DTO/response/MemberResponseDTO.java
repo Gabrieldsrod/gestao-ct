@@ -8,10 +8,10 @@ public record MemberResponseDTO(
         String whatsapp,
         String email,
         String nomePlano,
-        String status
+        String status,
+        String registrationDate
 ) {
     public MemberResponseDTO(Member member) {
-        this(member.getId(), member.getName(), member.getWhatsapp(), member.getEmail(), member.getPlan().getName(),
-                member.getStatus().name());
+        this(member.getId(), member.getName(), member.getWhatsapp(), member.getEmail(), member.getPlan().getName(), member.getStatus().name(), member.getRegistrationDate().toString());
     }
 }
