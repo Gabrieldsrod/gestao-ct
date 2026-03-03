@@ -79,8 +79,8 @@ public class MemberService {
     }
 
     @Transactional
-    public List<MemberResponseDTO> searchByPartialName(String partialName) {
-        return memberRepo.findTop10ByNameContainingIgnoreCase(partialName).stream().map(MemberResponseDTO::new).toList();
+    public Page<MemberResponseDTO> searchByPartialName(String partialName, Pageable pageable) {
+        return memberRepo.findTop10ByNameContainingIgnoreCase(partialName, pageable).map(MemberResponseDTO::new);
     }
 
     @Transactional

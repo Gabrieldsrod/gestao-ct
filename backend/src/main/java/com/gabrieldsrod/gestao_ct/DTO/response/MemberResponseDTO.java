@@ -1,10 +1,12 @@
 package com.gabrieldsrod.gestao_ct.DTO.response;
 
 import com.gabrieldsrod.gestao_ct.Model.Member;
+import com.gabrieldsrod.gestao_ct.Utils.DateUtils;
 
 public record MemberResponseDTO(
         Long id,
-        String nome,
+        String name,
+        String birthDate,
         String whatsapp,
         String email,
         String planName,
@@ -12,6 +14,6 @@ public record MemberResponseDTO(
         String registrationDate
 ) {
     public MemberResponseDTO(Member member) {
-        this(member.getId(), member.getName(), member.getWhatsapp(), member.getEmail(), member.getPlan().getName(), member.getStatus().name(), member.getRegistrationDate().toString());
+        this(member.getId(), member.getName(), member.getBirthDate().format(DateUtils.BR_FORMATTER), member.getWhatsapp(), member.getEmail(), member.getPlan().getName(), member.getStatus().name(), member.getRegistrationDate().toString());
     }
 }

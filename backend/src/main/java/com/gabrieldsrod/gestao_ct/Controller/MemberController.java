@@ -55,8 +55,12 @@ public class MemberController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<MemberResponseDTO>> searchMembersByName(@RequestParam(name = "nome") String partialName) {
-        return ResponseEntity.ok(memberService.searchByPartialName(partialName));
+    public ResponseEntity<Page<MemberResponseDTO>> searchMembersByName(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(name = "name") String partialName) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(memberService.searchByPartialName(partialName, pageable));
     }
 
     @PutMapping("/{id}")
