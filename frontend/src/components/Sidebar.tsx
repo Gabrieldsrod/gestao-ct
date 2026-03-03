@@ -11,7 +11,7 @@ export function Sidebar() {
         <Link to="/" className="block px-4 py-2 rounded-lg bg-blue-50 text-blue-700 font-medium [&.active]:font-bold">
           Visão Geral
         </Link>
-        <Link to="/alunos" className="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 font-medium opacity-50 cursor-not-allowed">
+        <Link to="/" className="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 font-medium opacity-50 cursor-not-allowed">
           Alunos (Em breve)
         </Link>
       </nav>
