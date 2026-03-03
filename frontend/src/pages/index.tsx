@@ -5,6 +5,13 @@ import { StudentsGrowthChart } from '../components/StudentsGrowthChart' // <-- N
 
 export const Route = createFileRoute('/')({
   component: DashboardHome,
+  head: () => ({
+    meta: [
+      {
+        title: 'Dashboard - Academia',
+      },
+    ],
+  }),
 })
 
 function DashboardHome() {

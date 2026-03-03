@@ -4,6 +4,13 @@ import { RecentStudentsTable } from '../../components/RecentStudentsTable'
 // A magia acontece aqui: isto define automaticamente o caminho /alunos
 export const Route = createFileRoute('/_members/members')({
   component: MembersPage,
+  head: () => ({
+    meta: [
+      { 
+        title: 'Gestão de Alunos - Academia' 
+      },
+    ],
+  }),
 })
 
 function MembersPage() {
