@@ -5,7 +5,7 @@ import { Edit } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { memberSchema, type MemberFormValues } from "../../schemas/memberSchema"
-import { useUpdateMember } from "../../hooks/useUpdateMember"
+import { useUpdateMember } from "../../hooks/member/useUpdateMember"
 
 // Helper para formatar a data que vem do Java para o HTML
 function parseDateForInput(backendDate: any): string {

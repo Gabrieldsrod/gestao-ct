@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { MembersTable } from '../../components/member/MembersTable'
+import { z } from 'zod'
+
+const membersSearchSchema = z.object({
+  page: z.number().catch(0), // Se não houver ?page=, assume 0
+  q: z.string().catch(''),   // Se não houver ?q= (query), assume vazio
+})
 
 export const Route = createFileRoute('/_members/members')({
+  validateSearch: membersSearchSchema,
   component: MembersPage,
   head: () => ({
     meta: [{ title: 'Gestão de Alunos - Academia' }],
@@ -10,19 +17,21 @@ export const Route = createFileRoute('/_members/members')({
 })
 
 function MembersPage() {
-  // O que o usuário está digitando AGORA
-  const [inputText, setInputText] = useState('')
-  // O termo final que será enviado para o backend após o usuário parar de digitar
-  const [searchTerm, setSearchTerm] = useState('')
+  const { q, page } = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
+  const [inputText, setInputText] = useState(q)
 
-  // Efeito de "Debounce" (espera 500ms após a última tecla digitada para atualizar o termo de busca)
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      setSearchTerm(inputText)
+      if (inputText !== q) {
+        navigate({
+          search: { q: inputText, page: 0 },
+        })
+      }
     }, 500)
 
     return () => clearTimeout(delayDebounceFn)
-  }, [inputText])
+  }, [inputText, q, navigate])
 
   return (
     <div className="p-8 space-y-6">
@@ -32,7 +41,6 @@ function MembersPage() {
           <p className="text-sm text-gray-500">Consulte e gerencie todos os alunos matriculados no CT.</p>
         </div>
         
-        {/* Input agora é controlado pelo React */}
         <input 
           type="text" 
           placeholder="Pesquisar aluno..." 
@@ -43,8 +51,7 @@ function MembersPage() {
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        {/* Passamos o termo de busca final para a tabela */}
-        <MembersTable searchTerm={searchTerm} />
+        <MembersTable searchTerm={q} currentPage={page} />
       </div>
     </div>
   )

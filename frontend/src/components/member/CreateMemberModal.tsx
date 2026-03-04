@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { memberSchema, type MemberFormValues } from "../../schemas/memberSchema"
-import { useCreateMember } from "../../hooks/useCreateMember"
+import { useCreateMember } from "../../hooks/member/useCreateMember"
 
 interface Plan {
   id: number;

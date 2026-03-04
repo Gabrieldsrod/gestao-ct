@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Member } from '../types/Member';
+import type { Member } from '../../types/Member';
 
 // O hook agora aceita um terceiro parâmetro: o searchTerm
 export function useGetMembers(page = 0, size = 10, searchTerm = '') {

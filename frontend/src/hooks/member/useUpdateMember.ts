@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { type MemberFormValues } from ".././schemas/memberSchema";
+import { type MemberFormValues } from "../../schemas/memberSchema";
 
 export function useUpdateMember() {
     const [isLoading, setIsLoading] = useState(false);

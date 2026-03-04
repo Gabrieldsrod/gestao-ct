@@ -3,7 +3,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useGetMembers } from "../../hooks/useGetMembers"
+import { useNavigate } from "@tanstack/react-router"
+import { useGetMembers } from "../../hooks/member/useGetMembers"
 import { EditMemberModal } from "./EditMemberModal"
 
 function getStatusBadge(status: string) {
@@ -32,17 +33,24 @@ function formatarData(dataIso: string) {
 
 interface MembersTableProps {
   searchTerm: string;
+  currentPage: number;
 }
 
-export function MembersTable({ searchTerm }: MembersTableProps) {
-  const [currentPage, setCurrentPage] = useState(0);
+export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
+  // O useNavigate nos permite trocar o parâmetro '?page=' da URL
+  const navigate = useNavigate({ from: '/members' })
 
-  useEffect(() => {
-    setCurrentPage(0);
-  }, [searchTerm]);
+  // Apagamos o useState(0) que ficava aqui e o useEffect que resetava a página!
 
-  const { members, totalPages, totalElements, isLoading, error } = useGetMembers(currentPage, 10, searchTerm); // Pegamos os dados do hook, agora com paginação e termo de busca
+  // O Hook consome o que veio da URL
+  const { members, totalPages, totalElements, isLoading, error } = useGetMembers(currentPage, 10, searchTerm);
 
+  // Função para os botões de seta: Ela altera apenas a URL!
+  const handlePageChange = (newPage: number) => {
+    navigate({
+      search: (prev) => ({ ...prev, page: newPage }) // Mantém a pesquisa intacta e altera só a página
+    })
+  }
   if (isLoading && members.length === 0) {
     return <div className="p-8 text-center text-gray-500">A carregar alunos...</div>;
   }
@@ -108,7 +116,7 @@ export function MembersTable({ searchTerm }: MembersTableProps) {
               variant="outline"
               size="sm"
               className="bg-white"
-              onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+              onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
               disabled={currentPage === 0 || isLoading}
             >
               <ChevronLeft className="h-4 w-4 mr-1" /> Anterior
@@ -118,7 +126,7 @@ export function MembersTable({ searchTerm }: MembersTableProps) {
               variant="outline"
               size="sm"
               className="bg-white"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+              onClick={() => handlePageChange(Math.min(totalPages - 1, currentPage + 1))}
               disabled={currentPage >= totalPages - 1 || isLoading}
             >
               Próxima <ChevronRight className="h-4 w-4 ml-1" />
