@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Member } from '../types/Member';
 
 // O hook agora aceita um terceiro parâmetro: o searchTerm
-export function useMembers(page = 0, size = 10, searchTerm = '') {
+export function useGetMembers(page = 0, size = 10, searchTerm = '') {
   const [members, setMembers] = useState<Member[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);

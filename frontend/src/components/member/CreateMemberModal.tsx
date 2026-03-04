@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { memberSchema, type MemberFormValues } from "../../schemas/memberSchema"
+import { useCreateMember } from "../../hooks/useCreateMember"
 
 interface Plan {
   id: number;
@@ -12,16 +13,16 @@ interface Plan {
 
 export function CreateMemberModal() {
   const [open, setOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const { createMember, isLoading } = useCreateMember()
   const [plans, setPlans] = useState<Plan[]>([])
 
-  const { 
-    register, 
-    handleSubmit, 
-    watch, 
-    formState: { errors }, 
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
     setError,
-    reset 
+    reset
   } = useForm<MemberFormValues>({
     resolver: zodResolver(memberSchema),
     defaultValues: {
@@ -53,56 +54,25 @@ export function CreateMemberModal() {
   }, [reset])
 
   const onSubmit = async (data: MemberFormValues) => {
-    setIsLoading(true)
-
     if (isCouplePlan) {
       if (!data.dependentName || data.dependentName.length < 3) {
         setError("dependentName", { message: "Nome do dependente é obrigatório" })
-        setIsLoading(false)
         return
       }
       if (!data.dependentBirthDate) {
         setError("dependentBirthDate", { message: "Data de nascimento é obrigatória" })
-        setIsLoading(false)
         return
       }
     }
 
-    try {
-      const holderResponse = await fetch(`${import.meta.env.VITE_API_URL}/v1/api/members`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: data.name, email: data.email, whatsapp: data.whatsapp,
-          birthDate: data.birthDate, planId: data.planId, holderId: null
-        }),
-      })
+    const success = await createMember(data, isCouplePlan);
 
-      if (!holderResponse.ok) throw new Error('Erro ao cadastrar titular')
-      const holder = await holderResponse.json()
-
-      if (isCouplePlan) {
-        const dependentResponse = await fetch(`${import.meta.env.VITE_API_URL}/v1/api/members`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: data.dependentName, email: data.dependentEmail, whatsapp: data.dependentWhatsapp,
-            birthDate: data.dependentBirthDate, planId: data.planId, holderId: holder.id
-          }),
-        })
-
-        if (!dependentResponse.ok) throw new Error('Erro ao cadastrar dependente')
-      }
-
+    if (success) {
       setOpen(false)
-      reset() 
-      window.location.reload() 
-      
-    } catch (error) {
+      reset()
+      window.location.reload()
+    } else {
       alert("Falha ao salvar. Verifique o console.")
-      console.error(error)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -121,29 +91,29 @@ export function CreateMemberModal() {
             Atenção: Use apenas para cadastrar pessoas que ainda não estão no sistema.
           </p>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
-          
+
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
             <h3 className="font-semibold text-gray-700 mb-3 text-sm">Dados do Titular</h3>
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Nome Completo *</label>
-                <input {...register("name")} 
-                       className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                <input {...register("name")}
+                  className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">WhatsApp</label>
                   <input {...register("whatsapp")} placeholder="(00) 00000-0000"
-                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Data Nasc. *</label>
-                  <input type="date" {...register("birthDate")} 
-                         className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.birthDate ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                  <input type="date" {...register("birthDate")}
+                    className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.birthDate ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
                   {errors.birthDate && <p className="text-red-500 text-xs mt-1">{errors.birthDate.message}</p>}
                 </div>
               </div>
@@ -151,15 +121,15 @@ export function CreateMemberModal() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">E-mail</label>
-                  <input type="email" {...register("email")} 
-                         className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                  <input type="email" {...register("email")}
+                    className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Plano Escolhido *</label>
                   {/* 3. A MÁGICA FINAL: Avisamos ao React Hook Form que este valor DEVE ser lido como número */}
-                  <select {...register("planId", { valueAsNumber: true })} 
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                  <select {...register("planId", { valueAsNumber: true })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                     {plans.map(plan => (
                       <option key={plan.id} value={plan.id}>
                         {plan.name} - R$ {plan.price.toFixed(2)}
@@ -177,29 +147,29 @@ export function CreateMemberModal() {
               <div className="space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Nome do Dependente *</label>
-                  <input {...register("dependentName")} 
-                         className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentName ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                  <input {...register("dependentName")}
+                    className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentName ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
                   {errors.dependentName && <p className="text-red-500 text-xs mt-1">{errors.dependentName.message}</p>}
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">WhatsApp</label>
-                    <input {...register("dependentWhatsapp")} 
-                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    <input {...register("dependentWhatsapp")}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Data Nasc. *</label>
-                    <input type="date" {...register("dependentBirthDate")} 
-                           className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentBirthDate ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                    <input type="date" {...register("dependentBirthDate")}
+                      className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentBirthDate ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
                     {errors.dependentBirthDate && <p className="text-red-500 text-xs mt-1">{errors.dependentBirthDate.message}</p>}
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">E-mail</label>
-                  <input type="email" {...register("dependentEmail")} 
-                         className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentEmail ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
+                  <input type="email" {...register("dependentEmail")}
+                    className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentEmail ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
                   {errors.dependentEmail && <p className="text-red-500 text-xs mt-1">{errors.dependentEmail.message}</p>}
                 </div>
               </div>
@@ -207,8 +177,8 @@ export function CreateMemberModal() {
           )}
 
           <div className="pt-2 flex justify-end">
-            <button disabled={isLoading} type="submit" 
-                    className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+            <button disabled={isLoading} type="submit"
+              className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-2 rounded-lg font-medium transition-colors">
               {isLoading ? 'Salvando...' : 'Salvar Matrícula'}
             </button>
           </div>

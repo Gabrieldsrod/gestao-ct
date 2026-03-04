@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useMembers } from "../../hooks/useMembers"
+import { useGetMembers } from "../../hooks/useGetMembers"
 import { EditMemberModal } from "./EditMemberModal"
 
 function getStatusBadge(status: string) {
@@ -40,8 +40,8 @@ export function MembersTable({ searchTerm }: MembersTableProps) {
   useEffect(() => {
     setCurrentPage(0);
   }, [searchTerm]);
-  
-  const { members, totalPages, totalElements, isLoading, error} = useMembers(currentPage, 10, searchTerm); // Pegamos os dados do hook, agora com paginação e termo de busca
+
+  const { members, totalPages, totalElements, isLoading, error } = useGetMembers(currentPage, 10, searchTerm); // Pegamos os dados do hook, agora com paginação e termo de busca
 
   if (isLoading && members.length === 0) {
     return <div className="p-8 text-center text-gray-500">A carregar alunos...</div>;
@@ -51,7 +51,7 @@ export function MembersTable({ searchTerm }: MembersTableProps) {
     return <div className="p-8 text-center text-red-500">Erro: {error}</div>;
   }
 
- if (members.length === 0) {
+  if (members.length === 0) {
     return (
       <div className="p-8 text-center text-gray-500">
         {searchTerm ? `Nenhum aluno encontrado para "${searchTerm}".` : "Nenhum aluno matriculado ainda."}
@@ -61,7 +61,7 @@ export function MembersTable({ searchTerm }: MembersTableProps) {
 
   return (
     <div className="rounded-md border border-gray-100 bg-white flex flex-col min-h-[calc(100vh-240px)] shadow-sm">
-      
+
       {/* 2. Este flex-1 empurra o rodapé para baixo e guarda a tabela */}
       <div className="flex-1">
         <Table>
@@ -102,7 +102,7 @@ export function MembersTable({ searchTerm }: MembersTableProps) {
           <span className="text-sm text-gray-500 font-medium">
             Página {currentPage + 1} de {totalPages} <span className="text-gray-400 font-normal">({totalElements} alunos no total)</span>
           </span>
-          
+
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -113,7 +113,7 @@ export function MembersTable({ searchTerm }: MembersTableProps) {
             >
               <ChevronLeft className="h-4 w-4 mr-1" /> Anterior
             </Button>
-            
+
             <Button
               variant="outline"
               size="sm"
