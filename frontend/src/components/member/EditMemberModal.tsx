@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Edit } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+import { memberSchema, type MemberFormValues } from "../../schemas/memberSchema"
 
 // Helper para formatar a data que vem do Java para o HTML
 function parseDateForInput(backendDate: any): string {
@@ -23,22 +23,6 @@ function parseDateForInput(backendDate: any): string {
   return '';
 }
 
-// 1. SCHEMA CORRIGIDO: Usando { message: "..." } para evitar o warning de @deprecated
-const editSchema = z.object({
-  name: z.string().min(3, "O nome deve ter pelo menos 3 letras"),
-  whatsapp: z.string().length(11, "WhatsApp deve ter exatamente 11 caracteres").or(z.literal('')),
-  email: z.email({ message: "E-mail inválido" }).or(z.literal('')),
-  birthDate: z.string().min(1, "A data de nascimento é obrigatória"),
-  planId: z.number().min(1, "Selecione um plano válido"),
-
-  dependentName: z.string().optional(),
-  dependentWhatsapp: z.string().length(11, "WhatsApp do dependente deve ter exatamente 11 caracteres").or(z.literal('')).optional(),
-  dependentEmail: z.email({ message: "E-mail inválido" }).or(z.literal('')).optional(),
-  dependentBirthDate: z.string().optional()
-})
-
-type FormValues = z.infer<typeof editSchema>
-
 interface Plan { id: number; name: string; price: number; }
 interface EditMemberModalProps { memberId: number; }
 
@@ -49,8 +33,8 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
   const [plans, setPlans] = useState<Plan[]>([])
   const [originalPlanId, setOriginalPlanId] = useState(0)
 
-  const { register, handleSubmit, watch, formState: { errors }, setError, reset } = useForm<FormValues>({
-    resolver: zodResolver(editSchema),
+  const { register, handleSubmit, watch, formState: { errors }, setError, reset } = useForm<MemberFormValues>({
+    resolver: zodResolver(memberSchema),
     defaultValues: {
       name: '', whatsapp: '', email: '', birthDate: '', planId: 0,
       dependentName: '', dependentWhatsapp: '', dependentEmail: '', dependentBirthDate: ''
@@ -104,7 +88,7 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
     }
   }
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: MemberFormValues) => {
     setIsLoading(true)
 
     // Impede o envio se escolheu Upgrade mas não preencheu o dependente

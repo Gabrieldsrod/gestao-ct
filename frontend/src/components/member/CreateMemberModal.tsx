@@ -2,22 +2,7 @@ import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-
-const memberSchema = z.object({
-  name: z.string().min(3, "O nome deve ter pelo menos 3 letras"),
-  whatsapp: z.string().length(11, "WhatsApp deve ter exatamente 11 caracteres").or(z.literal('')),
-  email: z.email("E-mail inválido").or(z.literal('')),
-  birthDate: z.string().min(1, "A data de nascimento é obrigatória"),
-  planId: z.number().min(1, "Selecione um plano válido"),
-
-  dependentName: z.string().optional(),
-  dependentWhatsapp: z.string().optional(),
-  dependentEmail: z.email("E-mail inválido").or(z.literal('')).optional(),
-  dependentBirthDate: z.string().optional()
-})
-
-type FormValues = z.infer<typeof memberSchema>
+import { memberSchema, type MemberFormValues } from "../../schemas/memberSchema"
 
 interface Plan {
   id: number;
@@ -37,7 +22,7 @@ export function CreateMemberModal() {
     formState: { errors }, 
     setError,
     reset 
-  } = useForm<FormValues>({
+  } = useForm<MemberFormValues>({
     resolver: zodResolver(memberSchema),
     defaultValues: {
       name: '', whatsapp: '', email: '', birthDate: '', planId: 0,
@@ -67,7 +52,7 @@ export function CreateMemberModal() {
     fetchPlans()
   }, [reset])
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: MemberFormValues) => {
     setIsLoading(true)
 
     if (isCouplePlan) {
