@@ -9,11 +9,11 @@ public record MemberResponseDTO(
         String birthDate,
         String whatsapp,
         String email,
-        String planName,
+        PlanResponseDTO plan,
         String status,
         String registrationDate
 ) {
     public MemberResponseDTO(Member member) {
-        this(member.getId(), member.getName(), member.getBirthDate().format(DateUtils.BR_FORMATTER), member.getWhatsapp(), member.getEmail(), member.getPlan().getName(), member.getStatus().name(), member.getRegistrationDate().toString());
+        this(member.getId(), member.getName(), member.getBirthDate().format(DateUtils.BR_FORMATTER), member.getWhatsapp(), member.getEmail(), member.getPlan() != null ? new PlanResponseDTO(member.getPlan()) : null , member.getStatus().name(), member.getRegistrationDate().toString());
     }
 }
