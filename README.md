@@ -67,9 +67,10 @@ npm run dev
 
 > No Windows, se necessário, use `mvnw.cmd` no lugar de `./mvnw`.
 
-## 🌍 Contato & Redes Sociais
+## 🌍 Conecte-se comigo
 
-Estou sempre aberto a novas conexões e desafios. Me encontre por aqui:
+Buscando minha primeira oportunidade como Desenvolvedor Backend Estagiário/Júnior e sempre aberto a trocar ideias!
 
-* 💼 **LinkedIn:** [/in/gabrieldsrod](https://www.linkedin.com/in/gabrieldsrod/)
-* 💻 **GitHub:** [@Gabrieldsrod](https://github.com/Gabrieldsrod)
+📧 **E-mail:** [gabrieldsrodrigues19@gmail.com]
+💼 **LinkedIn:** [gabrieldsrod](https://www.linkedin.com/in/gabrieldsrod/)
+💻 **GitHub:** [Gabrieldsrod](https://github.com/Gabrieldsrod)
