@@ -43,12 +43,10 @@ public class BillingScheduler {
 
             if(!alreadyCharged) {
                 Optional<MemberPayment> lastPayment = paymentService.findLastPaymentForMember(member);
-
                 LocalDate nextDueDate;
 
                 if (lastPayment.isPresent()) {
                     nextDueDate = lastPayment.get().getDueDate().plusMonths(1);
-                    paymentService.generateCharge(member, nextDueDate);
                 } else {
                     nextDueDate = member.getRegistrationDate().withDayOfMonth(1).plusMonths(1);
                 }
