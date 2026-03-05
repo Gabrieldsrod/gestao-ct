@@ -4,8 +4,8 @@ import { MembersTable } from '../../components/member/MembersTable'
 import { z } from 'zod'
 
 const membersSearchSchema = z.object({
-  page: z.number().catch(0), // Se não houver ?page=, assume 0
-  q: z.string().catch(''),   // Se não houver ?q= (query), assume vazio
+  page: z.number().catch(0), 
+  q: z.string().catch(''),   
 })
 
 export const Route = createFileRoute('/_members/members')({

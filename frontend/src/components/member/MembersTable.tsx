@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, UserMinus } from "lucide-react"
 import { useNavigate } from "@tanstack/react-router"
 import { useGetMembers } from "../../hooks/member/useGetMembers"
+import { useInactivateMember } from "../../hooks/member/useInactivateMember"
 import { EditMemberModal } from "./EditMemberModal"
 
 function getStatusBadge(status: string) {
@@ -37,18 +37,27 @@ interface MembersTableProps {
 }
 
 export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
-  // O useNavigate nos permite trocar o parâmetro '?page=' da URL
   const navigate = useNavigate({ from: '/members' })
 
-  // Apagamos o useState(0) que ficava aqui e o useEffect que resetava a página!
-
-  // O Hook consome o que veio da URL
   const { members, totalPages, totalElements, isLoading, error } = useGetMembers(currentPage, 10, searchTerm);
+  const { inactivateMember, isLoading: isActivating } = useInactivateMember();
 
-  // Função para os botões de seta: Ela altera apenas a URL!
+  const handleInactivateClick = async (id: number, name: string) => {
+    if (window.confirm(`Deseja realmente inativar o aluno ${name}?`)) {
+      const result = await inactivateMember(id);
+      if (result.success) {
+        alert("Aluno inativado com sucesso!");
+        window.location.reload();
+      } else {
+        // Aqui a mágica acontece: mostra o erro do seu Java na cara do usuário!
+        alert(`Falha: ${result.message}`);
+      }
+    }
+  }
+
   const handlePageChange = (newPage: number) => {
     navigate({
-      search: (prev) => ({ ...prev, page: newPage }) // Mantém a pesquisa intacta e altera só a página
+      search: (prev) => ({ ...prev, page: newPage })
     })
   }
   if (isLoading && members.length === 0) {
@@ -69,8 +78,6 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
 
   return (
     <div className="rounded-md border border-gray-100 bg-white flex flex-col min-h-[calc(100vh-240px)] shadow-sm">
-
-      {/* 2. Este flex-1 empurra o rodapé para baixo e guarda a tabela */}
       <div className="flex-1">
         <Table>
           <TableHeader className="bg-gray-50/50">
@@ -97,6 +104,15 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
                 </TableCell>
                 <TableCell className="text-right">
                   <EditMemberModal memberId={student.id} />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-2 text-red-500 hover:text-red-700"
+                    onClick={() => handleInactivateClick(student.id, student.name)}
+                    disabled={isActivating}
+                  >
+                    <UserMinus className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

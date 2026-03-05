@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { memberSchema, type MemberFormValues } from "../../schemas/memberSchema"
 import { useUpdateMember } from "../../hooks/member/useUpdateMember"
 
-// Helper para formatar a data que vem do Java para o HTML
 function parseDateForInput(backendDate: any): string {
   if (!backendDate) return '';
   if (Array.isArray(backendDate)) {
@@ -32,7 +31,7 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
   const { updateMember, isLoading } = useUpdateMember()
   const [isLoadingData, setIsLoadingData] = useState(false)
   const [plans, setPlans] = useState<Plan[]>([])
-  const [originalPlanId, setOriginalPlanId] = useState(0)
+  const [originalPlanId, setOriginalPlanId] = useState<number | null>(null)
 
   const { register, handleSubmit, watch, formState: { errors }, setError, reset } = useForm<MemberFormValues>({
     resolver: zodResolver(memberSchema),
@@ -42,11 +41,15 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
     }
   })
 
-  // Regra de Negócio: Fica de olho no select para saber se fez Upgrade para Casal
   const watchedPlanId = watch("planId")
+  
   const selectedPlan = plans.find(p => p.id === Number(watchedPlanId))
   const isCouplePlan = selectedPlan?.name.toLowerCase().includes('casal')
-  const isUpgradingToCouple = isCouplePlan && originalPlanId !== 0 && originalPlanId !== Number(watchedPlanId)
+  
+  const originalPlan = plans.find(p => p.id === originalPlanId)
+  const wasCouplePlan = originalPlan?.name.toLowerCase().includes('casal')
+
+  const isUpgradingToCouple = isCouplePlan && !wasCouplePlan
 
   useEffect(() => {
     if (open) {
@@ -88,7 +91,7 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
     }
   }
 
- const onSubmit = async (data: MemberFormValues) => {
+  const onSubmit = async (data: MemberFormValues) => {
     
     if (isUpgradingToCouple) {
       if (!data.dependentName || data.dependentName.length < 3) {
@@ -109,7 +112,6 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
       }
     }
 
-    
     const success = await updateMember(memberId, data, isUpgradingToCouple);
 
     if (success) {
@@ -214,7 +216,6 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
                     </div>
                   </div>
 
-                  {/* O CAMPO DE E-MAIL QUE ESTAVA FALTANDO! */}
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">E-mail</label>
                     <input type="email" {...register("dependentEmail")}
