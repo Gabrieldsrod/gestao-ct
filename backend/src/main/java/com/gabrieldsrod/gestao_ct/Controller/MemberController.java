@@ -3,10 +3,12 @@ package com.gabrieldsrod.gestao_ct.Controller;
 import com.gabrieldsrod.gestao_ct.DTO.request.MemberRegistrationDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberUpdateResponseDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberResponseDTO;
+import com.gabrieldsrod.gestao_ct.Enums.MemberStatus;
 import com.gabrieldsrod.gestao_ct.Service.MemberService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,9 +34,10 @@ public class MemberController {
     @GetMapping
     public ResponseEntity<Page<MemberResponseDTO>> listMembers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<MemberResponseDTO> membersPageDto = memberService.pageMembers(pageable);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) MemberStatus status) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        Page<MemberResponseDTO> membersPageDto = memberService.getAllMembers(status, pageable);
         return ResponseEntity.ok(membersPageDto);
     }
 

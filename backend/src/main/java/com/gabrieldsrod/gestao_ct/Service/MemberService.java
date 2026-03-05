@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class MemberService {
@@ -62,9 +63,16 @@ public class MemberService {
         return new MemberResponseDTO(newMember);
     }
 
-    @Transactional
-    public Page<MemberResponseDTO> pageMembers(Pageable pageable) {
-        return memberRepo.findAll(pageable).map(MemberResponseDTO::new);
+    public Page<MemberResponseDTO> getAllMembers(MemberStatus status, Pageable pageable) {
+        Page<Member> membersPage;
+
+        if (status != null) {
+            membersPage = memberRepo.findByStatus(status, pageable);
+        } else {
+            membersPage = memberRepo.findAll(pageable);
+        }
+
+        return membersPage.map(MemberResponseDTO::new);
     }
 
     @Transactional
