@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("v1/api/members")
 @CrossOrigin(origins = "*")
@@ -71,13 +69,13 @@ public class MemberController {
 
     @PatchMapping("/{id}/inactivate")
     public ResponseEntity<MemberUpdateResponseDTO> inactivateMember(@PathVariable Long id) {
-        MemberUpdateResponseDTO response = memberService.inactivate(id);
+        MemberUpdateResponseDTO response = memberService.inactivateMember(id);
         return ResponseEntity.ok().body(response);
     }
 
      @PatchMapping("/{id}/activate")
     public ResponseEntity<MemberUpdateResponseDTO> activateMember(@PathVariable Long id) {
-        MemberUpdateResponseDTO response = memberService.activate(id);
+        MemberUpdateResponseDTO response = memberService.activateMember(id);
      return ResponseEntity.ok().body(response);
     }
 }

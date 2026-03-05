@@ -16,7 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,6 +44,21 @@ public class PaymentService {
 
     public Optional<MemberPayment> findLastPaymentForMember(Member member) {
         return paymentRepo.findTopByMemberOrderByDueDateDesc(member);
+    }
+
+    public List<MemberPayment> findByMemberAndPaymentDateIsNull(Member member) {
+        return paymentRepo.findByMemberAndPaymentDateIsNull(member);
+    }
+
+    @Transactional
+    public void updatePendingChargesForPlanChange(Member member, BigDecimal newPrice) {
+
+        List<MemberPayment> pendingPayments = this.findByMemberAndPaymentDateIsNull(member);
+
+        for (MemberPayment payment : pendingPayments) {
+            payment.setAmountCharged(newPrice);
+            paymentRepo.save(payment);
+        }
     }
 
     @Transactional
@@ -79,8 +96,17 @@ public class PaymentService {
         payment.setTransaction(income);
 
         Member member = payment.getMember();
-        if (member.getStatus() == MemberStatus.DELINQUENT || member.getStatus() == MemberStatus.PENDING)
+        if (member.getStatus() == MemberStatus.DELINQUENT || member.getStatus() == MemberStatus.PENDING) {
             member.setStatus(MemberStatus.ACTIVE);
+        }
+
+        if (member.getDependents() != null && !member.getDependents().isEmpty()) {
+            for (Member dependent : member.getDependents()) {
+                if (dependent.getStatus() == MemberStatus.DELINQUENT || dependent.getStatus() == MemberStatus.PENDING) {
+                    dependent.setStatus(MemberStatus.ACTIVE);
+                }
+            }
+        }
 
         payment = paymentRepo.save(payment);
 

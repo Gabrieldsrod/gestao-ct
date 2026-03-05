@@ -4,6 +4,7 @@ import com.gabrieldsrod.gestao_ct.DTO.request.MemberRegistrationDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberUpdateResponseDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberResponseDTO;
 import com.gabrieldsrod.gestao_ct.Enums.MemberStatus;
+import com.gabrieldsrod.gestao_ct.Infra.Exceptions.BusinessRuleException;
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.ResourceNotFoundException;
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Model.Plan;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 public class MemberService {
@@ -56,7 +56,7 @@ public class MemberService {
         newMember = memberRepo.save(newMember);
 
         if (newMember.getHolder() == null) {
-            paymentService.generateCharge(newMember, LocalDate.now());
+            paymentService.generateCharge(newMember, LocalDate.now().plusMonths(1));
         }
 
         return new MemberResponseDTO(newMember);
@@ -87,13 +87,44 @@ public class MemberService {
     public MemberUpdateResponseDTO updateMember(Long id, MemberRegistrationDTO data) {
         Member member = this.getMemberById(id);
 
-        Plan plan = planService.getById(data.getPlanId());
+        Plan newPlan = planService.getById(data.getPlanId());
 
+        boolean isNewPlanCouple = newPlan.getName().toLowerCase().contains("casal");
+
+        if (member.getHolder() == null && !member.getDependents().isEmpty()) {
+            boolean hasActiveDependents = member.getDependents().stream()
+                    .anyMatch(dep -> dep.getStatus() == MemberStatus.ACTIVE || dep.getStatus() == MemberStatus.PENDING);
+
+            if (hasActiveDependents && !isNewPlanCouple) {
+                throw new BusinessRuleException(
+                        "Não é possível alterar para um plano individual. Este titular possui dependentes ativos atrelados. " +
+                                "Inative os dependentes primeiro."
+                );
+            }
+        }
+
+        if (member.getHolder() != null) {
+            if (!isNewPlanCouple) {
+                member.setHolder(null);
+            }
+        }
+
+        if (!member.getPlan().getId().equals(newPlan.getId())) {
+            paymentService.updatePendingChargesForPlanChange(member, newPlan.getPrice());
+            member.setPlan(newPlan);
+
+            // Update dependents' plans if the member has dependents
+            if (!member.getDependents().isEmpty()) {
+                for (Member dependent : member.getDependents()) {
+                    dependent.setPlan(newPlan);
+                    memberRepo.save(dependent);
+                }
+            }
+        }
         member.setName(data.getName());
         member.setEmail(data.getEmail());
         member.setWhatsapp(data.getWhatsapp());
         member.setBirthDate(data.getBirthDate());
-        member.setPlan(plan);
 
         member = memberRepo.save(member);
 
@@ -102,17 +133,32 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberUpdateResponseDTO inactivate(Long id) {
-        Member member = this.getMemberById(id);
-        member.setStatus(MemberStatus.INACTIVE);
-        member = memberRepo.save(member);
+    public MemberUpdateResponseDTO inactivateMember(Long memberId) {
+        Member member = this.getMemberById(memberId);
 
-        String message = "Aluno inativado com sucesso. Ele não receberá mais cobranças, mas seus dados permanecerão no sistema.";
+        if (member.getHolder() == null && !member.getDependents().isEmpty()) {
+
+            boolean hasActiveDependents = member.getDependents().stream()
+                    .anyMatch(dep -> dep.getStatus() == MemberStatus.ACTIVE || dep.getStatus() == MemberStatus.PENDING);
+
+            if (hasActiveDependents) {
+                throw new BusinessRuleException(
+                        "Não é possível inativar este titular. Ele possui dependentes ativos. " +
+                                "Inative os dependentes primeiro ou promova-os a titulares mudando o plano."
+                );
+            }
+        }
+
+
+        member.setStatus(MemberStatus.INACTIVE);
+        memberRepo.save(member);
+
+        String message = "Aluno inativado com sucesso. Ele não receberá mais cobranças a partir de agora.";
         return new MemberUpdateResponseDTO(message, member.getId());
     }
 
     @Transactional
-    public MemberUpdateResponseDTO activate(Long id) {
+    public MemberUpdateResponseDTO activateMember(Long id) {
         Member member = this.getMemberById(id);
         member.setStatus(MemberStatus.ACTIVE);
         member = memberRepo.save(member);
