@@ -44,12 +44,12 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
   const watchedPlanId = watch("planId")
   
   const selectedPlan = plans.find(p => p.id === Number(watchedPlanId))
-  const isCouplePlan = selectedPlan?.name.toLowerCase().includes('casal')
+  const isCouplePlan = Boolean(selectedPlan?.name.toLowerCase().includes('casal'))
   
   const originalPlan = plans.find(p => p.id === originalPlanId)
-  const wasCouplePlan = originalPlan?.name.toLowerCase().includes('casal')
+  const wasCouplePlan = Boolean(originalPlan?.name.toLowerCase().includes('casal'))
 
-  const isUpgradingToCouple = isCouplePlan && !wasCouplePlan
+  const isUpgradingToCouple = isCouplePlan && !wasCouplePlan && originalPlanId !== null
 
   useEffect(() => {
     if (open) {
@@ -73,14 +73,15 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/api/members/${memberId}`)
       if (response.ok) {
         const data = await response.json()
-        setOriginalPlanId(data.planId || 1)
+        const fetchedPlanId = data.plan.id || data.planId || 1;
+        setOriginalPlanId(fetchedPlanId);
 
         reset({
           name: data.name || '',
           email: data.email || '',
           whatsapp: data.whatsapp || '',
           birthDate: parseDateForInput(data.birthDate),
-          planId: data.planId || 1,
+          planId: fetchedPlanId,
           dependentName: '', dependentWhatsapp: '', dependentEmail: '', dependentBirthDate: ''
         })
       }

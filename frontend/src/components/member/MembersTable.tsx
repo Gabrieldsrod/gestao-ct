@@ -97,7 +97,7 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
                 <TableCell className="font-medium text-gray-800">{student.name}</TableCell>
                 <TableCell className="text-gray-600">{student.whatsapp || '-'}</TableCell>
                 <TableCell className="text-gray-600">{student.email || '-'}</TableCell>
-                <TableCell className="text-gray-600">{student.planName}</TableCell>
+                <TableCell className="text-gray-600">{student.plan?.name || "Sem plano"}</TableCell>
                 <TableCell className="text-gray-600">{formatarData(student.registrationDate)}</TableCell>
                 <TableCell className="text-center">
                   {getStatusBadge(student.status)}

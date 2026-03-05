@@ -1,9 +1,11 @@
+import { type Plan } from "./Plan";
+
 export interface Member {
   id: number;
   name: string;
   whatsapp: string;
   email: string;
-  planName: string;
+  plan: Plan;
   status: string;
   registrationDate: string;
 }
