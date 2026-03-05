@@ -94,7 +94,17 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
           <TableBody>
             {members.map((student) => (
               <TableRow key={student.id} className="hover:bg-gray-50/50 transition-colors">
-                <TableCell className="font-medium text-gray-800">{student.name}</TableCell>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-800">{student.name}</span>
+
+                    {student.holderName && (
+                      <span className="text-xs text-gray-500 mt-0.5">
+                        ↳ Dependente de: <strong className="text-gray-600">{student.holderName}</strong>
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell className="text-gray-600">{student.whatsapp || '-'}</TableCell>
                 <TableCell className="text-gray-600">{student.email || '-'}</TableCell>
                 <TableCell className="text-gray-600">{student.plan?.name || "Sem plano"}</TableCell>
