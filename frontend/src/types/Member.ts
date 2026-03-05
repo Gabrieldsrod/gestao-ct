@@ -8,4 +8,5 @@ export interface Member {
   plan: Plan;
   status: string;
   registrationDate: string;
+  holderName?: string | null;
 }
