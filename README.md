@@ -53,7 +53,7 @@ Para recrutadores e engenheiros revisando este código, os seguintes pontos da a
 
 ```bash
 # Clone o repositório
-git clone https://github.com/SeuUsuario/gestao-ct.git
+git clone https://github.com/Gabrieldsrod/gestao-ct.git
 
 # Executar o Backend (Spring Boot)
 cd backend
