@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 public class TransactionService {
@@ -68,27 +67,17 @@ public class TransactionService {
         return transactionRepo.save(income);
     }
 
+    public BigDecimal sumIncomesBetween(LocalDate startDate, LocalDate endDate) {
+        return transactionRepo.sumIncomesBetween(startDate, endDate);
+    }
+
 
     public CashFlowDTO cashFlowResume() {
-        var transactions = transactionRepo.findAll();
-
-        var totalEntradas = transactions.stream()
-                .filter(t -> t.getType() == TransactionType.INCOME)
-                .map(Transaction::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        var totalSaidas = transactions.stream()
-                .filter(t -> t.getType() == TransactionType.EXPENSE)
-                .map(Transaction::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalEntradas = transactionRepo.sumTotalIncomes();
+        BigDecimal totalSaidas = transactionRepo.sumTotalExpenses();
 
         BigDecimal saldoFinal = totalEntradas.subtract(totalSaidas);
 
-        List<TransactionResponseDTO> listaTransacoesDto = transactions.stream()
-                .map(TransactionResponseDTO::new)
-                .toList();
-
-        return new CashFlowDTO(totalEntradas, totalSaidas, saldoFinal, listaTransacoesDto);
+        return new CashFlowDTO(totalEntradas, totalSaidas, saldoFinal);
     }
-
 }

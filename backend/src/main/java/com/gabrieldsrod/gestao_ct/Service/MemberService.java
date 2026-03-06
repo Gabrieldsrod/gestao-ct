@@ -31,6 +31,14 @@ public class MemberService {
         this.paymentService = paymentService;
     }
 
+    public long countByStatus(MemberStatus status) {
+        return memberRepo.countByStatus(status);
+    }
+
+    public long countActiveMembersUpTo(LocalDate endDate) {
+        return memberRepo.countActiveMembersUpTo(endDate);
+    }
+
     @Transactional
     public MemberResponseDTO register(MemberRegistrationDTO data) {
         Plan plan = planService.getById(data.getPlanId());
