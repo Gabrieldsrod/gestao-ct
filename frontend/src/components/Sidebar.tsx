@@ -22,7 +22,7 @@ export function Sidebar() {
           {/* Link Alunos */}
           <Link
             to="/members"
-            search={{ page: 0, q: '' }} /* <-- AQUI: Avisamos que começa na pág 0 e sem pesquisa */
+            search={{ page: 0, q: '' }} 
             className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 [&.active]:bg-blue-50 [&.active]:text-blue-700 [&.active]:font-semibold transition-colors"
           >
             <Users className="h-5 w-5" />
@@ -31,8 +31,8 @@ export function Sidebar() {
 
           {/* Link Pagamentos */}
           <Link
-            to="/tsx/payments" /* <-- AQUI: Usamos a rota exata que o seu projeto gerou */
-            search={{ page: 0 }} /* <-- AQUI: Avisamos que os pagamentos também começam na pág 0 */
+            to="/payments" 
+            search={{ page: 0 }}
             className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 [&.active]:bg-blue-50 [&.active]:text-blue-700 [&.active]:font-semibold transition-colors"
           >
             <CircleDollarSign className="h-5 w-5" />

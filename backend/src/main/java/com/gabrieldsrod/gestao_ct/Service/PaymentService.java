@@ -1,10 +1,10 @@
 package com.gabrieldsrod.gestao_ct.Service;
 
 import com.gabrieldsrod.gestao_ct.DTO.response.PaymentReceiptDTO;
-import com.gabrieldsrod.gestao_ct.DTO.response.PendingPaymentDTO;
-import com.gabrieldsrod.gestao_ct.DTO.response.PaidPaymentDTO;
+import com.gabrieldsrod.gestao_ct.DTO.response.PaymentResponseDTO;
 import com.gabrieldsrod.gestao_ct.Enums.MemberStatus;
 import com.gabrieldsrod.gestao_ct.Enums.PaymentMethod;
+import com.gabrieldsrod.gestao_ct.Enums.PaymentStatus;
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.BusinessRuleException;
 import com.gabrieldsrod.gestao_ct.Infra.Exceptions.ResourceNotFoundException;
 import com.gabrieldsrod.gestao_ct.Model.Member;
@@ -32,14 +32,16 @@ public class PaymentService {
         this.transactionService = transactionService;
     }
 
-    public Page<PendingPaymentDTO> listPending(Pageable pageable) {
-        return paymentRepo.findByPaymentDateIsNull(pageable)
-                .map(PendingPaymentDTO::fromEntity);
-    }
+    public Page<PaymentResponseDTO> getAllPayments(PaymentStatus status, Pageable pageable) {
+        Page<MemberPayment> paymentsPage;
 
-    public Page<PaidPaymentDTO> listPaid(Pageable pageable) {
-        return paymentRepo.findByPaymentDateIsNotNull(pageable)
-                .map(PaidPaymentDTO::fromEntity);
+        if (status != null) {
+            paymentsPage = paymentRepo.findByStatus(status, pageable);
+        } else {
+            paymentsPage = paymentRepo.findAll(pageable);
+        }
+
+        return paymentsPage.map(PaymentResponseDTO::new);
     }
 
     public Optional<MemberPayment> findLastPaymentForMember(Member member) {
@@ -53,7 +55,7 @@ public class PaymentService {
     @Transactional
     public void updatePendingChargesForPlanChange(Member member, BigDecimal newPrice) {
 
-        List<MemberPayment> pendingPayments = this.findByMemberAndPaymentDateIsNull(member);
+        List<MemberPayment> pendingPayments = paymentRepo.findByMemberAndStatus(member, PaymentStatus.PENDING);
 
         for (MemberPayment payment : pendingPayments) {
             payment.setAmountCharged(newPrice);
@@ -68,10 +70,9 @@ public class PaymentService {
         }
         MemberPayment pagamento = new MemberPayment();
         pagamento.setMember(member);
-
         pagamento.setDueDate(dueDate);
-
         pagamento.setAmountCharged(member.getPlan().getPrice());
+        pagamento.setStatus(PaymentStatus.PENDING);
         pagamento.setPaymentDate(null);
         pagamento.setAmountPaid(null);
         pagamento.setTransaction(null);
@@ -85,12 +86,16 @@ public class PaymentService {
         MemberPayment payment = paymentRepo.findById(paymentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado"));
 
-        if (payment.getPaymentDate() != null) {
+        if (payment.getStatus() == PaymentStatus.PAID) {
             throw new BusinessRuleException("Pagamento já registrado");
+        }
+        if (payment.getStatus() == PaymentStatus.CANCELED) {
+            throw new BusinessRuleException("Não é possível pagar uma cobrança cancelada");
         }
 
         Transaction income = transactionService.saveMembershipTransaction(payment, paymentMethod);
 
+        payment.setStatus(PaymentStatus.PAID);
         payment.setPaymentDate(LocalDate.now());
         payment.setAmountPaid(payment.getAmountCharged());
         payment.setTransaction(income);
@@ -113,7 +118,7 @@ public class PaymentService {
         return new PaymentReceiptDTO(
                 payment.getId(),
                 payment.getMember().getName(),
-                "PAGO"
+                payment.getStatus().name()
         );
     }
 }

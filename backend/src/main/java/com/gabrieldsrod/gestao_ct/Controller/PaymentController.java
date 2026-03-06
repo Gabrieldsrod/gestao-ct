@@ -1,12 +1,14 @@
 package com.gabrieldsrod.gestao_ct.Controller;
 
 import com.gabrieldsrod.gestao_ct.DTO.request.PaymentClearenceDTO;
-import com.gabrieldsrod.gestao_ct.DTO.response.PendingPaymentDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PaymentReceiptDTO;
-import com.gabrieldsrod.gestao_ct.DTO.response.PaidPaymentDTO;
+import com.gabrieldsrod.gestao_ct.DTO.response.PaymentResponseDTO;
+import com.gabrieldsrod.gestao_ct.Enums.PaymentStatus;
 import com.gabrieldsrod.gestao_ct.Service.PaymentService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,16 +23,16 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    @GetMapping("/pending")
-    public Page<PendingPaymentDTO> listPendingPayments(Pageable pageable) {
-        return paymentService.listPending(pageable);
-    }
+    @GetMapping
+    public ResponseEntity<Page<PaymentResponseDTO>> getAllPayments(
+            @RequestParam(required = false) PaymentStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("dueDate"));
 
-    @GetMapping("/paid")
-    public Page<PaidPaymentDTO> listPaidPayments(Pageable pageable) {
-        return paymentService.listPaid(pageable);
+        Page<PaymentResponseDTO> payments = paymentService.getAllPayments(status, pageable);
+        return ResponseEntity.ok(payments);
     }
-
     @PostMapping("/{id}/register")
     public ResponseEntity<PaymentReceiptDTO> registerPayment(@PathVariable Long id, @RequestBody PaymentClearenceDTO paymentMethod) {
         return ResponseEntity.ok(paymentService.registerPayment(id, paymentMethod.getPaymentMethod()));

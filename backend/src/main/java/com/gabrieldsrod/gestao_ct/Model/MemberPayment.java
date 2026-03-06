@@ -1,5 +1,6 @@
 package com.gabrieldsrod.gestao_ct.Model;
 
+import com.gabrieldsrod.gestao_ct.Enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -29,6 +30,10 @@ public class MemberPayment {
     private LocalDate paymentDate;
     @Column(name = "amount_paid", precision = 19, scale = 2)
     private BigDecimal amountPaid;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status", nullable = false)
+    private PaymentStatus status = PaymentStatus.PENDING;
 
     @OneToOne
     @JoinColumn(name = "transacao_id", unique = true)

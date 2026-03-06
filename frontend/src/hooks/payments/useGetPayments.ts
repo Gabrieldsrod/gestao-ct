@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { type Payment } from '../../types/Payment';
 
-export function usePendingPayments(page = 0, size = 10) {
-    const [payments, setPayments] = useState<any[]>([]);
+export function useGetPayments(page = 0, size = 10, status = 'PENDING') {
+    const [payments, setPayments] = useState<Payment[]>([]);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -13,7 +14,14 @@ export function usePendingPayments(page = 0, size = 10) {
         async function fetchPayments() {
             try {
                 setIsLoading(true);
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/api/payments/pending?page=${page}&size=${size}`, {
+
+                let url = `${import.meta.env.VITE_API_URL}/v1/api/payments?page=${page}&size=${size}`;
+
+                if (status && status !== 'ALL') {
+                    url += `&status=${status}`;
+                }
+
+                const response = await fetch(url, {
                     signal: controller.signal
                 });
 
@@ -37,7 +45,7 @@ export function usePendingPayments(page = 0, size = 10) {
 
         fetchPayments();
         return () => controller.abort();
-    }, [page, size]);
+    }, [page, size, status]);
 
     return { payments, totalPages, totalElements, isLoading, error };
 }

@@ -10,12 +10,17 @@
 
 import { Route as rootRouteImport } from './pages/__root'
 import { Route as IndexRouteImport } from './pages/index'
+import { Route as PaymentsPaymentsRouteImport } from './pages/_payments/payments'
 import { Route as MembersMembersRouteImport } from './pages/_members/members'
-import { Route as PaymentsTsxPaymentsRouteImport } from './pages/_payments.tsx/payments'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentsPaymentsRoute = PaymentsPaymentsRouteImport.update({
+  id: '/_payments/payments',
+  path: '/payments',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MembersMembersRoute = MembersMembersRouteImport.update({
@@ -23,40 +28,35 @@ const MembersMembersRoute = MembersMembersRouteImport.update({
   path: '/members',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PaymentsTsxPaymentsRoute = PaymentsTsxPaymentsRouteImport.update({
-  id: '/_payments/tsx/payments',
-  path: '/tsx/payments',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/members': typeof MembersMembersRoute
-  '/tsx/payments': typeof PaymentsTsxPaymentsRoute
+  '/payments': typeof PaymentsPaymentsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/members': typeof MembersMembersRoute
-  '/tsx/payments': typeof PaymentsTsxPaymentsRoute
+  '/payments': typeof PaymentsPaymentsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_members/members': typeof MembersMembersRoute
-  '/_payments/tsx/payments': typeof PaymentsTsxPaymentsRoute
+  '/_payments/payments': typeof PaymentsPaymentsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/members' | '/tsx/payments'
+  fullPaths: '/' | '/members' | '/payments'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/members' | '/tsx/payments'
-  id: '__root__' | '/' | '/_members/members' | '/_payments/tsx/payments'
+  to: '/' | '/members' | '/payments'
+  id: '__root__' | '/' | '/_members/members' | '/_payments/payments'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MembersMembersRoute: typeof MembersMembersRoute
-  PaymentsTsxPaymentsRoute: typeof PaymentsTsxPaymentsRoute
+  PaymentsPaymentsRoute: typeof PaymentsPaymentsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -68,18 +68,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_payments/payments': {
+      id: '/_payments/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof PaymentsPaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_members/members': {
       id: '/_members/members'
       path: '/members'
       fullPath: '/members'
       preLoaderRoute: typeof MembersMembersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_payments/tsx/payments': {
-      id: '/_payments/tsx/payments'
-      path: '/tsx/payments'
-      fullPath: '/tsx/payments'
-      preLoaderRoute: typeof PaymentsTsxPaymentsRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -88,7 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MembersMembersRoute: MembersMembersRoute,
-  PaymentsTsxPaymentsRoute: PaymentsTsxPaymentsRoute,
+  PaymentsPaymentsRoute: PaymentsPaymentsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

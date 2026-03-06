@@ -1,5 +1,6 @@
 package com.gabrieldsrod.gestao_ct.Repository;
 
+import com.gabrieldsrod.gestao_ct.Enums.PaymentStatus;
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Model.MemberPayment;
 import org.springframework.data.domain.Page;
@@ -31,16 +32,20 @@ public interface MemberPaymentRepository extends JpaRepository<MemberPayment, Lo
     // Ex: Todos os vencimentos entre 01/02 e 28/02
     List<MemberPayment> findByPaymentDateBetween(LocalDate start, LocalDate end);
 
-    Optional<MemberPayment> findTopByMemberOrderByDueDateDesc(Member member);
+    Page<MemberPayment> findByStatus(PaymentStatus status, Pageable pageable);
 
-    @Query("SELECT p FROM MemberPayment p WHERE p.paymentDate IS NULL AND p.dueDate < :today AND p.member.status = 'ACTIVE'")
-    List<MemberPayment> findOverduePaymentsForActiveMembers(@Param("today") LocalDate today);
+    List<MemberPayment> findByMemberAndStatus(Member member, PaymentStatus status);
+
+    Optional<MemberPayment> findTopByMemberOrderByDueDateDesc(Member member);
 
     @Query("SELECT COUNT(p) > 0 FROM MemberPayment p WHERE p.member = :member AND EXTRACT(MONTH FROM p.dueDate) = :month AND EXTRACT(YEAR FROM p.dueDate) = :year")
     boolean existsByMemberAndMonthAndYear(@Param("member") Member member, @Param("month") Integer month, @Param("year") Integer year);
 
-    @Query("SELECT p FROM MemberPayment p WHERE p.paymentDate IS NULL AND p.dueDate < :limitDate AND p.member.status = 'DELINQUENT'")
+    @Query("SELECT p FROM MemberPayment p WHERE p.status = 'LATE' AND p.dueDate < :limitDate AND p.member.status = 'DELINQUENT'")
     List<MemberPayment> findPaymentsForInactivation(@Param("limitDate") LocalDate limitDate);
+
+    @Query("SELECT p FROM MemberPayment p WHERE p.status = 'PENDING' AND p.dueDate < :today AND p.member.status = 'ACTIVE'")
+    List<MemberPayment> findOverduePaymentsForActiveMembers(@Param("today") LocalDate today);
 
     List<MemberPayment> findByMemberAndPaymentDateIsNull(Member member);
 }

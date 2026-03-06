@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Member } from '../../types/Member';
 
-// O hook agora aceita um terceiro parâmetro: o searchTerm
-export function useGetMembers(page = 0, size = 10, searchTerm = '') {
+export function useGetMembers(page = 0, size = 10, searchTerm = '', status = 'ACTIVE') {
   const [members, setMembers] = useState<Member[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -16,20 +15,21 @@ export function useGetMembers(page = 0, size = 10, searchTerm = '') {
       try {
         setIsLoading(true);
         setError(null);
-        
-        // MÁGICA: Se tiver texto, usa o endpoint de pesquisa. Se não, usa o de listar todos.
-        const baseUrl = searchTerm 
+
+        const baseUrl = searchTerm
           ? `${import.meta.env.VITE_API_URL}/v1/api/members/search`
           : `${import.meta.env.VITE_API_URL}/v1/api/members`;
 
         const url = new URL(baseUrl);
         url.searchParams.append('page', page.toString());
         url.searchParams.append('size', size.toString());
-        
-        // Se for pesquisa, adiciona o parâmetro. 
-        // ATENÇÃO: Verifique no seu Swagger se a sua API espera '?name=', '?nome=' ou '?keyword='
+
         if (searchTerm) {
-          url.searchParams.append('name', searchTerm); 
+          url.searchParams.append('name', searchTerm);
+        }
+
+        if (status && status !== 'ALL') {
+          url.searchParams.append('status', status);
         }
 
         const response = await fetch(url.toString(), {
@@ -40,7 +40,7 @@ export function useGetMembers(page = 0, size = 10, searchTerm = '') {
         if (!response.ok) throw new Error(`Erro ao buscar alunos: ${response.status}`);
 
         const data = await response.json();
-        
+
         if (data && Array.isArray(data.content)) {
           setMembers(data.content);
           setTotalPages(data.page?.totalPages || 0);
@@ -61,7 +61,7 @@ export function useGetMembers(page = 0, size = 10, searchTerm = '') {
     fetchMembers();
 
     return () => controller.abort();
-  }, [page, size, searchTerm]); // Adicionamos o searchTerm aqui para refazer o fetch se ele mudar!
+  }, [page, size, searchTerm, status]);
 
   return { members, totalPages, totalElements, isLoading, error };
 }

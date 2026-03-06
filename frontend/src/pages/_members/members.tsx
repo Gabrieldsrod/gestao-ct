@@ -4,8 +4,8 @@ import { MembersTable } from '../../components/member/MembersTable'
 import { z } from 'zod'
 
 const membersSearchSchema = z.object({
-  page: z.number().catch(0), 
-  q: z.string().catch(''),   
+  page: z.number().catch(0),
+  q: z.string().catch(''),
 })
 
 export const Route = createFileRoute('/_members/members')({
@@ -40,19 +40,19 @@ function MembersPage() {
           <h2 className="text-2xl font-bold text-gray-800">Gestão de Alunos</h2>
           <p className="text-sm text-gray-500">Consulte e gerencie todos os alunos matriculados no CT.</p>
         </div>
-        
-        <input 
-          type="text" 
-          placeholder="Pesquisar aluno..." 
+
+        <input
+          type="text"
+          placeholder="Pesquisar aluno..."
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
         />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <MembersTable searchTerm={q} currentPage={page} />
-      </div>
+
+      <MembersTable searchTerm={q} currentPage={page} />
+
     </div>
   )
 }
