@@ -94,7 +94,7 @@ export function PaymentsTable({ currentPage }: PaymentsTableProps) {
                             </TableHeader>
                             <TableBody>
                                 {payments.map((p) => (
-                                    <TableRow key={p.id} className="hover:bg-gray-50/50 transition-colors">
+                                    <TableRow key={p.id} className="border-gray-100 hover:bg-gray-50/50 transition-colors">
                                         <TableCell className="font-medium text-gray-800">{p.memberName}</TableCell>
                                         <TableCell className="text-gray-600">{p.planName}</TableCell>
                                         <TableCell className="text-gray-600">{p.dueDate}</TableCell>

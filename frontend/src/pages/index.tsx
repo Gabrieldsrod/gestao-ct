@@ -1,49 +1,57 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { SummaryCard } from '../components/SummaryCard'
-import { RevenueChart } from '../components/RevenueChart'
-import { StudentsGrowthChart } from '../components/member/MembersGrowthChart' // <-- Novo import
+import { useDashboard } from '../hooks/dashboard/useDashboard'
+import { DashboardHeader } from '../components/dashboard/DashboardHeader'
+import { DashboardStatCards } from '../components/dashboard/DashboardStatCards'
+import { StudentGrowthChart } from '../components/dashboard/StudentGrowthChart'
+import { RevenueChart } from '../components/dashboard/RevenueChart'
 
 export const Route = createFileRoute('/')({
-  component: DashboardHome,
-  head: () => ({
-    meta: [
-      {
-        title: 'Dashboard - Academia',
-      },
-    ],
-  }),
+  component: DashboardPage,
 })
 
-function DashboardHome() {
-  return (
-    <div className="p-8 space-y-6">
-      
-      {/* CARDS DE RESUMO */}
-      <div className="grid grid-cols-3 gap-6">
-        <SummaryCard title="Total Alunos" value={125} borderColorClass="border-l-blue-500" />
-        <SummaryCard title="Inscrições Ativas" value={110} borderColorClass="border-l-green-500" />
-        <SummaryCard title="Pagamentos Pendentes" value="R$ 1.450,00" borderColorClass="border-l-orange-500" />
+function DashboardPage() {
+  const { summary, isLoading, error } = useDashboard()
+
+  // Telas de carregamento e erro profissionais
+  if (isLoading) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center min-h-[calc(100vh-100px)]">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-500 font-medium">A carregar visão geral do CT...</p>
       </div>
+    )
+  }
 
-      {/* ÁREA DOS DOIS GRÁFICOS */}
-      <div className="grid grid-cols-2 gap-6">
-        
-        {/* COLUNA 1: Crescimento de Alunos */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm min-h-100 p-6 flex flex-col">
-            <h3 className="font-semibold text-gray-800 mb-6">Crescimento de Alunos</h3>
-            <div className="flex-1">
-              <StudentsGrowthChart />
-            </div>
-        </div>
-        
-        {/* COLUNA 2: Receita Mensal */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm min-h-100 p-6 flex flex-col">
-            <h3 className="font-semibold text-gray-800 mb-6">Receita Mensal</h3>
-            <div className="flex-1">
-              <RevenueChart />
-            </div>
-        </div>
+  if (error || !summary) {
+    return (
+      <div className="p-8 text-center min-h-[calc(100vh-100px)] flex flex-col items-center justify-center">
+        <p className="text-red-500 font-bold mb-2">Erro ao carregar o painel</p>
+        <p className="text-gray-500 text-sm">{error || 'Dados indisponíveis do servidor'}</p>
+      </div>
+    )
+  }
 
+  return (
+    <div className="p-8 space-y-8">
+      <DashboardHeader 
+        title="Painel de Controle" 
+        subtitle="Visão geral e métricas do CT"
+      />
+
+      <DashboardStatCards 
+        activeMembers={summary.activeMembers}
+        delinquentMembers={summary.delinquentMembers}
+        totalIncome={summary.finance.totalIncome}
+        netBalance={summary.finance.netBalance}
+      />
+
+      {/* 3. Área de Gráficos Desacoplados Lado a Lado */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
+        {/* Gráfico de Área Laranja (Alunos) - Shadcn Style */}
+        <StudentGrowthChart data={summary.chartData} />
+
+        {/* Gráfico de Barras Azuis (Receita) - Shadcn Style */}
+        <RevenueChart data={summary.chartData} />
       </div>
     </div>
   )
