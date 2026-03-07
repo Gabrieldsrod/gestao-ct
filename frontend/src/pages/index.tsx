@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useDashboard } from '../hooks/dashboard/useDashboard'
-import { DashboardHeader } from '../components/dashboard/DashboardHeader'
+import { PageHeader } from '../components/dashboard/PageHeader'
 import { DashboardStatCards } from '../components/dashboard/DashboardStatCards'
 import { StudentGrowthChart } from '../components/dashboard/StudentGrowthChart'
 import { RevenueChart } from '../components/dashboard/RevenueChart'
@@ -12,7 +12,7 @@ export const Route = createFileRoute('/')({
 
 function DashboardPage() {
   usePageTitle('Visão Geral');
-  
+
   const { summary, isLoading, error } = useDashboard()
 
   if (isLoading) {
@@ -34,10 +34,10 @@ function DashboardPage() {
   }
 
   return (
-    <div className="p-8 space-y-8">
-      <DashboardHeader 
-        title="Painel de Controle" 
-        subtitle="Visão geral e métricas do CT"
+    <div className="p-8 space-y-6">
+      <PageHeader 
+        title="Visão Geral do CT" 
+        subtitle="Visão geral do desempenho do CT, finanças e crescimento dos alunos."
       />
 
       <DashboardStatCards 

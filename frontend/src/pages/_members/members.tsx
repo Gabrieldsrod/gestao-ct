@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { MembersTable } from '../../components/member/MembersTable'
 import { z } from 'zod'
 import { usePageTitle } from '@/hooks/usePageTitle'
+import { PageHeader } from '@/components/dashboard/PageHeader'
 
 const membersSearchSchema = z.object({
   page: z.number().catch(0),
@@ -12,9 +13,6 @@ const membersSearchSchema = z.object({
 export const Route = createFileRoute('/_members/members')({
   validateSearch: membersSearchSchema,
   component: MembersPage,
-  head: () => ({
-    meta: [{ title: 'Gestão de Alunos - Academia' }],
-  }),
 })
 
 function MembersPage() {
@@ -38,12 +36,11 @@ function MembersPage() {
 
   return (
     <div className="p-8 space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Gestão de Alunos</h2>
-          <p className="text-sm text-gray-500">Consulte e gerencie todos os alunos matriculados no CT.</p>
-        </div>
-
+      <div className="flex justify-between items-center mb-px">
+        <PageHeader
+        title="Gestão de Alunos"
+        subtitle="Consulte e gerencie todos os alunos matriculados no CT."
+      />
         <input
           type="text"
           placeholder="Pesquisar aluno..."
@@ -52,7 +49,6 @@ function MembersPage() {
           className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
         />
       </div>
-
 
       <MembersTable searchTerm={q} currentPage={page} />
 

@@ -5,7 +5,7 @@ export function Sidebar() {
   return (
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
       <div className="p-6">
-        <h1 className="text-xl font-bold text-blue-600">Gestão CT</h1>
+        <h1 className="text-3xl font-bold text-blue-600">Gestão CT</h1>
       </div>
       <nav className="flex-1 px-4 space-y-2">
 
