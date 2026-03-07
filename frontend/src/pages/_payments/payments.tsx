@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 import { PaymentsTable } from '../../components/payment/PaymentsTable'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 const paymentsSearchSchema = z.object({
   page: z.number().catch(0),
@@ -12,6 +13,8 @@ export const Route = createFileRoute('/_payments/payments')({
 })
 
 function PaymentsPage() {
+  usePageTitle('Pagamentos');
+
   const { page } = Route.useSearch()
 
   return (

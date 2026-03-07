@@ -4,15 +4,17 @@ import { DashboardHeader } from '../components/dashboard/DashboardHeader'
 import { DashboardStatCards } from '../components/dashboard/DashboardStatCards'
 import { StudentGrowthChart } from '../components/dashboard/StudentGrowthChart'
 import { RevenueChart } from '../components/dashboard/RevenueChart'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 export const Route = createFileRoute('/')({
   component: DashboardPage,
 })
 
 function DashboardPage() {
+  usePageTitle('Visão Geral');
+  
   const { summary, isLoading, error } = useDashboard()
 
-  // Telas de carregamento e erro profissionais
   if (isLoading) {
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-[calc(100vh-100px)]">

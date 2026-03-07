@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { MembersTable } from '../../components/member/MembersTable'
 import { z } from 'zod'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 const membersSearchSchema = z.object({
   page: z.number().catch(0),
@@ -17,6 +18,8 @@ export const Route = createFileRoute('/_members/members')({
 })
 
 function MembersPage() {
+  usePageTitle('Gestão de Alunos');
+
   const { q, page } = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
   const [inputText, setInputText] = useState(q)
