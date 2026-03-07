@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 public class MemberService {
@@ -29,6 +28,14 @@ public class MemberService {
         this.memberRepo = memberRepo;
         this.planService = planService;
         this.paymentService = paymentService;
+    }
+
+    public long countByStatus(MemberStatus status) {
+        return memberRepo.countByStatus(status);
+    }
+
+    public long countActiveMembersUpTo(LocalDate endDate) {
+        return memberRepo.countActiveMembersUpTo(endDate);
     }
 
     @Transactional

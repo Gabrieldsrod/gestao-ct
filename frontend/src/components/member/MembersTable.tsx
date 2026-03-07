@@ -39,7 +39,7 @@ interface MembersTableProps {
 
 export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
     const navigate = useNavigate({ from: '/members' })
-    const [statusFilter, setStatusFilter] = useState<string>("ACTIVE")
+    const [statusFilter, setStatusFilter] = useState<string>("ALL")
 
     const { members, totalPages, totalElements, isLoading, error } = useGetMembers(currentPage, 10, searchTerm, statusFilter);
     const { inactivateMember, isLoading: isActivating } = useInactivateMember();
@@ -73,11 +73,11 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
         <div className="flex flex-col gap-4">
             <div className="flex space-x-2 overflow-x-auto pb-1">
                 {[
+                    { id: "ALL", label: "Todos" },
                     { id: "ACTIVE", label: "Ativos" },
                     { id: "PENDING", label: "Pendentes" },
                     { id: "DELINQUENT", label: "Inadimplentes" },
-                    { id: "INACTIVE", label: "Inativos" },
-                    { id: "ALL", label: "Todos" }
+                    { id: "INACTIVE", label: "Inativos" }
                 ].map((tab) => (
                     <button
                         key={tab.id}
@@ -119,7 +119,7 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
                             </TableHeader>
                             <TableBody>
                                 {members.map((student) => (
-                                    <TableRow key={student.id} className="hover:bg-gray-50/50 transition-colors">
+                                    <TableRow key={student.id} className="border-gray-100 hover:bg-gray-50/50 transition-colors">
                                         <TableCell>
                                             <div className="flex flex-col">
                                                 <span className="font-medium text-gray-800">{student.name}</span>
