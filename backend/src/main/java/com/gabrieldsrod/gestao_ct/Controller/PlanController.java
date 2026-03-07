@@ -1,11 +1,9 @@
 package com.gabrieldsrod.gestao_ct.Controller;
 
+import com.gabrieldsrod.gestao_ct.DTO.request.PlanUpdateDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PlanResponseDTO;
 import com.gabrieldsrod.gestao_ct.Service.PlanService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,5 +21,10 @@ public class PlanController {
     @GetMapping
     public List<PlanResponseDTO> getAllPlans() {
         return planService.getAll();
+    }
+
+    @PatchMapping("/{id}")
+    public PlanResponseDTO updatePlan(@PathVariable Long id, @RequestBody PlanUpdateDTO planDTO) {
+        return planService.updatePlan(id, planDTO);
     }
 }
