@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { useConfirmPayment } from "../../hooks/payments/useConfirmPayment" 
+import { useConfirmPayment } from "../../hooks/payment/useConfirmPayment" 
 
 interface ConfirmPaymentModalProps {
   paymentId: number;

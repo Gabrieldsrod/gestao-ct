@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useNavigate } from "@tanstack/react-router"
-import { useGetPayments } from "../../hooks/payments/useGetPayments"
+import { useGetPayments } from "../../hooks/payment/useGetPayments"
 import { ConfirmPaymentModal } from "./ConfirmPaymentModal"
 
 function getPaymentStatusBadge(status: string) {

@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { LayoutDashboard, Users, CircleDollarSign, Tags } from "lucide-react"
+import { LayoutDashboard, Users, CircleDollarSign, Tags, DollarSign } from "lucide-react"
 
 export function Sidebar() {
   return (
@@ -17,6 +17,12 @@ export function Sidebar() {
           >
             <LayoutDashboard className="h-5 w-5" />
             Visão Geral
+          </Link>
+
+          {/* Link Fluxo de Caixa */}
+          <Link to="/transactions" className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 [&.active]:bg-blue-50 [&.active]:text-blue-700 [&.active]:font-semibold transition-colors">
+            <DollarSign className="h-5 w-5" />
+            Fluxo de Caixa
           </Link>
 
           {/* Link Alunos */}
