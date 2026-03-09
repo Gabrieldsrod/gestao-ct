@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("v1/api/members")
+@RequestMapping("/v1/api/members")
 @CrossOrigin(origins = "*")
 public class MemberController {
 
