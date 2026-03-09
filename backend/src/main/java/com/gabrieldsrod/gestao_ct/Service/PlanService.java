@@ -4,6 +4,7 @@ import com.gabrieldsrod.gestao_ct.DTO.request.PlanUpdateDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PlanResponseDTO;
 import com.gabrieldsrod.gestao_ct.Model.Plan;
 import com.gabrieldsrod.gestao_ct.Repository.PlanRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class PlanService {
     }
 
     public List<PlanResponseDTO> getAll() {
-        return planRepo.findAll().stream()
+        return planRepo.findAll(Sort.by(Sort.Direction.ASC, "id")).stream() // Pode mudar no futuro para ordenação direta no banco de dados, mas por enquanto é mais simples fazer aqui
                 .map(PlanResponseDTO::new).toList();
     }
 
