@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { LayoutDashboard, Users, CircleDollarSign } from "lucide-react"
+import { LayoutDashboard, Users, CircleDollarSign, Tags } from "lucide-react"
 
 export function Sidebar() {
   return (
@@ -22,7 +22,7 @@ export function Sidebar() {
           {/* Link Alunos */}
           <Link
             to="/members"
-            search={{ page: 0, q: '' }} 
+            search={{ page: 0, q: '' }}
             className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 [&.active]:bg-blue-50 [&.active]:text-blue-700 [&.active]:font-semibold transition-colors"
           >
             <Users className="h-5 w-5" />
@@ -31,12 +31,18 @@ export function Sidebar() {
 
           {/* Link Pagamentos */}
           <Link
-            to="/payments" 
+            to="/payments"
             search={{ page: 0 }}
             className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 [&.active]:bg-blue-50 [&.active]:text-blue-700 [&.active]:font-semibold transition-colors"
           >
             <CircleDollarSign className="h-5 w-5" />
             Pagamentos
+          </Link>
+
+          {/* Link Planos */}
+          <Link to="/plans" className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 [&.active]:bg-blue-50 [&.active]:text-blue-700 [&.active]:font-semibold transition-colors">
+            <Tags className="h-5 w-5" />
+            Planos
           </Link>
         </nav>
 

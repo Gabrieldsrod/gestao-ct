@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { memberSchema, type MemberFormValues } from "../../schemas/memberSchema"
 import { useUpdateMember } from "../../hooks/member/useUpdateMember"
+import { useGetPlans } from "@/hooks/plan/useGetPlans"
 
 function parseDateForInput(backendDate: any): string {
   if (!backendDate) return '';
@@ -22,15 +23,13 @@ function parseDateForInput(backendDate: any): string {
   }
   return '';
 }
-
-interface Plan { id: number; name: string; price: number; }
 interface EditMemberModalProps { memberId: number; }
 
 export function EditMemberModal({ memberId }: EditMemberModalProps) {
   const [open, setOpen] = useState(false)
   const { updateMember, isLoading } = useUpdateMember()
   const [isLoadingData, setIsLoadingData] = useState(false)
-  const [plans, setPlans] = useState<Plan[]>([])
+  const { plans } = useGetPlans()
   const [originalPlanId, setOriginalPlanId] = useState<number | null>(null)
 
   const { register, handleSubmit, watch, formState: { errors }, setError, reset } = useForm<MemberFormValues>({
@@ -53,19 +52,9 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
 
   useEffect(() => {
     if (open) {
-      fetchPlans()
       fetchMemberData()
     }
   }, [open])
-
-  async function fetchPlans() {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/api/plans`)
-      if (response.ok) setPlans(await response.json())
-    } catch (error) {
-      console.error("Erro ao buscar planos:", error)
-    }
-  }
 
   async function fetchMemberData() {
     setIsLoadingData(true)

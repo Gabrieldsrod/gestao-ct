@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './pages/__root'
 import { Route as IndexRouteImport } from './pages/index'
+import { Route as PlansPlansRouteImport } from './pages/_plans/plans'
 import { Route as PaymentsPaymentsRouteImport } from './pages/_payments/payments'
 import { Route as MembersMembersRouteImport } from './pages/_members/members'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlansPlansRoute = PlansPlansRouteImport.update({
+  id: '/_plans/plans',
+  path: '/plans',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaymentsPaymentsRoute = PaymentsPaymentsRouteImport.update({
@@ -33,30 +39,39 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/members': typeof MembersMembersRoute
   '/payments': typeof PaymentsPaymentsRoute
+  '/plans': typeof PlansPlansRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/members': typeof MembersMembersRoute
   '/payments': typeof PaymentsPaymentsRoute
+  '/plans': typeof PlansPlansRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_members/members': typeof MembersMembersRoute
   '/_payments/payments': typeof PaymentsPaymentsRoute
+  '/_plans/plans': typeof PlansPlansRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/members' | '/payments'
+  fullPaths: '/' | '/members' | '/payments' | '/plans'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/members' | '/payments'
-  id: '__root__' | '/' | '/_members/members' | '/_payments/payments'
+  to: '/' | '/members' | '/payments' | '/plans'
+  id:
+    | '__root__'
+    | '/'
+    | '/_members/members'
+    | '/_payments/payments'
+    | '/_plans/plans'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MembersMembersRoute: typeof MembersMembersRoute
   PaymentsPaymentsRoute: typeof PaymentsPaymentsRoute
+  PlansPlansRoute: typeof PlansPlansRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -66,6 +81,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_plans/plans': {
+      id: '/_plans/plans'
+      path: '/plans'
+      fullPath: '/plans'
+      preLoaderRoute: typeof PlansPlansRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_payments/payments': {
@@ -89,6 +111,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MembersMembersRoute: MembersMembersRoute,
   PaymentsPaymentsRoute: PaymentsPaymentsRoute,
+  PlansPlansRoute: PlansPlansRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
