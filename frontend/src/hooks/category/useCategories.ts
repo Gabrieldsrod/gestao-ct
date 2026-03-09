@@ -45,5 +45,5 @@ export function useCategories() {
         }
     };
 
-    return { categories, isLoading, error, createCategory };
+    return { categories, isLoading, error, createCategory, refetch: fetchCategories };
 }

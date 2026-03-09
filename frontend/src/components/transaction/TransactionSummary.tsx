@@ -26,8 +26,6 @@ export function TransactionSummary({
 
     return (
         <div className="space-y-6">
-
-            {/* BARRA DE FILTRO DE TEMPO */}
             <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-2">
                     <label className="text-sm font-medium text-gray-600">Período:</label>
