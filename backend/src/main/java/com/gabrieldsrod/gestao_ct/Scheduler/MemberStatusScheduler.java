@@ -70,6 +70,7 @@ public class MemberStatusScheduler {
 
             if (holder.getStatus() == MemberStatus.DELINQUENT) {
                 holder.setStatus(MemberStatus.INACTIVE);
+                payment.setStatus(PaymentStatus.CANCELED);
 
                 // Inativa os dependentes, se existirem
                 if (holder.getDependents() != null && !holder.getDependents().isEmpty()) {
@@ -79,6 +80,7 @@ public class MemberStatusScheduler {
                 }
 
                 memberRepo.save(holder);
+                paymentRepo.save(payment);
                 count++;
             }
         }
