@@ -121,4 +121,13 @@ public class PaymentService {
                 payment.getStatus().name()
         );
     }
+
+    public void cancelPendingCharges(Member member) {
+        List<MemberPayment> pendingPayments = paymentRepo.findByMemberAndStatus(member, PaymentStatus.PENDING);
+
+        for (MemberPayment payment : pendingPayments) {
+                payment.setStatus(PaymentStatus.CANCELED);
+                paymentRepo.save(payment);
+        }
+    }
 }

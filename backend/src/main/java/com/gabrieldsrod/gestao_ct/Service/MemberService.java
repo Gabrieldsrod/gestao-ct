@@ -163,7 +163,7 @@ public class MemberService {
                 );
             }
         }
-
+        paymentService.cancelPendingCharges(member);
 
         member.setStatus(MemberStatus.INACTIVE);
         memberRepo.save(member);
