@@ -127,7 +127,6 @@ export function CreateMemberModal() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Plano Escolhido *</label>
-                  {/* 3. A MÁGICA FINAL: Avisamos ao React Hook Form que este valor DEVE ser lido como número */}
                   <select {...register("planId", { valueAsNumber: true })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                     {plans.map(plan => (

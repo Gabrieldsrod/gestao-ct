@@ -26,30 +26,6 @@ export function TransactionSummary({
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-gray-600">Período:</label>
-                    <select
-                        value={currentMonth}
-                        onChange={(e) => onMonthChange(Number(e.target.value))}
-                        className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-                    >
-                        {MESES.map((mes, index) => (
-                            <option key={index} value={index + 1}>{mes}</option>
-                        ))}
-                    </select>
-
-                    <select
-                        value={currentYear}
-                        onChange={(e) => onYearChange(Number(e.target.value))}
-                        className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-                    >
-                        <option value={2025}>2025</option>
-                        <option value={2026}>2026</option>
-                        <option value={2027}>2027</option>
-                    </select>
-                </div>
-            </div>
 
             {/* CARDS DE FLUXO DE CAIXA */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -93,7 +69,33 @@ export function TransactionSummary({
                     </div>
                 </div>
 
+                <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium text-gray-600">Período:</label>
+                        <select
+                            value={currentMonth}
+                            onChange={(e) => onMonthChange(Number(e.target.value))}
+                            className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                        >
+                            {MESES.map((mes, index) => (
+                                <option key={index} value={index + 1}>{mes}</option>
+                            ))}
+                        </select>
+
+                        <select
+                            value={currentYear}
+                            onChange={(e) => onYearChange(Number(e.target.value))}
+                            className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                        >
+                            <option value={2025}>2025</option>
+                            <option value={2026}>2026</option>
+                            <option value={2027}>2027</option>
+                        </select>
+                    </div>
+                </div>
+
             </div>
+
         </div>
     )
 }

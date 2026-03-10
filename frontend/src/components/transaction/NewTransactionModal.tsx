@@ -2,6 +2,9 @@ import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
 import { useCategories } from "@/hooks/category/useCategories"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { transactionSchema, type TransactionFormValues } from "@/schemas/transactionSchemas"
 
 interface NewTransactionModalProps {
     createTransaction: (data: any) => Promise<{ success: boolean; message?: string }>;
@@ -11,55 +14,59 @@ export function NewTransactionModal({ createTransaction }: NewTransactionModalPr
     const [open, setOpen] = useState(false)
     const { categories, refetch } = useCategories()
 
-    useEffect(() => {
-        if (open) {
-            refetch();
-        }
-    }, [open, refetch]);
+    const [isSaving, setIsSaving] = useState(false)
+    const [apiError, setApiError] = useState<string | null>(null)
 
     const hoje = new Date().toISOString().split('T')[0];
 
-    const [description, setDescription] = useState("")
-    const [amount, setAmount] = useState<string | number>("")
-    const [type, setType] = useState<'INCOME' | 'EXPENSE'>('EXPENSE')
-    const [date, setDate] = useState(hoje)
-    const [paymentMethod, setPaymentMethod] = useState("PIX")
-    const [categoryId, setCategoryId] = useState("")
-
-    const [isSaving, setIsSaving] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-
-    const filteredCategories = categories.filter(c => c.type === type);
-
-    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!categoryId) {
-            setError("Por favor, selecione uma categoria.");
-            return;
+    const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<TransactionFormValues>({
+        resolver: zodResolver(transactionSchema),
+        defaultValues: {
+            transactionType: 'EXPENSE',
+            amount: '',
+            description: '',
+            categoryId: 0,
+            transactionDate: hoje,
+            paymentMethod: 'PIX'
         }
+    })
 
+    // Observa o tipo atual para filtrar as categorias
+    const watchedType = watch("transactionType");
+    const filteredCategories = categories.filter(c => c.type === watchedType);
+
+    // Ao trocar de "Saída" para "Entrada", limpamos a categoria selecionada para evitar envio incorreto
+    useEffect(() => {
+        setValue("categoryId", 0);
+    }, [watchedType, setValue]);
+
+    useEffect(() => {
+        if (open) refetch();
+    }, [open, refetch]);
+
+    const onSubmit = async (data: TransactionFormValues) => {
         setIsSaving(true);
-        setError(null);
+        setApiError(null);
 
-        const stringAmount = String(amount).replace(',', '.');
-        const numericAmount = parseFloat(stringAmount);
+        // Faz o tratamento mágico da vírgula antes de enviar pra API
+        const numericAmount = parseFloat(data.amount.replace(',', '.'));
 
-        const result = await createTransaction({
-            description,
+        const payload = {
+            description: data.description,
             amount: numericAmount,
-            transactionType: type,
-            paymentMethod,
-            transactionDate: date,
-            categoryId: Number(categoryId)
-        });
+            transactionType: data.transactionType,
+            paymentMethod: data.paymentMethod,
+            transactionDate: data.transactionDate,
+            categoryId: data.categoryId
+        };
+
+        const result = await createTransaction(payload);
 
         if (result.success) {
-            setDescription("");
-            setAmount("");
-            setCategoryId("");
+            reset();
             setOpen(false);
         } else {
-            setError(result.message || "Erro ao salvar transação");
+            setApiError(result.message || "Erro ao salvar transação");
         }
         setIsSaving(false);
     }
@@ -75,76 +82,81 @@ export function NewTransactionModal({ createTransaction }: NewTransactionModalPr
             <DialogContent className="sm:max-w-md bg-white">
                 <DialogHeader>
                     <DialogTitle className="text-xl font-bold text-gray-800">Nova Transação</DialogTitle>
-                    <DialogDescription>
-                        Lance uma nova entrada ou saída no fluxo de caixa.
-                    </DialogDescription>
+                    <DialogDescription>Lance uma nova entrada ou saída no fluxo de caixa.</DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-                    {error && <div className="text-red-500 text-xs bg-red-50 border border-red-100 p-2 rounded-md">{error}</div>}
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
+                    {apiError && <div className="text-red-500 text-xs bg-red-50 border border-red-100 p-2 rounded-md">{apiError}</div>}
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="text-xs font-medium text-gray-700">Tipo *</label>
+                            {/* AQUI ESTÁ A CORREÇÃO DO TIPO: */}
                             <select
-                                value={type}
-                                onChange={(e) => {
-                                    setType(e.target.value as 'INCOME' | 'EXPENSE');
-                                    setCategoryId("");
-                                }}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                {...register("transactionType")}
+                                className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.transactionType ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`}
                             >
                                 <option value="EXPENSE">Saída</option>
                                 <option value="INCOME">Entrada</option>
                             </select>
+                            {errors.transactionType && <p className="text-red-500 text-xs">{errors.transactionType.message}</p>}
                         </div>
 
                         <div className="space-y-1">
                             <label className="text-xs font-medium text-gray-700">Valor (R$) *</label>
                             <input
+                                {...register("amount")}
                                 type="text"
                                 inputMode="decimal"
-                                required
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Ex: 150,00 ou 150.00"
+                                className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.amount ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`}
+                                placeholder="Ex: 150,00"
                             />
+                            {errors.amount && <p className="text-red-500 text-xs">{errors.amount.message}</p>}
                         </div>
                     </div>
 
                     <div className="space-y-1">
                         <label className="text-xs font-medium text-gray-700">Descrição *</label>
-                        <input type="text" required value={description} onChange={(e) => setDescription(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Ex: Compra de Equipamento, Conta de Luz..."
+                        <input
+                            {...register("description")}
+                            type="text"
+                            className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.description ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`}
+                            placeholder="Ex: Compra de Tatame, Conta de Luz..."
                         />
+                        {errors.description && <p className="text-red-500 text-xs">{errors.description.message}</p>}
                     </div>
 
                     <div className="space-y-1">
                         <label className="text-xs font-medium text-gray-700">Categoria *</label>
-                        <select required value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                        {/* AQUI ESTÁ A CORREÇÃO DA CATEGORIA: */}
+                        <select
+                            {...register("categoryId", { valueAsNumber: true })}
+                            className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.categoryId ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`}
                         >
-                            <option value="" disabled>Selecione uma categoria...</option>
+                            <option value={0} disabled>Selecione uma categoria...</option>
                             {filteredCategories.map(cat => (
                                 <option key={cat.id} value={cat.id}>{cat.name}</option>
                             ))}
                         </select>
+                        {errors.categoryId && <p className="text-red-500 text-xs">{errors.categoryId.message}</p>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="text-xs font-medium text-gray-700">Data *</label>
-                            <input type="date" required value={date} onChange={(e) => setDate(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                            <input
+                                {...register("transactionDate")}
+                                type="date"
+                                className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.transactionDate ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`}
                             />
+                            {errors.transactionDate && <p className="text-red-500 text-xs">{errors.transactionDate.message}</p>}
                         </div>
 
                         <div className="space-y-1">
                             <label className="text-xs font-medium text-gray-700">Forma de Pagamento *</label>
-                            <select required value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                            <select
+                                {...register("paymentMethod")}
+                                className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.paymentMethod ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`}
                             >
                                 <option value="PIX">Pix</option>
                                 <option value="CREDIT_CARD">Cartão de Crédito</option>
@@ -152,6 +164,7 @@ export function NewTransactionModal({ createTransaction }: NewTransactionModalPr
                                 <option value="CASH">Dinheiro</option>
                                 <option value="SLIP">Boleto</option>
                             </select>
+                            {errors.paymentMethod && <p className="text-red-500 text-xs">{errors.paymentMethod.message}</p>}
                         </div>
                     </div>
 

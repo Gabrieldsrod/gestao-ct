@@ -1,30 +1,40 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { Settings2, Plus, ArrowUpCircle, ArrowDownCircle } from "lucide-react"
-import { useCategories } from "@/hooks/category/useCategories" 
+import { useCategories } from "@/hooks/category/useCategories"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { categorySchema, type CategoryFormValues } from "@/schemas/transactionSchemas"
 
 export function CategoriesModal() {
   const [open, setOpen] = useState(false)
-  const { categories, isLoading, createCategory } = useCategories()
-  
-  const [newCategoryName, setNewCategoryName] = useState("")
-  const [newCategoryType, setNewCategoryType] = useState<'INCOME' | 'EXPENSE'>('EXPENSE')
+  const { categories, isLoading, createCategory, refetch } = useCategories()
+
   const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [apiError, setApiError] = useState<string | null>(null)
 
-  const handleAddCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCategoryName.trim()) return;
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<CategoryFormValues>({
+    resolver: zodResolver(categorySchema),
+    defaultValues: {
+      name: '',
+      type: 'EXPENSE'
+    }
+  })
 
+  useEffect(() => {
+    if (open) refetch();
+  }, [open, refetch]);
+
+  const onSubmit = async (data: CategoryFormValues) => {
     setIsSaving(true);
-    setError(null);
+    setApiError(null);
 
-    const result = await createCategory(newCategoryName, newCategoryType);
-    
+    const result = await createCategory(data.name, data.type);
+
     if (result.success) {
-      setNewCategoryName(""); // Limpa o input
+      reset();
     } else {
-      setError(result.message || "Erro desconhecido");
+      setApiError(result.message || "Erro desconhecido");
     }
     setIsSaving(false);
   }
@@ -40,55 +50,56 @@ export function CategoriesModal() {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-2xl bg-white">
+      <DialogContent className="sm:max-w-md bg-white">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-800">Gerir Categorias</DialogTitle>
-          <DialogDescription>
-            Adicione novas categorias para classificar suas transações.
-          </DialogDescription>
+          <DialogDescription>Adicione novas categorias para classificar suas transações.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
-          <form onSubmit={handleAddCategory} className="bg-gray-50 p-4 rounded-lg border border-gray-200 flex gap-2 items-end">
-            <div className="flex-1 space-y-1">
-              <label className="text-xs font-medium text-gray-700">Nova Categoria</label>
-              <input
-                type="text"
-                placeholder="Ex: Conta de Luz"
-                required
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-blue-500"
-              />
+
+          <form onSubmit={handleSubmit(onSubmit)} className="bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col gap-2">
+            <div className="flex gap-2 items-start">
+              <div className="flex-1 space-y-1">
+                <label className="text-xs font-medium text-gray-700">Nova Categoria</label>
+                <input
+                  {...register("name")}
+                  placeholder="Ex: Conta de Luz"
+                  className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`}
+                />
+              </div>
+              <div className="w-28 space-y-1">
+                <label className="text-xs font-medium text-gray-700">Tipo</label>
+                <select
+                  {...register("type")}
+                  className="w-full px-2 py-2 border border-gray-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="EXPENSE">Saída</option>
+                  <option value="INCOME">Entrada</option>
+                </select>
+              </div>
+              <div className="pt-5">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="bg-gray-800 text-white p-2 rounded-md hover:bg-gray-700 transition-colors disabled:opacity-50"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-            <div className="w-28 space-y-1">
-              <label className="text-xs font-medium text-gray-700">Tipo</label>
-              <select
-                value={newCategoryType}
-                onChange={(e) => setNewCategoryType(e.target.value as 'INCOME' | 'EXPENSE')}
-                className="w-full px-2 py-2 border border-gray-300 rounded-md text-sm outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="EXPENSE">Saída</option>
-                <option value="INCOME">Entrada</option>
-              </select>
-            </div>
-            <button 
-              type="submit" 
-              disabled={isSaving}
-              className="bg-gray-800 text-white p-2 rounded-md hover:bg-gray-700 transition-colors disabled:opacity-50"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
+
+            {/* Mensagens de erro do Zod ou da API */}
+            {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
+            {apiError && <p className="text-red-500 text-xs">{apiError}</p>}
           </form>
 
-          {error && <p className="text-red-500 text-xs text-center">{error}</p>}
-
+          {/* LISTA DAS CATEGORIAS (Mantida exatamente igual) */}
           <div className="max-h-60 overflow-y-auto pr-2 space-y-4">
             {isLoading ? (
               <p className="text-center text-gray-500 text-sm py-4">A carregar...</p>
             ) : (
               <>
-                {/* Entradas */}
                 <div>
                   <h4 className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1 mb-2">
                     <ArrowUpCircle className="w-3 h-3 text-green-500" /> Entradas
@@ -96,14 +107,11 @@ export function CategoriesModal() {
                   <div className="flex flex-wrap gap-2">
                     {incomeCategories.length === 0 && <span className="text-xs text-gray-400">Nenhuma categoria</span>}
                     {incomeCategories.map(cat => (
-                      <span key={cat.id} className="text-xs font-medium px-2 py-1 bg-green-50 text-green-700 border border-green-200 rounded-md">
-                        {cat.name}
-                      </span>
+                      <span key={cat.id} className="text-xs font-medium px-2 py-1 bg-green-50 text-green-700 border border-green-200 rounded-md">{cat.name}</span>
                     ))}
                   </div>
                 </div>
 
-                {/* Saídas */}
                 <div>
                   <h4 className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1 mb-2">
                     <ArrowDownCircle className="w-3 h-3 text-red-500" /> Saídas
@@ -111,16 +119,13 @@ export function CategoriesModal() {
                   <div className="flex flex-wrap gap-2">
                     {expenseCategories.length === 0 && <span className="text-xs text-gray-400">Nenhuma categoria</span>}
                     {expenseCategories.map(cat => (
-                      <span key={cat.id} className="text-xs font-medium px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded-md">
-                        {cat.name}
-                      </span>
+                      <span key={cat.id} className="text-xs font-medium px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded-md">{cat.name}</span>
                     ))}
                   </div>
                 </div>
               </>
             )}
           </div>
-
         </div>
       </DialogContent>
     </Dialog>
