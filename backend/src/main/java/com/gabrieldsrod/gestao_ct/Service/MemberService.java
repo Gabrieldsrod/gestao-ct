@@ -181,7 +181,7 @@ public class MemberService {
         }
 
         member.setInactivationDate(null);
-        member.setStatus(MemberStatus.ACTIVE);
+        member.setStatus(MemberStatus.PENDING);
         member = memberRepo.save(member);
 
         paymentService.generateCharge(member, LocalDate.now().plusMonths(1));
