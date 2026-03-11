@@ -20,7 +20,7 @@ public record TransactionResponseDTO(
                 transaction.getCategory().getName(),
                 transaction.getType().name(),
                 transaction.getPaymentMethod().name(),
-                transaction.getTransactionDate().format(DateUtils.BR_FORMATTER),
+                transaction.getTransactionDate().format(DateUtils.BR_FORMATTER_DATE),
                 transaction.getAmount());
     }
 }

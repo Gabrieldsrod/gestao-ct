@@ -11,7 +11,7 @@ function PlansPage() {
   usePageTitle("Planos");
 
   return (
-    <div className="p-8 space-y-6 max-w-2xl">
+    <div className="p-8 space-y-6 max-w-3xl">
       <div className="flex justify-between items-center mb-px">
         <div>
           <PageHeader

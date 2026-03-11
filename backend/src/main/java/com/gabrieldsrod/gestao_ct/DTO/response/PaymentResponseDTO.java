@@ -26,8 +26,8 @@ public record PaymentResponseDTO(
                 payment.getMember().getEmail(),
                 payment.getMember().getWhatsapp(),
                 payment.getMember().getPlan() != null ? payment.getMember().getPlan().getName() : "Sem plano",
-                payment.getDueDate() != null ? payment.getDueDate().format(DateUtils.BR_FORMATTER) : null,
-                payment.getPaymentDate() != null ? payment.getPaymentDate().format(DateUtils.BR_FORMATTER) : null,
+                payment.getDueDate() != null ? payment.getDueDate().format(DateUtils.BR_FORMATTER_DATE) : null,
+                payment.getPaymentDate() != null ? payment.getPaymentDate().format(DateUtils.BR_FORMATTER_DATE) : null,
                 payment.getAmountCharged(),
                 payment.getAmountPaid(),
                 payment.getStatus().name()

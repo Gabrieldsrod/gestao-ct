@@ -29,6 +29,7 @@ export function PlansTable() {
                                     <TableHead className="font-semibold text-gray-600">ID</TableHead>
                                     <TableHead className="font-semibold text-gray-600">Nome do Plano</TableHead>
                                     <TableHead className="font-semibold text-gray-600 text-right">Valor Mensal</TableHead>
+                                    <TableHead className="text-right font-semibold text-gray-600">Ultima Edição</TableHead>
                                     <TableHead className="text-right font-semibold text-gray-600">Ações</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -41,6 +42,9 @@ export function PlansTable() {
                                         </TableCell>
                                         <TableCell className="text-right text-gray-800 font-semibold">
                                             {formatCurrency(plan.price)}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <span className="font-medium text-gray-700">{plan.lastUpdated}</span>
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end items-center gap-2">

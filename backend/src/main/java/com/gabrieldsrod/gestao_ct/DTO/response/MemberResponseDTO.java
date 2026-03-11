@@ -17,6 +17,6 @@ public record MemberResponseDTO(
         String updatedAt
 ) {
     public MemberResponseDTO(Member member) {
-        this(member.getId(), member.getName(), member.getBirthDate().format(DateUtils.BR_FORMATTER), member.getWhatsapp(), member.getEmail(), member.getPlan() != null ? new PlanResponseDTO(member.getPlan()) : null , member.getStatus().name(), member.getRegistrationDate().toString(), member.getHolder() != null ? member.getHolder().getName() : null, member.getCreatedAt().toString(), member.getUpdatedAt().toString());
+        this(member.getId(), member.getName(), member.getBirthDate().format(DateUtils.BR_FORMATTER_DATE), member.getWhatsapp(), member.getEmail(), member.getPlan() != null ? new PlanResponseDTO(member.getPlan()) : null , member.getStatus().name(), member.getRegistrationDate().toString(), member.getHolder() != null ? member.getHolder().getName() : null, member.getCreatedAt().toString(), member.getUpdatedAt().toString());
     }
 }
