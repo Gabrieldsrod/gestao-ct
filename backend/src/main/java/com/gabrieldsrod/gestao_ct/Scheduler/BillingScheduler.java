@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +29,8 @@ public class BillingScheduler {
         this.paymentService = paymentService;
     }
 
-    @Scheduled(cron = "0 0 2 * * *")
+    // Rodando à 1 da manhã
+    @Scheduled(cron = "0 0 1 * * *")
     public void generateMonthlyBills() {
         System.out.println("Gerando cobranças mensais para os membros...");
 
@@ -36,9 +38,10 @@ public class BillingScheduler {
         int currentMonth = today.getMonthValue();
         int currentYear = today.getYear();
 
-        List<Member> activeMembers = memberRepo.findByStatusAndHolderIsNull(MemberStatus.ACTIVE);
+        List<MemberStatus> statusToBill = Arrays.asList(MemberStatus.ACTIVE, MemberStatus.DELINQUENT);
+        List<Member> membersToBill = memberRepo.findByStatusInAndHolderIsNull(statusToBill);
 
-        for (Member member : activeMembers) {
+        for (Member member : membersToBill) {
             boolean alreadyCharged = memberPaymentRepo.existsByMemberAndMonthAndYear(member, currentMonth, currentYear);
 
             if(!alreadyCharged) {
@@ -51,8 +54,12 @@ public class BillingScheduler {
                     nextDueDate = member.getRegistrationDate().withDayOfMonth(1).plusMonths(1);
                 }
 
-                paymentService.generateCharge(member, nextDueDate);
-                System.out.println("Cobrança gerada para: " + member.getName());
+                LocalDate dataParaGerarCobranca = nextDueDate.minusDays(3);
+
+                if (today.isEqual(dataParaGerarCobranca) || today.isAfter(dataParaGerarCobranca)) {
+                    paymentService.generateCharge(member, nextDueDate);
+                    System.out.println("Cobrança gerada com antecedência para: " + member.getName());
+                }
             }
         }
     }

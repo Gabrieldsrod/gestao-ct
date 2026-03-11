@@ -131,7 +131,13 @@ public class MemberService {
             // Update dependents' plans if the member has dependents
             if (!member.getDependents().isEmpty()) {
                 for (Member dependent : member.getDependents()) {
+
+                    // Se o novo plano não for casal, desvincula o dependente do titular
+//                  if (!isNewPlanCouple) {
+//                      dependent.setHolder(null);
+//                  }
                     dependent.setPlan(newPlan);
+
                     memberRepo.save(dependent);
                 }
             }
