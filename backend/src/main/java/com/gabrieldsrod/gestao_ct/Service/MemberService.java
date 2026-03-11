@@ -101,47 +101,41 @@ public class MemberService {
     @Transactional
     public MemberUpdateResponseDTO updateMember(Long id, MemberRegistrationDTO data) {
         Member member = this.getMemberById(id);
-
         Plan newPlan = planService.getById(data.getPlanId());
 
         boolean isNewPlanCouple = newPlan.getName().toLowerCase().contains("casal");
 
-        if (member.getHolder() == null && !member.getDependents().isEmpty()) {
-            boolean hasActiveDependents = member.getDependents().stream()
-                    .anyMatch(dep -> dep.getStatus() == MemberStatus.ACTIVE || dep.getStatus() == MemberStatus.PENDING);
-
-            if (hasActiveDependents && !isNewPlanCouple) {
-                throw new BusinessRuleException(
-                        "Não é possível alterar para um plano individual. Este titular possui dependentes ativos atrelados. " +
-                                "Inative os dependentes primeiro."
-                );
-            }
-        }
-
+        // CENÁRIO 2 (Sua observação): A alteração foi feita direto no DEPENDENTE
         if (member.getHolder() != null) {
             if (!isNewPlanCouple) {
+                // Se ele escolheu um plano individual, é libertado do titular na hora!
                 member.setHolder(null);
             }
         }
 
+        // Verifica se o plano realmente mudou para mexer no financeiro e nos dependentes
         if (!member.getPlan().getId().equals(newPlan.getId())) {
             paymentService.updatePendingChargesForPlanChange(member, newPlan.getPrice());
             member.setPlan(newPlan);
 
-            // Update dependents' plans if the member has dependents
+            // CENÁRIO 1: A alteração foi feita no TITULAR
             if (!member.getDependents().isEmpty()) {
                 for (Member dependent : member.getDependents()) {
 
-                    // Se o novo plano não for casal, desvincula o dependente do titular
-//                  if (!isNewPlanCouple) {
-//                      dependent.setHolder(null);
-//                  }
-                    dependent.setPlan(newPlan);
+                    if (!isNewPlanCouple) {
+                        dependent.setHolder(null);
+                    }
 
+                    dependent.setPlan(newPlan);
                     memberRepo.save(dependent);
+                }
+
+                if (!isNewPlanCouple) {
+                    member.getDependents().clear();
                 }
             }
         }
+
         member.setName(data.getName());
         member.setEmail(data.getEmail());
         member.setWhatsapp(data.getWhatsapp());
@@ -164,13 +158,13 @@ public class MemberService {
 
             if (hasActiveDependents) {
                 throw new BusinessRuleException(
-                        "Não é possível inativar este titular. Ele possui dependentes ativos. " +
-                                "Inative os dependentes primeiro ou promova-os a titulares mudando o plano."
+                        "Não é possível inativar este titular. Ele possui dependentes ativos. Inative os dependentes primeiro ou promova-os a titulares mudando o plano."
                 );
             }
         }
         paymentService.cancelPendingCharges(member);
 
+        member.setInactivationDate(LocalDate.now());
         member.setStatus(MemberStatus.INACTIVE);
         memberRepo.save(member);
 
