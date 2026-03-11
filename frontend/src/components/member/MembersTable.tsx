@@ -2,11 +2,11 @@ import { useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, UserMinus } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useNavigate } from "@tanstack/react-router"
 import { useGetMembers } from "../../hooks/member/useGetMembers"
-import { useInactivateMember } from "../../hooks/member/useInactivateMember"
 import { EditMemberModal } from "./EditMemberModal"
+import { MemberStatusModal } from "./MemberStatusModal"
 
 function getStatusBadge(status: string) {
     switch (status) {
@@ -42,19 +42,7 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
     const [statusFilter, setStatusFilter] = useState<string>("ALL")
 
     const { members, totalPages, totalElements, isLoading, error } = useGetMembers(currentPage, 10, searchTerm, statusFilter);
-    const { inactivateMember, isLoading: isActivating } = useInactivateMember();
 
-    const handleInactivateClick = async (id: number, name: string) => {
-        if (window.confirm(`Deseja realmente inativar o aluno ${name}?`)) {
-            const result = await inactivateMember(id);
-            if (result.success) {
-                alert("Aluno inativado com sucesso!");
-                window.location.reload();
-            } else {
-                alert(`Falha: ${result.message}`);
-            }
-        }
-    }
 
     const handlePageChange = (newPage: number) => {
         navigate({
@@ -140,15 +128,11 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
                                         <TableCell className="text-right">
                                             <div className="flex justify-end items-center gap-2">
                                                 <EditMemberModal memberId={student.id} />
-                                                <Button
-                                                    variant="outline"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
-                                                    onClick={() => handleInactivateClick(student.id, student.name)}
-                                                    disabled={isActivating}
-                                                >
-                                                    <UserMinus className="h-4 w-4" />
-                                                </Button>
+                                                <MemberStatusModal
+                                                    memberId={student.id}
+                                                    memberName={student.name}
+                                                    status={student.status}
+                                                />
                                             </div>
                                         </TableCell>
                                     </TableRow>
