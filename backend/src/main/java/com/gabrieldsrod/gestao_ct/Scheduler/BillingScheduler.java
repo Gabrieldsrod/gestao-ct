@@ -36,29 +36,27 @@ public class BillingScheduler {
         System.out.println("Gerando cobranças mensais para os membros...");
 
         LocalDate today = LocalDate.now();
-        int currentMonth = today.getMonthValue();
-        int currentYear = today.getYear();
 
         List<MemberStatus> statusToBill = Arrays.asList(MemberStatus.ACTIVE, MemberStatus.DELINQUENT);
         List<Member> membersToBill = memberRepo.findByStatusInAndHolderIsNull(statusToBill);
 
         for (Member member : membersToBill) {
-            boolean alreadyCharged = memberPaymentRepo.existsByMemberAndMonthAndYear(member, currentMonth, currentYear);
+            Optional<MemberPayment> lastPayment = paymentService.findLastPaymentForMember(member);
+            LocalDate nextDueDate;
 
-            if(!alreadyCharged) {
-                Optional<MemberPayment> lastPayment = paymentService.findLastPaymentForMember(member);
-                LocalDate nextDueDate;
+            if (lastPayment.isPresent()) {
+                nextDueDate = lastPayment.get().getDueDate().plusMonths(1);
+            } else {
+                nextDueDate = member.getRegistrationDate().withDayOfMonth(1).plusMonths(1);
+            }
 
-                if (lastPayment.isPresent()) {
-                    nextDueDate = lastPayment.get().getDueDate().plusMonths(1);
-                } else {
-                    nextDueDate = member.getRegistrationDate().withDayOfMonth(1).plusMonths(1);
-                }
+            LocalDate generateBillingDate = nextDueDate.minusDays(3);
 
-                LocalDate generateBillingDate = nextDueDate.minusDays(3);
+            if (today.isEqual(generateBillingDate) || today.isAfter(generateBillingDate)) {
 
-                if (today.isEqual(generateBillingDate) || today.isAfter(generateBillingDate)) {
-                    paymentService.generateCharge(member, nextDueDate);
+                MemberPayment gerado = paymentService.generateCharge(member, nextDueDate);
+
+                if (gerado != null) {
                     System.out.println("Cobrança gerada com antecedência para: " + member.getName());
                 }
             }
