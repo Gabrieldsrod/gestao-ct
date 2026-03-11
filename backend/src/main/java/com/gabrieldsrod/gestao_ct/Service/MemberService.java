@@ -38,38 +38,6 @@ public class MemberService {
         return memberRepo.countActiveMembersUpTo(endDate);
     }
 
-    @Transactional
-    public MemberResponseDTO register(MemberRegistrationDTO data) {
-        Plan plan = planService.getById(data.getPlanId());
-
-        if(memberRepo.existsByEmail(data.getEmail())) {
-            throw new IllegalArgumentException("Já existe um aluno cadastrado com o email: " + data.getEmail());
-        }
-
-        Member newMember = new Member();
-        newMember.setName(data.getName());
-        newMember.setEmail(data.getEmail());
-        newMember.setRegistrationDate(LocalDate.now());
-        newMember.setWhatsapp(data.getWhatsapp());
-        newMember.setBirthDate(data.getBirthDate());
-        newMember.setPlan(plan);
-        newMember.setStatus(MemberStatus.PENDING);
-
-        if (data.getHolderId() != null) {
-            Member holder = memberRepo.findById(data.getHolderId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Aluno titular não encontrado com ID: " + data.getHolderId()));
-            newMember.setHolder(holder);
-        }
-
-        newMember = memberRepo.save(newMember);
-
-        if (newMember.getHolder() == null) {
-            paymentService.generateCharge(newMember, LocalDate.now().plusMonths(1));
-        }
-
-        return new MemberResponseDTO(newMember);
-    }
-
     public Page<MemberResponseDTO> getAllMembers(MemberStatus status, Pageable pageable) {
         Page<Member> membersPage;
 
@@ -96,6 +64,38 @@ public class MemberService {
     @Transactional
     public Page<MemberResponseDTO> searchByPartialName(String partialName, Pageable pageable) {
         return memberRepo.findTop10ByNameContainingIgnoreCase(partialName, pageable).map(MemberResponseDTO::new);
+    }
+
+    @Transactional
+    public MemberResponseDTO register(MemberRegistrationDTO data) {
+        Plan plan = planService.getById(data.getPlanId());
+
+        if(memberRepo.existsByEmail(data.getEmail())) {
+            throw new IllegalArgumentException("Já existe um aluno cadastrado com o email: " + data.getEmail());
+        }
+
+        Member newMember = new Member();
+        newMember.setName(data.getName());
+        newMember.setEmail(data.getEmail());
+        newMember.setRegistrationDate(LocalDate.now());
+        newMember.setWhatsapp(data.getWhatsapp());
+        newMember.setBirthDate(data.getBirthDate());
+        newMember.setPlan(plan);
+        newMember.setStatus(MemberStatus.PENDING);
+
+        if (data.getHolderId() != null) {
+            Member holder = memberRepo.findById(data.getHolderId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Aluno titular não encontrado com ID: " + data.getHolderId()));
+            newMember.setHolder(holder);
+        }
+
+        newMember = memberRepo.save(newMember);
+
+        if (newMember.getHolder() == null) {
+            paymentService.generateCharge(newMember, LocalDate.now());
+        }
+
+        return new MemberResponseDTO(newMember);
     }
 
     @Transactional
@@ -168,21 +168,21 @@ public class MemberService {
         return new MemberUpdateResponseDTO(message, member.getId());
     }
 
-    @Transactional
     public MemberUpdateResponseDTO activateMember(Long id) {
         Member member = this.getMemberById(id);
 
         if (member.getHolder() != null && member.getHolder().getStatus() != MemberStatus.ACTIVE) {
             throw new BusinessRuleException(
-                    "Não é possível ativar este dependente pois o titular vinculado (" + member.getHolder().getName() + ") está inativo. Reative o titular primeiro ou mude este aluno para um plano individual."
+                    "Não é possível ativar este dependente pois o titular vinculado está inativo."
             );
         }
 
         member.setInactivationDate(null);
         member.setStatus(MemberStatus.ACTIVE);
 
-        var newCharge = paymentService.generateCharge(member, LocalDate.now());
-        if (newCharge != null) {
+        var charged = paymentService.generateCharge(member, LocalDate.now());
+
+        if (charged != null) {
             member.setStatus(MemberStatus.PENDING);
         } else {
             member.setStatus(MemberStatus.ACTIVE);
@@ -190,7 +190,7 @@ public class MemberService {
 
         memberRepo.save(member);
 
-        String message = "Aluno ativado com sucesso. Ele receberá cobranças normalmente a partir de agora.";
+        String message = "Aluno reativado com sucesso. " + (charged != null ? "Uma nova cobrança foi gerada para o mês de retorno." : "O aluno já possuía cobrança para este mês.");
 
         return new MemberUpdateResponseDTO(message, member.getId());
     }
