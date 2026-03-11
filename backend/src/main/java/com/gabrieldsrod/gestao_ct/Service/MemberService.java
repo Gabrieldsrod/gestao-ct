@@ -101,22 +101,9 @@ public class MemberService {
     @Transactional
     public MemberUpdateResponseDTO updateMember(Long id, MemberRegistrationDTO data) {
         Member member = this.getMemberById(id);
-
         Plan newPlan = planService.getById(data.getPlanId());
 
         boolean isNewPlanCouple = newPlan.getName().toLowerCase().contains("casal");
-
-        if (member.getHolder() == null && !member.getDependents().isEmpty()) {
-            boolean hasActiveDependents = member.getDependents().stream()
-                    .anyMatch(dep -> dep.getStatus() == MemberStatus.ACTIVE || dep.getStatus() == MemberStatus.PENDING);
-
-            if (hasActiveDependents && !isNewPlanCouple) {
-                throw new BusinessRuleException(
-                        "Não é possível alterar para um plano individual. Este titular possui dependentes ativos atrelados. " +
-                                "Inative os dependentes primeiro."
-                );
-            }
-        }
 
         if (member.getHolder() != null) {
             if (!isNewPlanCouple) {
@@ -128,14 +115,23 @@ public class MemberService {
             paymentService.updatePendingChargesForPlanChange(member, newPlan.getPrice());
             member.setPlan(newPlan);
 
-            // Update dependents' plans if the member has dependents
             if (!member.getDependents().isEmpty()) {
                 for (Member dependent : member.getDependents()) {
+
+                    if (!isNewPlanCouple) {
+                        dependent.setHolder(null);
+                    }
+
                     dependent.setPlan(newPlan);
                     memberRepo.save(dependent);
                 }
+
+                if (!isNewPlanCouple) {
+                    member.getDependents().clear();
+                }
             }
         }
+
         member.setName(data.getName());
         member.setEmail(data.getEmail());
         member.setWhatsapp(data.getWhatsapp());
@@ -158,13 +154,13 @@ public class MemberService {
 
             if (hasActiveDependents) {
                 throw new BusinessRuleException(
-                        "Não é possível inativar este titular. Ele possui dependentes ativos. " +
-                                "Inative os dependentes primeiro ou promova-os a titulares mudando o plano."
+                        "Não é possível inativar este titular. Ele possui dependentes ativos. Inative os dependentes primeiro ou promova-os a titulares mudando o plano."
                 );
             }
         }
         paymentService.cancelPendingCharges(member);
 
+        member.setInactivationDate(LocalDate.now());
         member.setStatus(MemberStatus.INACTIVE);
         memberRepo.save(member);
 
@@ -175,8 +171,24 @@ public class MemberService {
     @Transactional
     public MemberUpdateResponseDTO activateMember(Long id) {
         Member member = this.getMemberById(id);
+
+        if (member.getHolder() != null && member.getHolder().getStatus() != MemberStatus.ACTIVE) {
+            throw new BusinessRuleException(
+                    "Não é possível ativar este dependente pois o titular vinculado (" + member.getHolder().getName() + ") está inativo. Reative o titular primeiro ou mude este aluno para um plano individual."
+            );
+        }
+
+        member.setInactivationDate(null);
         member.setStatus(MemberStatus.ACTIVE);
-        member = memberRepo.save(member);
+
+        var newCharge = paymentService.generateCharge(member, LocalDate.now());
+        if (newCharge != null) {
+            member.setStatus(MemberStatus.PENDING);
+        } else {
+            member.setStatus(MemberStatus.ACTIVE);
+        }
+
+        memberRepo.save(member);
 
         String message = "Aluno ativado com sucesso. Ele receberá cobranças normalmente a partir de agora.";
 

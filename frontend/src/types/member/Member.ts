@@ -1,4 +1,4 @@
-import { type Plan } from "./Plan";
+import type { Plan } from "../plan/Plan";
 
 export interface Member {
   id: number;
@@ -8,5 +8,8 @@ export interface Member {
   plan: Plan;
   status: string;
   registrationDate: string;
+  inactivationDate?: string | null; // Novo
+  createdAt?: string;               // Novo
+  updatedAt?: string;               // Novo
   holderName?: string | null;
 }

@@ -65,9 +65,19 @@ public class PaymentService {
 
     @Transactional
     public MemberPayment generateCharge(Member member, LocalDate dueDate) {
-        if (member == null || (member.getStatus() != MemberStatus.ACTIVE && member.getStatus() != MemberStatus.PENDING) || member.getPlan() == null) {
+        if (member == null || member.getPlan() == null || (member.getStatus() != MemberStatus.ACTIVE && member.getStatus() != MemberStatus.PENDING && member.getStatus() != MemberStatus.DELINQUENT)) {
             return null;
         }
+
+        int referenceMonth = dueDate.getMonthValue();
+        int referenceYear = dueDate.getYear();
+
+        boolean alreadyCharged = paymentRepo.existsByMemberAndMonthAndYear(member, referenceMonth, referenceYear);
+
+        if (alreadyCharged) {
+            return null;
+        }
+
         MemberPayment pagamento = new MemberPayment();
         pagamento.setMember(member);
         pagamento.setDueDate(dueDate);
@@ -129,5 +139,9 @@ public class PaymentService {
                 payment.setStatus(PaymentStatus.CANCELED);
                 paymentRepo.save(payment);
         }
+    }
+
+    public Boolean existsByMemberAndMonthAndYear(Member member, int currentMonth, int currentYear) {
+        return paymentRepo.existsByMemberAndMonthAndYear(member, currentMonth, currentYear);
     }
 }

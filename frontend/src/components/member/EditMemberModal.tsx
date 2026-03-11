@@ -41,10 +41,10 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
   })
 
   const watchedPlanId = watch("planId")
-  
+
   const selectedPlan = plans.find(p => p.id === Number(watchedPlanId))
   const isCouplePlan = Boolean(selectedPlan?.name.toLowerCase().includes('casal'))
-  
+
   const originalPlan = plans.find(p => p.id === originalPlanId)
   const wasCouplePlan = Boolean(originalPlan?.name.toLowerCase().includes('casal'))
 
@@ -55,6 +55,16 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
       fetchMemberData()
     }
   }, [open])
+
+  useEffect(() => {
+    if (!open) {
+      reset({
+        name: '', whatsapp: '', email: '', birthDate: '', planId: 0,
+        dependentName: '', dependentWhatsapp: '', dependentEmail: '', dependentBirthDate: ''
+      })
+      setOriginalPlanId(null)
+    }
+  }, [open, reset])
 
   async function fetchMemberData() {
     setIsLoadingData(true)
@@ -82,33 +92,33 @@ export function EditMemberModal({ memberId }: EditMemberModalProps) {
   }
 
   const onSubmit = async (data: MemberFormValues) => {
-    
+
     if (isUpgradingToCouple) {
       if (!data.dependentName || data.dependentName.length < 3) {
         setError("dependentName", { message: "Nome do dependente é obrigatório" })
-        return 
+        return
       }
       if (!data.dependentBirthDate) {
         setError("dependentBirthDate", { message: "Data de nascimento é obrigatória" })
-        return 
+        return
       }
       if (!data.dependentEmail || !/\S+@\S+\.\S+/.test(data.dependentEmail)) {
         setError("dependentEmail", { message: "E-mail do dependente é obrigatório e deve ser válido" })
-        return 
+        return
       }
       if (!data.dependentWhatsapp || data.dependentWhatsapp.length < 10) {
         setError("dependentWhatsapp", { message: "WhatsApp do dependente deve ter pelo menos 10 dígitos" })
-        return 
+        return
       }
     }
 
-    const success = await updateMember(memberId, data, isUpgradingToCouple);
+    const result = await updateMember(memberId, data, isUpgradingToCouple);
 
-    if (success) {
+    if (result) {
       setOpen(false)
       window.location.reload()
     } else {
-      alert("Falha ao salvar as alterações. Verifique o console.")
+      alert("Atenção: Falha ao salvar as alterações.");
     }
   }
 

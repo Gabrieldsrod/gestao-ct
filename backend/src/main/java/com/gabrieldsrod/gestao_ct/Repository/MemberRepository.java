@@ -27,4 +27,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findByStatusAndHolderIsNull(MemberStatus memberStatus);
 
     Page<Member> findTop10ByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    List<Member> findByStatusInAndHolderIsNull(List<MemberStatus> statusToBill);
 }

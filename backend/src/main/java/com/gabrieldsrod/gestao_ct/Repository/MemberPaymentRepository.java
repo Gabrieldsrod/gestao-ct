@@ -44,8 +44,8 @@ public interface MemberPaymentRepository extends JpaRepository<MemberPayment, Lo
     @Query("SELECT p FROM MemberPayment p WHERE p.status = 'LATE' AND p.dueDate < :limitDate AND p.member.status = 'DELINQUENT'")
     List<MemberPayment> findPaymentsForInactivation(@Param("limitDate") LocalDate limitDate);
 
-    @Query("SELECT p FROM MemberPayment p WHERE p.status = 'PENDING' AND p.dueDate < :today AND p.member.status = 'ACTIVE'")
-    List<MemberPayment> findOverduePaymentsForActiveMembers(@Param("today") LocalDate today);
+    @Query("SELECT p FROM MemberPayment p WHERE p.status = 'PENDING' AND p.dueDate < :today AND p.member.status IN ('ACTIVE', 'DELINQUENT')")
+    List<MemberPayment> findOverduePaymentsForActiveOrDelinquentMembers(@Param("today") LocalDate today);
 
     List<MemberPayment> findByMemberAndPaymentDateIsNull(Member member);
 }

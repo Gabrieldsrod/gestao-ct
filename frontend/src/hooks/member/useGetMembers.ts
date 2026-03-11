@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Member } from '../../types/Member';
+import type { Member } from '@/types/member/Member';
 
 export function useGetMembers(page = 0, size = 10, searchTerm = '', status = 'ACTIVE') {
   const [members, setMembers] = useState<Member[]>([]);

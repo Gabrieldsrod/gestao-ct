@@ -31,7 +31,7 @@ public class MemberStatusScheduler {
         System.out.println("Iniciando verificação de inadimplência...");
 
         LocalDate today = LocalDate.now();
-        List<MemberPayment> overduePayments = paymentRepo.findOverduePaymentsForActiveMembers(today);
+        List<MemberPayment> overduePayments = paymentRepo.findOverduePaymentsForActiveOrDelinquentMembers(today);
 
         int count = 0;
         for (MemberPayment payment : overduePayments) {
@@ -58,7 +58,6 @@ public class MemberStatusScheduler {
     public void inactivateDelinquentMembers() {
         System.out.println("A iniciar a verificação para inativação de alunos...");
 
-        // Define o limite de tempo (em dias) para considerar um aluno como inativo após se tornar inadimplente
         int toleranceDays = 10;
         LocalDate dataLimite = LocalDate.now().minusDays(toleranceDays);
 
@@ -72,7 +71,6 @@ public class MemberStatusScheduler {
                 holder.setStatus(MemberStatus.INACTIVE);
                 payment.setStatus(PaymentStatus.CANCELED);
 
-                // Inativa os dependentes, se existirem
                 if (holder.getDependents() != null && !holder.getDependents().isEmpty()) {
                     for (Member dependente : holder.getDependents()) {
                         dependente.setStatus(MemberStatus.INACTIVE);

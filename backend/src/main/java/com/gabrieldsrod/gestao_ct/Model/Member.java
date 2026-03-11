@@ -26,6 +26,9 @@ public class Member extends PersonalData {
     @Column(name = "registration_date", nullable = false)
     private LocalDate registrationDate;
 
+    @Column(name = "inactivation_date")
+    private LocalDate inactivationDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "titular_id")
     private Member holder;
