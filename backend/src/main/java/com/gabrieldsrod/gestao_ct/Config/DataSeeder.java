@@ -23,7 +23,6 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 1. Criar Planos se não existirem
         if (planRepository.count() == 0) {
             Plan p1 = new Plan();
             p1.setName("Individual");
