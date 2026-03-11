@@ -175,8 +175,20 @@ public class MemberService {
     @Transactional
     public MemberUpdateResponseDTO activateMember(Long id) {
         Member member = this.getMemberById(id);
+
+        if (member.getHolder() != null) {
+            if (member.getHolder().getStatus() != MemberStatus.ACTIVE) {
+                throw new BusinessRuleException(
+                        "Não é possível ativar este dependente pois o titular vinculado (" + member.getHolder().getName() + ") está inativo. Reative o titular primeiro ou mude este aluno para um plano individual."
+                );
+            }
+        }
+
+        member.setInactivationDate(null);
         member.setStatus(MemberStatus.ACTIVE);
         member = memberRepo.save(member);
+
+        paymentService.generateCharge(member, LocalDate.now().plusMonths(1));
 
         String message = "Aluno ativado com sucesso. Ele receberá cobranças normalmente a partir de agora.";
 

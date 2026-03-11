@@ -8,6 +8,7 @@ import com.gabrieldsrod.gestao_ct.Repository.MemberRepository;
 import com.gabrieldsrod.gestao_ct.Service.PaymentService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -29,7 +30,7 @@ public class BillingScheduler {
         this.paymentService = paymentService;
     }
 
-    // Rodando à 1 da manhã
+    @Transactional
     @Scheduled(cron = "0 0 1 * * *")
     public void generateMonthlyBills() {
         System.out.println("Gerando cobranças mensais para os membros...");
@@ -54,9 +55,9 @@ public class BillingScheduler {
                     nextDueDate = member.getRegistrationDate().withDayOfMonth(1).plusMonths(1);
                 }
 
-                LocalDate dataParaGerarCobranca = nextDueDate.minusDays(3);
+                LocalDate generateBillingDate = nextDueDate.minusDays(3);
 
-                if (today.isEqual(dataParaGerarCobranca) || today.isAfter(dataParaGerarCobranca)) {
+                if (today.isEqual(generateBillingDate) || today.isAfter(generateBillingDate)) {
                     paymentService.generateCharge(member, nextDueDate);
                     System.out.println("Cobrança gerada com antecedência para: " + member.getName());
                 }
