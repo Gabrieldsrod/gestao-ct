@@ -105,20 +105,16 @@ public class MemberService {
 
         boolean isNewPlanCouple = newPlan.getName().toLowerCase().contains("casal");
 
-        // CENÁRIO 2 (Sua observação): A alteração foi feita direto no DEPENDENTE
         if (member.getHolder() != null) {
             if (!isNewPlanCouple) {
-                // Se ele escolheu um plano individual, é libertado do titular na hora!
                 member.setHolder(null);
             }
         }
 
-        // Verifica se o plano realmente mudou para mexer no financeiro e nos dependentes
         if (!member.getPlan().getId().equals(newPlan.getId())) {
             paymentService.updatePendingChargesForPlanChange(member, newPlan.getPrice());
             member.setPlan(newPlan);
 
-            // CENÁRIO 1: A alteração foi feita no TITULAR
             if (!member.getDependents().isEmpty()) {
                 for (Member dependent : member.getDependents()) {
 
