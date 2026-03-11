@@ -7,6 +7,8 @@ import { useNavigate } from "@tanstack/react-router"
 import { useGetMembers } from "../../hooks/member/useGetMembers"
 import { EditMemberModal } from "./EditMemberModal"
 import { MemberStatusModal } from "./MemberStatusModal"
+import type { Member } from "@/types/member/Member"
+import { MemberDetailsModal } from "./MemberDetailsModal"
 
 function getStatusBadge(status: string) {
     switch (status) {
@@ -40,9 +42,15 @@ interface MembersTableProps {
 export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
     const navigate = useNavigate({ from: '/members' })
     const [statusFilter, setStatusFilter] = useState<string>("ALL")
+    const [selectedMember, setSelectedMember] = useState<Member | null>(null)
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false)
 
     const { members, totalPages, totalElements, isLoading, error } = useGetMembers(currentPage, 10, searchTerm, statusFilter);
 
+    const handleRowClick = (student: Member) => {
+        setSelectedMember(student)
+        setIsDetailsOpen(true)
+    }
 
     const handlePageChange = (newPage: number) => {
         navigate({
@@ -107,7 +115,11 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
                             </TableHeader>
                             <TableBody>
                                 {members.map((student) => (
-                                    <TableRow key={student.id} className="border-gray-100 hover:bg-gray-50/50 transition-colors">
+                                    <TableRow
+                                        key={student.id}
+                                        className="border-gray-100 hover:bg-gray-100 transition-colors cursor-pointer"
+                                        onClick={() => handleRowClick(student)}
+                                    >
                                         <TableCell>
                                             <div className="flex flex-col">
                                                 <span className="font-medium text-gray-800">{student.name}</span>
@@ -125,7 +137,7 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
                                         <TableCell className="text-center">
                                             {getStatusBadge(student.status)}
                                         </TableCell>
-                                        <TableCell className="text-right">
+                                        <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                                             <div className="flex justify-end items-center gap-2">
                                                 <EditMemberModal memberId={student.id} />
                                                 <MemberStatusModal
@@ -172,6 +184,11 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
                     </div>
                 )}
             </div>
+            <MemberDetailsModal 
+                member={selectedMember} 
+                open={isDetailsOpen} 
+                onOpenChange={setIsDetailsOpen} 
+            />
         </div>
     )
 }
