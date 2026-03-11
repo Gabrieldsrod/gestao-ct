@@ -2,16 +2,15 @@ package com.gabrieldsrod.gestao_ct.Model;
 
 import com.gabrieldsrod.gestao_ct.Enums.TransactionType;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Entity
 @Table(name = "categories")
-@Data
-public class Category {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Category extends BaseEntity {
 
     @Column(nullable = false, length = 50)
     private String name;

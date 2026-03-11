@@ -3,19 +3,18 @@ package com.gabrieldsrod.gestao_ct.Model;
 import com.gabrieldsrod.gestao_ct.Enums.PaymentMethod;
 import com.gabrieldsrod.gestao_ct.Enums.TransactionType;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "transactions")
-@Data
-public class Transaction {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Transaction extends BaseEntity{
 
     private String description;
 
@@ -28,7 +27,7 @@ public class Transaction {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TransactionType type; // RECEITA ou DESPESA
+    private TransactionType type;
 
     @Column(name = "transaction_date", nullable = false)
     private LocalDate transactionDate;

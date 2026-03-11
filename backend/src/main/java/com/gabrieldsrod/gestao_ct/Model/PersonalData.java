@@ -1,16 +1,17 @@
 package com.gabrieldsrod.gestao_ct.Model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
 @MappedSuperclass
-@Data
-public abstract class PersonalData {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Getter
+@Setter
+@NoArgsConstructor
+@SuperBuilder
+public abstract class PersonalData extends BaseEntity {
 
     @Column(nullable = false, length = 100)
     private String name;

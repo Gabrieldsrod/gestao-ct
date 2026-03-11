@@ -2,19 +2,18 @@ package com.gabrieldsrod.gestao_ct.Model;
 
 import com.gabrieldsrod.gestao_ct.Enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "member_payments")
-@Data
-public class MemberPayment {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class MemberPayment extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
