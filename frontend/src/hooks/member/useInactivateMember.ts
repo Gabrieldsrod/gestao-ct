@@ -11,9 +11,10 @@ export function useInactivateMember() {
         headers: { 'Content-Type': 'application/json' },
       });
 
+      const data = await response.json().catch(() => null);
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.message || "Erro ao inativar aluno. Verifique as regras de negócio.");
+        return { success: false, message: data?.message || data?.error || 'Erro ao inativar o aluno.' };
       }
       
       return { success: true };
