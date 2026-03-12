@@ -7,6 +7,8 @@ export const memberSchema = z.object({
     birthDate: z.string().min(1, "A data de nascimento é obrigatória"),
     planId: z.number().min(1, "Selecione um plano válido"),
 
+    existingDependentId: z.number().optional(),
+
     dependentName: z.string().optional(),
     dependentWhatsapp: z.string().optional(),
     dependentEmail: z.email({ message: "E-mail inválido" }).or(z.literal('')).optional(),

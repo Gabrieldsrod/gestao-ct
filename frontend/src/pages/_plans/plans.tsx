@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { usePageTitle } from '../../hooks/usePageTitle'
-import { PlansTable } from '@/components/plan/PlansTable'; 
+import { PlansTable } from '@/components/plan/PlansTable';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const Route = createFileRoute('/_plans/plans')({
@@ -19,7 +19,7 @@ function PlansPage() {
             subtitle="Gerencie os planos de treinamento disponíveis para os alunos."
           />
         </div>
-        
+
         {/* Aqui no futuro podemos colocar um <Button> + Novo Plano </Button> */}
       </div>
       <PlansTable />
