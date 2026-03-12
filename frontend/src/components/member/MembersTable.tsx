@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useNavigate } from "@tanstack/react-router"
 import { useGetMembers } from "../../hooks/member/useGetMembers"
+import { useGetPlans } from "@/hooks/plan/useGetPlans"
 import { EditMemberModal } from "./EditMemberModal"
 import { MemberStatusModal } from "./MemberStatusModal"
-import type { Member } from "@/types/member/Member"
 import { MemberDetailsModal } from "./MemberDetailsModal"
+import type { Member } from "@/types/member/Member"
 
 function getStatusBadge(status: string) {
     switch (status) {
@@ -46,6 +47,7 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
 
     const { members, totalPages, totalElements, isLoading, error } = useGetMembers(currentPage, 10, searchTerm, statusFilter);
+    const { plans } = useGetPlans();
 
     const handleRowClick = (student: Member) => {
         setSelectedMember(student)
@@ -139,7 +141,7 @@ export function MembersTable({ searchTerm, currentPage }: MembersTableProps) {
                                         </TableCell>
                                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                                             <div className="flex justify-end items-center gap-2">
-                                                <EditMemberModal memberId={student.id} />
+                                                <EditMemberModal memberId={student.id} plans={plans} />
                                                 <MemberStatusModal
                                                     memberId={student.id}
                                                     memberName={student.name}
