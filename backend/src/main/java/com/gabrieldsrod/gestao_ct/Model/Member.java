@@ -30,7 +30,7 @@ public class Member extends PersonalData {
     private LocalDate inactivationDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "titular_id")
+    @JoinColumn(name = "holder_id")
     private Member holder;
 
     @OneToMany(mappedBy = "holder", cascade = CascadeType.ALL)

@@ -35,6 +35,6 @@ public class MemberPayment extends BaseEntity {
     private PaymentStatus status = PaymentStatus.PENDING;
 
     @OneToOne
-    @JoinColumn(name = "transacao_id", unique = true)
+    @JoinColumn(name = "transaction_id", unique = true)
     private Transaction transaction;
 }
