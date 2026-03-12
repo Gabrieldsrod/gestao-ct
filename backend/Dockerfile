@@ -1,7 +1,13 @@
-FROM eclipse-temurin:21-jdk-alpine
-
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-COPY target/*.jar app.jar
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENV JAVA_OPTS="-Xmx300m -Xss512k"
+
+EXPOSE 8080
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

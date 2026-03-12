@@ -15,7 +15,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   api:
-    build: .
+    build: backend
     container_name: gestao_ct_api
     ports:
       - "8080:8080"
