@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/api/members")
 @CrossOrigin(origins = "*")
@@ -39,6 +41,12 @@ public class MemberController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
         Page<MemberResponseDTO> membersPageDto = memberService.getAllMembers(status, pageable);
         return ResponseEntity.ok(membersPageDto);
+    }
+
+    @GetMapping("/eligible-dependents")
+    public ResponseEntity<List<MemberResponseDTO>> listEligibleDependents() {
+        List<MemberResponseDTO> eligibleDependents = memberService.getEligibleDependents();
+        return ResponseEntity.ok(eligibleDependents);
     }
 
     @GetMapping("/{id}")

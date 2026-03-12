@@ -24,7 +24,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Page<Member> findByStatus(MemberStatus status, Pageable pageable);
 
-    List<Member> findByStatusAndHolderIsNull(MemberStatus memberStatus);
+    @Query("SELECT m FROM Member m WHERE m.status != 'INACTIVE' AND m.holder IS NULL AND m.dependents IS EMPTY")
+    List<Member> findEligibleDependents();
 
     Page<Member> findTop10ByNameContainingIgnoreCase(String name, Pageable pageable);
 

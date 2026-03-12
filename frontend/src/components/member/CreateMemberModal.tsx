@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { DependentSection } from "./DependentSection"
 import { memberSchema, type MemberFormValues } from "../../schemas/memberSchema"
 import { useCreateMember } from "../../hooks/member/useCreateMember"
 
@@ -15,6 +16,8 @@ export function CreateMemberModal() {
   const [open, setOpen] = useState(false)
   const { createMember, isLoading } = useCreateMember()
   const [plans, setPlans] = useState<Plan[]>([])
+
+  const [dependentMode, setDependentMode] = useState<'new' | 'existing'>('new')
 
   const {
     register,
@@ -55,13 +58,20 @@ export function CreateMemberModal() {
 
   const onSubmit = async (data: MemberFormValues) => {
     if (isCouplePlan) {
-      if (!data.dependentName || data.dependentName.length < 3) {
-        setError("dependentName", { message: "Nome do dependente é obrigatório" })
-        return
-      }
-      if (!data.dependentBirthDate) {
-        setError("dependentBirthDate", { message: "Data de nascimento é obrigatória" })
-        return
+      if (dependentMode === 'existing') {
+        if (!data.existingDependentId || data.existingDependentId === 0) {
+          setError("existingDependentId" as any, { message: "Selecione um aluno para vincular" })
+          return
+        }
+      } else {
+        if (!data.dependentName || data.dependentName.length < 3) {
+          setError("dependentName", { message: "Nome do dependente é obrigatório" })
+          return
+        }
+        if (!data.dependentBirthDate) {
+          setError("dependentBirthDate", { message: "Data de nascimento é obrigatória" })
+          return
+        }
       }
     }
 
@@ -141,38 +151,12 @@ export function CreateMemberModal() {
           </div>
 
           {isCouplePlan && (
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mt-4 animate-in fade-in slide-in-from-top-4">
-              <h3 className="font-semibold text-blue-800 mb-3 text-sm">Dados do Dependente</h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Nome do Dependente *</label>
-                  <input {...register("dependentName")}
-                    className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentName ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
-                  {errors.dependentName && <p className="text-red-500 text-xs mt-1">{errors.dependentName.message}</p>}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">WhatsApp</label>
-                    <input {...register("dependentWhatsapp")}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Data Nasc. *</label>
-                    <input type="date" {...register("dependentBirthDate")}
-                      className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentBirthDate ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
-                    {errors.dependentBirthDate && <p className="text-red-500 text-xs mt-1">{errors.dependentBirthDate.message}</p>}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">E-mail</label>
-                  <input type="email" {...register("dependentEmail")}
-                    className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.dependentEmail ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`} />
-                  {errors.dependentEmail && <p className="text-red-500 text-xs mt-1">{errors.dependentEmail.message}</p>}
-                </div>
-              </div>
-            </div>
+            <DependentSection 
+              register={register} 
+              errors={errors} 
+              dependentMode={dependentMode} 
+              setDependentMode={setDependentMode} 
+            />
           )}
 
           <div className="pt-2 flex justify-end">
