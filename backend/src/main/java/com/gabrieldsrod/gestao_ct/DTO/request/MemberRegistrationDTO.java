@@ -20,6 +20,13 @@ public class MemberRegistrationDTO {
     private String whatsapp;
     private LocalDate birthDate;
     private Long planId;
-    private Long holderId; // Opcional, para dependentes
+    private Long holderId;
 
+
+    private Long existingDependentId;
+
+    private String dependentName;
+    private String dependentEmail;
+    private String dependentWhatsapp;
+    private LocalDate dependentBirthDate;
 }

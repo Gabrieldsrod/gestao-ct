@@ -132,6 +132,45 @@ public class MemberService {
             }
         }
 
+        if (isNewPlanCouple && data.getExistingDependentId() != null && data.getExistingDependentId() > 0) {
+            Member existingDependent = this.getMemberById(data.getExistingDependentId());
+
+            if (existingDependent.getId().equals(member.getId())) {
+                throw new BusinessRuleException("O aluno não pode ser dependente dele mesmo.");
+            }
+            if (existingDependent.getHolder() != null) {
+                throw new BusinessRuleException("O aluno selecionado já é dependente de outra pessoa.");
+            }
+            if (!existingDependent.getDependents().isEmpty()) {
+                throw new BusinessRuleException("O aluno selecionado possui dependentes. Inative-os primeiro.");
+            }
+
+            paymentService.cancelPendingCharges(existingDependent);
+
+            existingDependent.setHolder(member);
+            existingDependent.setPlan(newPlan);
+            memberRepo.save(existingDependent);
+
+            member.getDependents().add(existingDependent);
+        }
+
+
+        else if (isNewPlanCouple && data.getDependentName() != null && !data.getDependentName().isEmpty()) {
+            Member newDependent = new Member();
+            newDependent.setName(data.getDependentName());
+            newDependent.setEmail(data.getDependentEmail());
+            newDependent.setWhatsapp(data.getDependentWhatsapp());
+            newDependent.setBirthDate(data.getDependentBirthDate());
+            newDependent.setRegistrationDate(LocalDate.now());
+            newDependent.setPlan(newPlan);
+            newDependent.setHolder(member);
+            newDependent.setStatus(MemberStatus.ACTIVE);
+
+            newDependent = memberRepo.save(newDependent);
+
+            member.getDependents().add(newDependent);
+        }
+
         member.setName(data.getName());
         member.setEmail(data.getEmail());
         member.setWhatsapp(data.getWhatsapp());
