@@ -21,9 +21,7 @@ export function useGetPlans() {
       setIsLoading(false);
     }
   }, []);
-
   
-
   useEffect(() => {
     fetchPlans();
   }, [fetchPlans]);
@@ -51,8 +49,6 @@ export function useGetPlansCountedMembers() {
       setIsLoading(false);
     }
   }, []);
-
-  
 
   useEffect(() => {
     fetchPlans();
