@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,7 +107,7 @@ public class PaymentService {
         Transaction income = transactionService.saveMembershipTransaction(payment, paymentMethod);
 
         payment.setStatus(PaymentStatus.PAID);
-        payment.setPaymentDate(LocalDate.now());
+        payment.setPaymentDate(LocalDateTime.now());
         payment.setAmountPaid(payment.getAmountCharged());
         payment.setTransaction(income);
 
@@ -139,9 +140,5 @@ public class PaymentService {
                 payment.setStatus(PaymentStatus.CANCELED);
                 paymentRepo.save(payment);
         }
-    }
-
-    public Boolean existsByMemberAndMonthAndYear(Member member, int currentMonth, int currentYear) {
-        return paymentRepo.existsByMemberAndMonthAndYear(member, currentMonth, currentYear);
     }
 }

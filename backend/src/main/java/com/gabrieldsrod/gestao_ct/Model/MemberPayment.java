@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "member_payments")
@@ -26,7 +27,7 @@ public class MemberPayment extends BaseEntity {
 
     // Campos para controle de pagamento, preenchidos quando o pagamento for realizado
     @Column(name = "payment_date")
-    private LocalDate paymentDate;
+    private LocalDateTime paymentDate;
     @Column(name = "amount_paid", precision = 19, scale = 2)
     private BigDecimal amountPaid;
 

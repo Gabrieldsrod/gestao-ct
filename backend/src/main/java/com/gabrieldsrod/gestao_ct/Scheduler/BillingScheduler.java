@@ -3,7 +3,6 @@ package com.gabrieldsrod.gestao_ct.Scheduler;
 import com.gabrieldsrod.gestao_ct.Enums.MemberStatus;
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Model.MemberPayment;
-import com.gabrieldsrod.gestao_ct.Repository.MemberPaymentRepository;
 import com.gabrieldsrod.gestao_ct.Repository.MemberRepository;
 import com.gabrieldsrod.gestao_ct.Service.PaymentService;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,13 +19,10 @@ public class BillingScheduler {
 
     private final MemberRepository memberRepo;
 
-    private final MemberPaymentRepository memberPaymentRepo;
-
     private final PaymentService paymentService;
 
-    public BillingScheduler(MemberRepository memberRepo, MemberPaymentRepository memberPaymentRepo, PaymentService paymentService) {
+    public BillingScheduler(MemberRepository memberRepo, PaymentService paymentService) {
         this.memberRepo = memberRepo;
-        this.memberPaymentRepo = memberPaymentRepo;
         this.paymentService = paymentService;
     }
 
