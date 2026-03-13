@@ -9,9 +9,11 @@ public record PlanResponseDTO(
         Long id,
         String name,
         BigDecimal price,
+        Long activeMembers,
         String lastUpdated
+
 ) {
     public PlanResponseDTO(Plan plan) {
-        this(plan.getId(), plan.getName(), plan.getPrice(), plan.getUpdatedAt().format(DateUtils.BR_FORMATTER_DATETIME));
+        this(plan.getId(), plan.getName(), plan.getPrice(), 0L, plan.getUpdatedAt().format(DateUtils.BR_FORMATTER_DATETIME));
     }
 }

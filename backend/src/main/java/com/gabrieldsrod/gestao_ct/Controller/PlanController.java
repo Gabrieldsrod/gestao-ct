@@ -19,8 +19,13 @@ public class PlanController {
     }
 
     @GetMapping
-    public List<PlanResponseDTO> getAllPlans() {
+    public List<PlanResponseDTO> getPlans() {
         return planService.getAll();
+    }
+
+    @GetMapping("/count-members")
+    public List<PlanResponseDTO> getPlansWithMembers() {
+        return planService.getAllPlans();
     }
 
     @PatchMapping("/{id}")

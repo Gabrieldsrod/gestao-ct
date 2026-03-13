@@ -17,6 +17,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     long countByStatus(MemberStatus status);
 
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.plan.id = :planId AND m.status IN ('ACTIVE', 'PENDING')")
+    Long countActiveMembersByPlanId(@Param("planId") Long planId);
+
     @Query("SELECT COUNT(m) FROM Member m WHERE m.registrationDate <= :endDate AND m.status NOT IN ('INACTIVE', 'EXPELLED', 'SUSPENDED')")
     long countActiveMembersUpTo(@Param("endDate") LocalDate endDate);
 
