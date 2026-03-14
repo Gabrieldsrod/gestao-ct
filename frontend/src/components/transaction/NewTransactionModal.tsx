@@ -1,19 +1,17 @@
 import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
-import { useCategories } from "@/hooks/category/useCategories"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { transactionSchema, type TransactionFormValues } from "@/schemas/transactionSchemas"
 
 interface NewTransactionModalProps {
     createTransaction: (data: any) => Promise<{ success: boolean; message?: string }>;
+    categories: any[];
 }
 
-export function NewTransactionModal({ createTransaction }: NewTransactionModalProps) {
+export function NewTransactionModal({ createTransaction, categories }: NewTransactionModalProps) {
     const [open, setOpen] = useState(false)
-    const { categories, refetch } = useCategories()
-
     const [isSaving, setIsSaving] = useState(false)
     const [apiError, setApiError] = useState<string | null>(null)
 
@@ -31,24 +29,17 @@ export function NewTransactionModal({ createTransaction }: NewTransactionModalPr
         }
     })
 
-    // Observa o tipo atual para filtrar as categorias
     const watchedType = watch("transactionType");
     const filteredCategories = categories.filter(c => c.type === watchedType);
 
-    // Ao trocar de "Saída" para "Entrada", limpamos a categoria selecionada para evitar envio incorreto
     useEffect(() => {
         setValue("categoryId", 0);
     }, [watchedType, setValue]);
-
-    useEffect(() => {
-        if (open) refetch();
-    }, [open, refetch]);
 
     const onSubmit = async (data: TransactionFormValues) => {
         setIsSaving(true);
         setApiError(null);
 
-        // Faz o tratamento mágico da vírgula antes de enviar pra API
         const numericAmount = parseFloat(data.amount.replace(',', '.'));
 
         const payload = {

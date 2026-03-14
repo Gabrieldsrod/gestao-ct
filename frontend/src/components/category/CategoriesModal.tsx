@@ -1,15 +1,18 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { Settings2, Plus, ArrowUpCircle, ArrowDownCircle } from "lucide-react"
-import { useCategories } from "@/hooks/category/useCategories"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { categorySchema, type CategoryFormValues } from "@/schemas/transactionSchemas"
 
-export function CategoriesModal() {
-  const [open, setOpen] = useState(false)
-  const { categories, isLoading, createCategory, refetch } = useCategories()
+interface CategoriesModalProps {
+    categories: any[];
+    isLoading: boolean;
+    createCategory: (name: string, type: "INCOME" | "EXPENSE") => Promise<{ success: boolean; message?: string }>;
+}
 
+export function CategoriesModal({ categories, isLoading, createCategory }: CategoriesModalProps) {
+  const [open, setOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
 
@@ -20,10 +23,6 @@ export function CategoriesModal() {
       type: 'EXPENSE'
     }
   })
-
-  useEffect(() => {
-    if (open) refetch();
-  }, [open, refetch]);
 
   const onSubmit = async (data: CategoryFormValues) => {
     setIsSaving(true);

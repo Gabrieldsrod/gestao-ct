@@ -7,6 +7,7 @@ import { TransactionSummary } from '@/components/transaction/TransactionSummary'
 import { TransactionsTable } from '@/components/transaction/TransactionsTable';
 import { CategoriesModal } from '@/components/category/CategoriesModal'
 import { NewTransactionModal } from '@/components/transaction/NewTransactionModal'
+import { useCategories } from '@/hooks/category/useCategories'
 
 export const Route = createFileRoute('/_transactions/transactions')({
     component: TransactionsPage,
@@ -20,7 +21,9 @@ function TransactionsPage() {
     const [currentYear, setCurrentYear] = useState(hoje.getFullYear());
     const [currentPage, setCurrentPage] = useState(0);
 
-    const { transactions, cashflow, totalPages, totalElements, isLoading, error, createTransaction } = useTransactions(currentPage, currentMonth, currentYear);
+    const { categories, isLoading : isCategoriesLoading, createCategory } = useCategories();
+
+    const { transactions, cashflow, totalPages, totalElements, isLoading : isTransactionsLoading, error, createTransaction } = useTransactions(currentPage, currentMonth, currentYear);
 
     return (
         <div className="p-8 space-y-6">
@@ -32,8 +35,14 @@ function TransactionsPage() {
                 />
 
                 <div className="flex gap-3">
-                    <CategoriesModal />
-                    <NewTransactionModal createTransaction={createTransaction} />
+                    <CategoriesModal
+                        categories={categories}
+                        isLoading={isCategoriesLoading}
+                        createCategory={createCategory} />
+                    <NewTransactionModal
+                        categories={categories}
+                        createTransaction={createTransaction}
+                    />
                 </div>
             </div>
 
@@ -53,7 +62,7 @@ function TransactionsPage() {
 
             <TransactionsTable
                 transactions={transactions}
-                isLoading={isLoading}
+                isLoading={isTransactionsLoading}
                 error={error}
                 currentPage={currentPage}
                 totalPages={totalPages}
