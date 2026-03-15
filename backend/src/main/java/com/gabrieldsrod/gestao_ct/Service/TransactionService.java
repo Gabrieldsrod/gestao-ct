@@ -29,12 +29,17 @@ public class TransactionService {
         this.categoryService = categoryService;
     }
 
-    public Page<TransactionResponseDTO> listTransactions(int month, int year, Pageable pageable) {
+    public Page<TransactionResponseDTO> listTransactions(int month, int year, TransactionType type, Long categoryId, Pageable pageable) {
 
         LocalDate start = LocalDate.of(year, month, 1);
         LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
 
-        return transactionRepo.findByTransactionDateBetween(start, end, pageable).map(TransactionResponseDTO::new);
+        Long finalCategoryId = (categoryId != null && categoryId > 0) ? categoryId : null;
+
+        Page<Transaction> transactions = transactionRepo.findTransactionsWithFilters(
+                start, end, type, finalCategoryId, pageable);
+
+        return transactions.map(TransactionResponseDTO::new);
     }
 
     public TransactionResponseDTO createTransaction(NewTransactionDTO dados) {
@@ -55,7 +60,7 @@ public class TransactionService {
 
     public Transaction saveMembershipTransaction(MemberPayment payment, @NotNull PaymentMethod paymentMethod) {
         Transaction income = new Transaction();
-        income.setDescription("Mensalidade - " + payment.getMember().getName());
+        income.setDescription("Mensalidade - %s".formatted(payment.getMember().getName()));
         income.setAmount(payment.getAmountCharged());
         income.setPaymentMethod(paymentMethod);
         income.setType(TransactionType.INCOME);
@@ -75,7 +80,6 @@ public class TransactionService {
     public CashFlowDTO cashFlowResume() {
         BigDecimal totalEntradas = transactionRepo.sumTotalIncomes();
         BigDecimal totalSaidas = transactionRepo.sumTotalExpenses();
-
         BigDecimal saldoFinal = totalEntradas.subtract(totalSaidas);
 
         return new CashFlowDTO(totalEntradas, totalSaidas, saldoFinal);
