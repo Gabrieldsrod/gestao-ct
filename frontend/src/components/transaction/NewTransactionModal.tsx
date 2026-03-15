@@ -8,9 +8,10 @@ import { transactionSchema, type TransactionFormValues } from "@/schemas/transac
 interface NewTransactionModalProps {
     createTransaction: (data: any) => Promise<{ success: boolean; message?: string }>;
     categories: any[];
+    refetchTransactions: () => Promise<void>;
 }
 
-export function NewTransactionModal({ createTransaction, categories }: NewTransactionModalProps) {
+export function NewTransactionModal({ createTransaction, categories, refetchTransactions }: NewTransactionModalProps) {
     const [open, setOpen] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [apiError, setApiError] = useState<string | null>(null)
@@ -54,6 +55,7 @@ export function NewTransactionModal({ createTransaction, categories }: NewTransa
         const result = await createTransaction(payload);
 
         if (result.success) {
+            await refetchTransactions();
             reset();
             setOpen(false);
         } else {
