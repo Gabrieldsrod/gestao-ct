@@ -4,10 +4,12 @@ import com.gabrieldsrod.gestao_ct.DTO.request.NewTransactionDTO;
 
 import com.gabrieldsrod.gestao_ct.DTO.response.CashFlowDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.TransactionResponseDTO;
+import com.gabrieldsrod.gestao_ct.Enums.TransactionType;
 import com.gabrieldsrod.gestao_ct.Service.TransactionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,14 +26,17 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<TransactionResponseDTO>> listTransactions(
+    public ResponseEntity<Page<TransactionResponseDTO>> getTransactions(
             @RequestParam int month,
             @RequestParam int year,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(transactionService.listTransactions(month, year, pageable));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) TransactionType type,
+            @RequestParam(required = false) Long categoryId) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "transactionDate", "id"));
+
+        return ResponseEntity.ok(transactionService.listTransactions(month, year, type, categoryId, pageable));
     }
 
     @PostMapping

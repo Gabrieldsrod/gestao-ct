@@ -1,5 +1,6 @@
 package com.gabrieldsrod.gestao_ct.Repository;
 
+import com.gabrieldsrod.gestao_ct.Enums.TransactionType;
 import com.gabrieldsrod.gestao_ct.Model.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,4 +25,15 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.type = 'INCOME' AND t.transactionDate BETWEEN :startDate AND :endDate")
     BigDecimal sumIncomesBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT t FROM Transaction t WHERE " +
+            "t.transactionDate BETWEEN :start AND :end AND " +
+            "(:type IS NULL OR t.type = :type) AND " +
+            "(:categoryId IS NULL OR t.category.id = :categoryId)")
+    Page<Transaction> findTransactionsWithFilters(
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end,
+            @Param("type") TransactionType type,
+            @Param("categoryId") Long categoryId,
+            Pageable pageable);
 }
