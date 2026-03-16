@@ -3,28 +3,46 @@ name: gestao-ct
 services:
 
   db:
-    image: postgres:latest
+    image: postgres:15-alpine
     container_name: gestao_ct_db
+    restart: always
     environment:
+      POSTGRES_DB: gestao_ct_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: gestao_ct_db
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  api:
-    build: backend
-    container_name: gestao_ct_api
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gestao_ct_backend
+    restart: always
     ports:
       - "8080:8080"
     environment:
-      DB_URL: jdbc:postgresql://db:5432/gestao_ct_db
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/gestao_ct_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
       - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:8080
+    container_name: gestao_ct_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
