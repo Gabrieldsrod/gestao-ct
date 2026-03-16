@@ -45,7 +45,10 @@ public class TransactionController {
     }
 
     @GetMapping("/cashflow")
-    public ResponseEntity<CashFlowDTO> cashFlowResume() {
-        return ResponseEntity.ok(transactionService.cashFlowResume());
+    public ResponseEntity<CashFlowDTO> getCashFlow(
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year
+    ) {
+        return ResponseEntity.ok(transactionService.getCashFlow(month, year));
     }
 }
