@@ -42,16 +42,16 @@ public class TransactionService {
         return transactions.map(TransactionResponseDTO::new);
     }
 
-    public TransactionResponseDTO createTransaction(NewTransactionDTO dados) {
-        Category category = categoryService.getCategoryById(dados.categoryId());
+    public TransactionResponseDTO createTransaction(NewTransactionDTO data) {
+        Category category = categoryService.getCategoryById(data.categoryId());
 
         Transaction transaction = new Transaction();
-        transaction.setDescription(dados.description());
-        transaction.setAmount(dados.amount());
-        transaction.setType(dados.transactionType());
-        transaction.setPaymentMethod(dados.paymentMethod());
+        transaction.setDescription(data.description());
+        transaction.setAmount(data.amount());
+        transaction.setType(data.transactionType());
+        transaction.setPaymentMethod(data.paymentMethod());
         transaction.setCategory(category);
-        transaction.setTransactionDate(LocalDate.now());
+        transaction.setTransactionDate(data.transactionDate());
 
         transactionRepo.save(transaction);
 

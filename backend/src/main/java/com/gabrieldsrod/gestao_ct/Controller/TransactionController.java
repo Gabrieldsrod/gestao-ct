@@ -40,8 +40,8 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<TransactionResponseDTO> createTransaction(@RequestBody NewTransactionDTO dados) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.createTransaction(dados));
+    public ResponseEntity<TransactionResponseDTO> createTransaction(@RequestBody NewTransactionDTO data) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.createTransaction(data));
     }
 
     @GetMapping("/cashflow")
