@@ -30,7 +30,7 @@ function TransactionsPage() {
     const { categories, isLoading : isCategoriesLoading, createCategory } = useCategories();
 
    const { transactions, totalPages, totalElements, isLoading : isTransactionsLoading, error, refetchTransactions } = useGetTransactions(currentPage, currentMonth, currentYear, typeFilter, selectedCategory);
-    const { cashflow } = useCashflow(
+    const { cashflow, refetchCashflow } = useCashflow(
         periodMode === 'MONTHLY' ? currentMonth : undefined,
         periodMode === 'MONTHLY' ? currentYear : undefined
     );
@@ -54,6 +54,7 @@ function TransactionsPage() {
                         categories={categories}
                         createTransaction={createTransaction}
                         refetchTransactions={refetchTransactions}
+                        refetchCashflow={refetchCashflow}
                     />
                 </div>
             </div>

@@ -9,9 +9,10 @@ interface NewTransactionModalProps {
     createTransaction: (data: any) => Promise<{ success: boolean; message?: string }>;
     categories: any[];
     refetchTransactions: () => Promise<void>;
+    refetchCashflow: () => Promise<void>;
 }
 
-export function NewTransactionModal({ createTransaction, categories, refetchTransactions }: NewTransactionModalProps) {
+export function NewTransactionModal({ createTransaction, categories, refetchTransactions, refetchCashflow }: NewTransactionModalProps) {
     const [open, setOpen] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [apiError, setApiError] = useState<string | null>(null)
@@ -55,7 +56,10 @@ export function NewTransactionModal({ createTransaction, categories, refetchTran
         const result = await createTransaction(payload);
 
         if (result.success) {
-            await refetchTransactions();
+            await Promise.all([
+                refetchTransactions(),
+                refetchCashflow()
+            ]);
             reset();
             setOpen(false);
         } else {
