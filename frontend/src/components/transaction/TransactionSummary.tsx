@@ -2,6 +2,8 @@ import { ArrowDownCircle, ArrowUpCircle, Wallet } from 'lucide-react'
 import type { CashFlow } from '@/types/finances/CashFlow';
 
 interface TransactionSummaryProps {
+    periodMode: 'MONTHLY' | 'ALL_TIME';
+    setPeriodMode: (mode: 'MONTHLY' | 'ALL_TIME') => void;
     cashflow: CashFlow | null;
     currentMonth: number;
     currentYear: number;
@@ -15,7 +17,7 @@ const MESES = [
 ];
 
 export function TransactionSummary({
-    cashflow, currentMonth, currentYear, onMonthChange, onYearChange
+    periodMode, setPeriodMode, cashflow, currentMonth, currentYear, onMonthChange, onYearChange
 }: TransactionSummaryProps) {
 
     const formatCurrency = (value: number = 0) => {
@@ -27,36 +29,47 @@ export function TransactionSummary({
     return (
         <div className="space-y-6">
 
-            <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-600">Período:</label>
-                        <select
-                            value={currentMonth}
-                            onChange={(e) => onMonthChange(Number(e.target.value))}
-                            className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-                        >
-                            {MESES.map((mes, index) => (
-                                <option key={index} value={index + 1}>{mes}</option>
-                            ))}
-                        </select>
+            <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-4">
+                    <label className="text-sm font-medium text-gray-600">Visualização:</label>
 
-                        <select
-                            value={currentYear}
-                            onChange={(e) => onYearChange(Number(e.target.value))}
-                            className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-                        >
-                            <option value={2025}>2025</option>
-                            <option value={2026}>2026</option>
-                            <option value={2027}>2027</option>
-                        </select>
-                    </div>
+                    <select
+                        value={periodMode}
+                        onChange={(e) => setPeriodMode(e.target.value as 'MONTHLY' | 'ALL_TIME')}
+                        className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="MONTHLY">Mensal</option>
+                        <option value="ALL_TIME">Todo o Histórico</option>
+                    </select>
+
+                    {periodMode === 'MONTHLY' && (
+                        <div className="flex gap-2 animate-in fade-in slide-in-from-left-2">
+                            <select
+                                value={currentMonth}
+                                onChange={(e) => onMonthChange(Number(e.target.value))}
+                                className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                {MESES.map((mes, index) => (
+                                    <option key={index} value={index + 1}>{mes}</option>
+                                ))}
+                            </select>
+                            <select
+                                value={currentYear}
+                                onChange={(e) => onYearChange(Number(e.target.value))}
+                                className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value={2025}>2025</option>
+                                <option value={2026}>2026</option>
+                                <option value={2027}>2027</option>
+                            </select>
+                        </div>
+                    )}
                 </div>
+            </div>
 
-            {/* CARDS DE FLUXO DE CAIXA */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                {/* Receitas */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
                     <div>
                         <p className="text-sm font-medium text-gray-500 mb-1">Total de Receitas</p>
                         <h3 className="text-2xl font-bold text-gray-800">
@@ -68,8 +81,7 @@ export function TransactionSummary({
                     </div>
                 </div>
 
-                {/* Despesas */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
                     <div>
                         <p className="text-sm font-medium text-gray-500 mb-1">Total de Despesas</p>
                         <h3 className="text-2xl font-bold text-gray-800">
@@ -81,8 +93,7 @@ export function TransactionSummary({
                     </div>
                 </div>
 
-                {/* Saldo Líquido */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
                     <div>
                         <p className="text-sm font-medium text-gray-500 mb-1">Saldo Líquido</p>
                         <h3 className={`text-2xl font-bold ${isPositive ? 'text-blue-600' : 'text-red-600'}`}>
@@ -95,7 +106,6 @@ export function TransactionSummary({
                 </div>
 
             </div>
-
         </div>
     )
 }
