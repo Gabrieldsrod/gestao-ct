@@ -24,7 +24,12 @@ export function DependentSection({
             .then(data => {
                 const content = data.content || data;
 
-                const filtered = content.filter((m: any) => m.id !== currentMemberId);
+                const filtered = content.filter((m: any) => {
+                    if (!currentMemberId) 
+                        return true;
+
+                    return Number(m.id) !== Number(currentMemberId);
+                });
 
                 setEligibleMembers(filtered);
             })

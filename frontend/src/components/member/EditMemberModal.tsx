@@ -205,6 +205,7 @@ export function EditMemberModal({ memberId, plans }: EditMemberModalProps) {
                 errors={errors}
                 dependentMode={dependentMode}
                 setDependentMode={setDependentMode}
+                currentMemberId={memberId}
               />
             )}
 
