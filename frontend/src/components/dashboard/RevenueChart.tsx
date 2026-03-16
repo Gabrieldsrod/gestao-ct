@@ -21,7 +21,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
   }
 
   return (
-    <Card className="border-gray-100 shadow-sm flex flex-col">
+    <Card className="bg-white border-gray-100 shadow-sm flex flex-col">
       <CardHeader>
         <CardTitle className="text-base font-semibold text-gray-800">Receita Mensal</CardTitle>
       </CardHeader>

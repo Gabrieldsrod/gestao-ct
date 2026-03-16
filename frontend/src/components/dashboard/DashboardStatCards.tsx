@@ -11,7 +11,7 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon, description, color }: StatCardProps) {
     return (
-        <Card className="border-gray-100 shadow-sm">
+        <Card className="bg-white border-gray-100 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
                 <div className={`p-2 bg-muted/50 rounded-lg border border-border flex items-center justify-center ${color}`}>

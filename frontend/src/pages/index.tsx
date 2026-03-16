@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useDashboard } from '../hooks/dashboard/useDashboard'
 import { PageHeader } from '../components/dashboard/PageHeader'
 import { DashboardStatCards } from '../components/dashboard/DashboardStatCards'
-import { StudentGrowthChart } from '../components/dashboard/StudentGrowthChart'
+import { MembersPerPlanChart } from '../components/dashboard/MembersPerPlanChart'
 import { RevenueChart } from '../components/dashboard/RevenueChart'
 import { usePageTitle } from '@/hooks/usePageTitle'
 
@@ -47,12 +47,9 @@ function DashboardPage() {
         netBalance={summary.finance.netBalance}
       />
 
-      {/* 3. Área de Gráficos Desacoplados Lado a Lado */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
-        {/* Gráfico de Área Laranja (Alunos) - Shadcn Style */}
-        <StudentGrowthChart data={summary.chartData} />
+        <MembersPerPlanChart />
 
-        {/* Gráfico de Barras Azuis (Receita) - Shadcn Style */}
         <RevenueChart data={summary.chartData} />
       </div>
     </div>
