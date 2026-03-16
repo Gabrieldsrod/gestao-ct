@@ -49,10 +49,6 @@ public class PaymentService {
         return paymentRepo.findTopByMemberOrderByDueDateDesc(member);
     }
 
-    public List<MemberPayment> findByMemberAndPaymentDateIsNull(Member member) {
-        return paymentRepo.findByMemberAndPaymentDateIsNull(member);
-    }
-
     @Transactional
     public void updatePendingChargesForPlanChange(Member member, BigDecimal newPrice) {
 
@@ -79,17 +75,17 @@ public class PaymentService {
             return null;
         }
 
-        MemberPayment pagamento = new MemberPayment();
-        pagamento.setMember(member);
-        pagamento.setDueDate(dueDate);
-        pagamento.setAmountCharged(member.getPlan().getPrice());
-        pagamento.setStatus(PaymentStatus.PENDING);
-        pagamento.setPaymentDate(null);
-        pagamento.setAmountPaid(null);
-        pagamento.setTransaction(null);
+        MemberPayment payment = new MemberPayment();
+        payment.setMember(member);
+        payment.setDueDate(dueDate);
+        payment.setAmountCharged(member.getPlan().getPrice());
+        payment.setStatus(PaymentStatus.PENDING);
+        payment.setPaymentDate(null);
+        payment.setAmountPaid(null);
+        payment.setTransaction(null);
 
-        paymentRepo.save(pagamento);
-        return pagamento;
+        paymentRepo.save(payment);
+        return payment;
     }
 
     @Transactional

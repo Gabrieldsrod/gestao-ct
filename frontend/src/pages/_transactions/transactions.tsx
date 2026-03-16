@@ -25,11 +25,15 @@ function TransactionsPage() {
     const [currentPage, setCurrentPage] = useState(0);
     const [typeFilter, setTypeFilter] = useState('ALL');
     const [selectedCategory, setSelectedCategory] = useState<number>(0);
+    const [periodMode, setPeriodMode] = useState<'MONTHLY' | 'ALL_TIME'>('MONTHLY');
 
     const { categories, isLoading : isCategoriesLoading, createCategory } = useCategories();
 
    const { transactions, totalPages, totalElements, isLoading : isTransactionsLoading, error, refetchTransactions } = useGetTransactions(currentPage, currentMonth, currentYear, typeFilter, selectedCategory);
-    const { cashflow } = useCashflow();
+    const { cashflow } = useCashflow(
+        periodMode === 'MONTHLY' ? currentMonth : undefined,
+        periodMode === 'MONTHLY' ? currentYear : undefined
+    );
     const { createTransaction } = useCreateTransaction();
 
     return (
@@ -55,6 +59,8 @@ function TransactionsPage() {
             </div>
 
             <TransactionSummary
+                periodMode={periodMode}
+                setPeriodMode={setPeriodMode}
                 cashflow={cashflow}
                 currentMonth={currentMonth}
                 currentYear={currentYear}

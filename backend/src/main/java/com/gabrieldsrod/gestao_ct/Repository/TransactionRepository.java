@@ -15,16 +15,15 @@ import java.time.LocalDate;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    Page<Transaction> findByTransactionDateBetween(LocalDate start, LocalDate end, Pageable pageable);
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.type = :type AND t.transactionDate BETWEEN :startDate AND :endDate")
+    BigDecimal sumAmountByPeriodAndType(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("type") TransactionType type // Passa o Enum aqui!
+    );
 
-    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.type = 'INCOME'")
-    BigDecimal sumTotalIncomes();
-
-    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.type = 'EXPENSE'")
-    BigDecimal sumTotalExpenses();
-
-    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.type = 'INCOME' AND t.transactionDate BETWEEN :startDate AND :endDate")
-    BigDecimal sumIncomesBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.type = :type")
+    BigDecimal sumTotalAmountByType(@Param("type") TransactionType type);
 
     @Query("SELECT t FROM Transaction t WHERE " +
             "t.transactionDate BETWEEN :start AND :end AND " +

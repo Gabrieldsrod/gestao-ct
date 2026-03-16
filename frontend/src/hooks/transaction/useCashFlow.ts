@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { CashFlow } from '@/types/finances/CashFlow';
 
-export function useCashflow() {
+export function useCashflow(month?: number, year?: number) {
     const [cashflow, setCashflow] = useState<CashFlow | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -12,8 +12,13 @@ export function useCashflow() {
         setIsLoading(true);
         setError(null);
         try {
-            const res = await fetch(`${API_URL}/v1/api/transactions/cashflow`);
-            
+
+            let url = `${API_URL}/v1/api/transactions/cashflow`;
+            if (month && year) {
+                url += `?month=${month}&year=${year}`;
+            }
+            const res = await fetch(url);
+
             if (!res.ok) throw new Error('Erro ao buscar fluxo de caixa.');
             
             const data = await res.json();
@@ -24,7 +29,7 @@ export function useCashflow() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [month, year]);
 
     useEffect(() => {
         fetchCashflow();

@@ -42,16 +42,16 @@ public class TransactionService {
         return transactions.map(TransactionResponseDTO::new);
     }
 
-    public TransactionResponseDTO createTransaction(NewTransactionDTO dados) {
-        Category category = categoryService.getCategoryById(dados.categoryId());
+    public TransactionResponseDTO createTransaction(NewTransactionDTO data) {
+        Category category = categoryService.getCategoryById(data.categoryId());
 
         Transaction transaction = new Transaction();
-        transaction.setDescription(dados.description());
-        transaction.setAmount(dados.amount());
-        transaction.setType(dados.transactionType());
-        transaction.setPaymentMethod(dados.paymentMethod());
+        transaction.setDescription(data.description());
+        transaction.setAmount(data.amount());
+        transaction.setType(data.transactionType());
+        transaction.setPaymentMethod(data.paymentMethod());
         transaction.setCategory(category);
-        transaction.setTransactionDate(LocalDate.now());
+        transaction.setTransactionDate(data.transactionDate());
 
         transactionRepo.save(transaction);
 
@@ -72,16 +72,29 @@ public class TransactionService {
         return transactionRepo.save(income);
     }
 
-    public BigDecimal sumIncomesBetween(LocalDate startDate, LocalDate endDate) {
-        return transactionRepo.sumIncomesBetween(startDate, endDate);
+    public BigDecimal sumIncomesBetween(LocalDate start, LocalDate end) {
+        return transactionRepo.sumAmountByPeriodAndType(start, end, TransactionType.INCOME);
     }
 
+    public CashFlowDTO getCashFlow(Integer month, Integer year) {
+        if (month == null || year == null) {
+            return this.cashFlowResume();
+        }
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+        BigDecimal totalIncomes = transactionRepo.sumAmountByPeriodAndType(start, end,TransactionType.INCOME);
+        BigDecimal totalExpenses = transactionRepo.sumAmountByPeriodAndType(start, end, TransactionType.EXPENSE);
+        BigDecimal finalBalance = totalIncomes.subtract(totalExpenses);
+
+        return new CashFlowDTO(totalIncomes, totalExpenses, finalBalance);
+    }
 
     public CashFlowDTO cashFlowResume() {
-        BigDecimal totalEntradas = transactionRepo.sumTotalIncomes();
-        BigDecimal totalSaidas = transactionRepo.sumTotalExpenses();
-        BigDecimal saldoFinal = totalEntradas.subtract(totalSaidas);
+        BigDecimal totalIncomes = transactionRepo.sumTotalAmountByType(TransactionType.INCOME);
+        BigDecimal totalExpenses = transactionRepo.sumTotalAmountByType(TransactionType.EXPENSE);
+        BigDecimal finalBalance = totalIncomes.subtract(totalExpenses);
 
-        return new CashFlowDTO(totalEntradas, totalSaidas, saldoFinal);
+        return new CashFlowDTO(totalIncomes, totalExpenses, finalBalance);
     }
 }

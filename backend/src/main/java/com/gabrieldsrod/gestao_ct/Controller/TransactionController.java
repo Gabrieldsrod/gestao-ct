@@ -40,12 +40,15 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<TransactionResponseDTO> createTransaction(@RequestBody NewTransactionDTO dados) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.createTransaction(dados));
+    public ResponseEntity<TransactionResponseDTO> createTransaction(@RequestBody NewTransactionDTO data) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.createTransaction(data));
     }
 
     @GetMapping("/cashflow")
-    public ResponseEntity<CashFlowDTO> cashFlowResume() {
-        return ResponseEntity.ok(transactionService.cashFlowResume());
+    public ResponseEntity<CashFlowDTO> getCashFlow(
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year
+    ) {
+        return ResponseEntity.ok(transactionService.getCashFlow(month, year));
     }
 }
