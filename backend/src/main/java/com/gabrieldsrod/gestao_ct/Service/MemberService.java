@@ -1,6 +1,7 @@
 package com.gabrieldsrod.gestao_ct.Service;
 
 import com.gabrieldsrod.gestao_ct.DTO.request.MemberRegistrationDTO;
+import com.gabrieldsrod.gestao_ct.DTO.response.ElegibleDependentDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberUpdateResponseDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberResponseDTO;
 import com.gabrieldsrod.gestao_ct.Enums.MemberStatus;
@@ -62,13 +63,12 @@ public class MemberService {
         return new MemberResponseDTO(member);
     }
 
-    public List<MemberResponseDTO> getEligibleDependents() {
-         List <Member> elegibleMembers = memberRepo.findEligibleDependents();
-         if (elegibleMembers.isEmpty()) {
-             throw new ResourceNotFoundException("Não há alunos elegíveis para se tornarem dependentes.");
-         }
+    public List<ElegibleDependentDTO> getEligibleDependents(String name) {
+        List<Member> eligibleMembers = memberRepo.findEligibleDependentsByName(name);
 
-         return elegibleMembers.stream().map(MemberResponseDTO::new).toList();
+        return eligibleMembers.stream()
+                .map(ElegibleDependentDTO::new)
+                .toList();
     }
 
     @Transactional

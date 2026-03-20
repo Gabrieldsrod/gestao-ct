@@ -17,18 +17,26 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     long countByStatus(MemberStatus status);
 
-    @Query("SELECT COUNT(m) FROM Member m WHERE m.plan.id = :planId AND m.status IN ('ACTIVE', 'PENDING')")
+    @Query("SELECT COUNT(m) FROM Member m WHERE " +
+            "m.plan.id = :planId AND " +
+            "m.status IN ('ACTIVE', 'PENDING')")
     Long countActiveMembersByPlanId(@Param("planId") Long planId);
 
-    @Query("SELECT COUNT(m) FROM Member m WHERE m.registrationDate <= :endDate AND m.status NOT IN ('INACTIVE', 'EXPELLED', 'SUSPENDED')")
+    @Query("SELECT COUNT(m) FROM Member m WHERE " +
+            "m.registrationDate <= :endDate AND " +
+            "m.status NOT IN ('INACTIVE', 'EXPELLED', 'SUSPENDED')")
     long countActiveMembersUpTo(@Param("endDate") LocalDate endDate);
 
     Boolean existsByEmail(String email);
 
     Page<Member> findByStatus(MemberStatus status, Pageable pageable);
 
-    @Query("SELECT m FROM Member m WHERE m.status != 'INACTIVE' AND m.holder IS NULL AND m.dependents IS EMPTY")
-    List<Member> findEligibleDependents();
+    @Query("SELECT m FROM Member m WHERE " +
+            "m.status != 'INACTIVE' AND " +
+            "m.holder IS NULL AND " +
+            "m.dependents IS EMPTY AND " +
+            "LOWER(m.name) LIKE LOWER(CONCAT('%', :name, '%'))")
+    List<Member> findEligibleDependentsByName(@Param("name") String name);
 
     Page<Member> findTop10ByNameContainingIgnoreCase(String name, Pageable pageable);
 

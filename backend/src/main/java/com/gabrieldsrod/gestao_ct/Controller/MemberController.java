@@ -1,6 +1,7 @@
 package com.gabrieldsrod.gestao_ct.Controller;
 
 import com.gabrieldsrod.gestao_ct.DTO.request.MemberRegistrationDTO;
+import com.gabrieldsrod.gestao_ct.DTO.response.ElegibleDependentDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberUpdateResponseDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.MemberResponseDTO;
 import com.gabrieldsrod.gestao_ct.Enums.MemberStatus;
@@ -44,8 +45,8 @@ public class MemberController {
     }
 
     @GetMapping("/eligible-dependents")
-    public ResponseEntity<List<MemberResponseDTO>> listEligibleDependents() {
-        List<MemberResponseDTO> eligibleDependents = memberService.getEligibleDependents();
+    public ResponseEntity<List<ElegibleDependentDTO>> listEligibleDependents(@RequestParam(required = false, defaultValue = "") String name) {
+        List<ElegibleDependentDTO> eligibleDependents = memberService.getEligibleDependents(name);
         return ResponseEntity.ok(eligibleDependents);
     }
 
