@@ -51,8 +51,12 @@ export function useGetMembers(page = 0, size = 10, searchTerm = '', status = 'AC
           setMembers([]);
         }
 
-      } catch (err: any) {
-        if (err.name !== 'AbortError') setError(err.message || 'Erro de conexão');
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          setError(err.message || 'Erro de conexão');
+        } else if (!(err instanceof Error) || err.name !== 'AbortError') {
+          setError('Erro de conexão');
+        }
       } finally {
         setIsLoading(false);
       }

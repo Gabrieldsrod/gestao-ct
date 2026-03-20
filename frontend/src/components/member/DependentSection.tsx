@@ -1,8 +1,31 @@
-import { useState, useEffect } from "react"
+import { useState } from "react";
+import { useGetEligibleDependents } from "@/hooks/member/useGetElegibleDependents";
+import { useDebounce } from "@/hooks/useDebounce";
+
+interface RegisterFn {
+    (name: string, options?: Record<string, unknown>): {
+        onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+        onBlur: () => void;
+        name: string;
+        ref: (instance: HTMLInputElement | HTMLSelectElement | null) => void;
+    };
+}
+
+interface FieldError {
+    message?: string;
+}
+
+interface Errors {
+    existingDependentId?: FieldError;
+    dependentName?: FieldError;
+    dependentBirthDate?: FieldError;
+    dependentEmail?: FieldError;
+    dependentWhatsapp?: FieldError;
+}
 
 interface DependentSectionProps {
-    register: any;
-    errors: any;
+    register: RegisterFn;
+    errors: Errors;
     dependentMode: 'new' | 'existing';
     setDependentMode: (mode: 'new' | 'existing') => void;
     currentMemberId?: number;
@@ -16,25 +39,10 @@ export function DependentSection({
     currentMemberId
 }: DependentSectionProps) {
 
-    const [eligibleMembers, setEligibleMembers] = useState<any[]>([])
+    const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-    useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL}/v1/api/members/eligible-dependents`)
-            .then(res => res.json())
-            .then(data => {
-                const content = data.content || data;
-
-                const filtered = content.filter((m: any) => {
-                    if (!currentMemberId) 
-                        return true;
-
-                    return Number(m.id) !== Number(currentMemberId);
-                });
-
-                setEligibleMembers(filtered);
-            })
-            .catch(err => console.error("Erro ao buscar alunos elegíveis", err));
-    }, [currentMemberId])
+    const { eligibleDependents, isLoading, error } = useGetEligibleDependents(currentMemberId, debouncedSearchTerm);
 
     return (
         <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mt-4 animate-in fade-in slide-in-from-top-4">
@@ -56,16 +64,42 @@ export function DependentSection({
             {dependentMode === 'existing' ? (
                 <div className="space-y-3">
                     <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Pesquisar Aluno</label>
+                        <input
+                            type="text"
+                            placeholder="Digite o nome para filtrar..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white mb-3"
+                        />
+                    </div>
+
+                    <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">Selecione o Aluno *</label>
-                        <select {...register("existingDependentId", { valueAsNumber: true })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white">
-                            <option value={0}>-- Selecione um aluno já cadastrado --</option>
-                            {eligibleMembers.map(em => (
-                                <option key={em.id} value={em.id}>{em.name} (Whatsapp: {em.whatsapp || 'N/A'})</option>
+                        <select
+                            {...register("existingDependentId", { valueAsNumber: true })}
+                            disabled={isLoading}
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-sm bg-white ${errors.existingDependentId ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`}
+                        >
+                            <option value={0}>
+                                {isLoading ? "Buscando..." : "-- Selecione um aluno na lista --"}
+                            </option>
+
+                            {eligibleDependents.map(em => (
+                                <option key={em.id} value={em.id}>
+                                    {em.name} {em.whatsapp ? `(Whats: ${em.whatsapp})` : ''}
+                                </option>
                             ))}
                         </select>
+
+                        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
                         {errors.existingDependentId && <p className="text-red-500 text-xs mt-1">{errors.existingDependentId.message}</p>}
+
+                        {!isLoading && searchTerm && eligibleDependents.length === 0 && !error && (
+                            <p className="text-orange-500 text-xs mt-1">Nenhum aluno elegível encontrado com esse nome.</p>
+                        )}
                     </div>
+
                     <p className="text-xs text-blue-600 mt-2">
                         As cobranças avulsas deste aluno serão canceladas e ele passará a integrar o plano deste titular.
                     </p>
