@@ -45,7 +45,8 @@ public class MemberController {
     }
 
     @GetMapping("/eligible-dependents")
-    public ResponseEntity<List<ElegibleDependentDTO>> listEligibleDependents(@RequestParam(required = false, defaultValue = "") String name) {
+    public ResponseEntity<List<ElegibleDependentDTO>> listEligibleDependents(
+            @RequestParam(required = false, defaultValue = "") String name) {
         List<ElegibleDependentDTO> eligibleDependents = memberService.getEligibleDependents(name);
         return ResponseEntity.ok(eligibleDependents);
     }
