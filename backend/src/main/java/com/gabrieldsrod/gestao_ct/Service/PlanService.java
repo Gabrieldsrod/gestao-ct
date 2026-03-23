@@ -1,5 +1,6 @@
 package com.gabrieldsrod.gestao_ct.Service;
 
+import com.gabrieldsrod.gestao_ct.DTO.request.NewPlanDTO;
 import com.gabrieldsrod.gestao_ct.DTO.request.PlanUpdateDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PlanResponseDTO;
 import com.gabrieldsrod.gestao_ct.Model.Plan;
@@ -47,6 +48,16 @@ public class PlanService {
     public Plan getById(Long id) {
         return planRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Plano não encontrado com ID: " + id));
+    }
+
+    public PlanResponseDTO createPlan(NewPlanDTO planDTO) {
+        Plan newPlan = new Plan();
+        newPlan.setName(planDTO.name());
+        newPlan.setPrice(planDTO.price());
+
+        newPlan = planRepo.save(newPlan);
+
+        return new PlanResponseDTO(newPlan);
     }
 
     public PlanResponseDTO updatePlan(Long id, PlanUpdateDTO planDTO) {

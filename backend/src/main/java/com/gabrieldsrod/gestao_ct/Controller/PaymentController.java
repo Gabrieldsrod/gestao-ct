@@ -33,6 +33,7 @@ public class PaymentController {
         Page<PaymentResponseDTO> payments = paymentService.getAllPayments(status, pageable);
         return ResponseEntity.ok(payments);
     }
+
     @PostMapping("/{id}/register")
     public ResponseEntity<PaymentReceiptDTO> registerPayment(@PathVariable Long id, @RequestBody PaymentClearenceDTO paymentMethod) {
         return ResponseEntity.ok(paymentService.registerPayment(id, paymentMethod.getPaymentMethod()));
