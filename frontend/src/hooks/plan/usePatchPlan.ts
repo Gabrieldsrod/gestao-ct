@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { type Plan } from '../../types/plan/Plan';
 
-export function usePlan(planId: number) {
+export function usePatchPlan(planId: number) {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -19,8 +19,8 @@ export function usePlan(planId: number) {
       
       const data = await response.json();
       setPlan(data);
-    } catch (err: any) {
-      setError(err.message || 'Erro de conexão');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Erro de conexão');
     } finally {
       setIsLoading(false);
     }
@@ -45,8 +45,8 @@ export function usePlan(planId: number) {
       if (!response.ok) throw new Error('Erro ao salvar as alterações do plano.');
 
       return true; 
-    } catch (err: any) {
-      setError(err.message || 'Erro ao salvar');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Erro ao salvar');
       return false;
     } finally {
       setIsSaving(false);

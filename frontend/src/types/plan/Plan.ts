@@ -5,3 +5,8 @@ export interface Plan {
   lastUpdated: string;
   activeMembers: number;
 }
+
+export type PlanCreate = {
+  name: string;
+  price: number;
+};
