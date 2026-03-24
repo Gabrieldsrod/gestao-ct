@@ -15,8 +15,12 @@ export function useGetPlans() {
       
       const data = await response.json();
       setPlans(data);
-    } catch (err: any) {
-      setError(err.message || 'Erro de conexão');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Erro de conexão');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -43,8 +47,12 @@ export function useGetPlansCountedMembers() {
       
       const data = await response.json();
       setPlans(data);
-    } catch (err: any) {
-      setError(err.message || 'Erro de conexão');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Erro de conexão');
+      }
     } finally {
       setIsLoading(false);
     }

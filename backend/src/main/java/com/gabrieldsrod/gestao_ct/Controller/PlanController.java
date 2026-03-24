@@ -1,8 +1,11 @@
 package com.gabrieldsrod.gestao_ct.Controller;
 
+import com.gabrieldsrod.gestao_ct.DTO.request.NewPlanDTO;
 import com.gabrieldsrod.gestao_ct.DTO.request.PlanUpdateDTO;
 import com.gabrieldsrod.gestao_ct.DTO.response.PlanResponseDTO;
 import com.gabrieldsrod.gestao_ct.Service.PlanService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +29,12 @@ public class PlanController {
     @GetMapping("/count-members")
     public List<PlanResponseDTO> getPlansWithMembers() {
         return planService.getAllPlans();
+    }
+
+    @PostMapping
+    public ResponseEntity<PlanResponseDTO> createPlan(@RequestBody NewPlanDTO data) {
+        PlanResponseDTO newPlan = planService.createPlan(data);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newPlan);
     }
 
     @PatchMapping("/{id}")

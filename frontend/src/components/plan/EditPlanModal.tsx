@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { usePatchPlan } from "@/hooks/plan/usePatchPlan"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Edit } from "lucide-react"
@@ -13,32 +14,16 @@ export function EditPlanModal({ plan, onSaveSuccess }: EditPlanModalProps) {
     const [open, setOpen] = useState(false)
     const [name, setName] = useState(plan.name)
     const [price, setPrice] = useState<string | number>(Number(plan.price).toFixed(2))
-    const [isSaving, setIsSaving] = useState(false)
-    const [error, setError] = useState<string | null>(null)
 
-    const handleSave = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    const { isSaving, error, updatePlan } = usePatchPlan(plan.id);
+
+    const handleSave = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setIsSaving(true);
-        setError(null);
-
         const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
-
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/api/plans/${plan.id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, price: numericPrice }),
-            });
-
-            if (!response.ok) throw new Error('Falha ao atualizar o plano.');
-
+        const success = await updatePlan(name, numericPrice);
+        if (success) {
             setOpen(false);
             onSaveSuccess();
-
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setIsSaving(false);
         }
     }
 
