@@ -2,7 +2,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { EditPlanModal } from "./EditPlanModal"
 import { type Plan } from "../../types/plan/Plan"
 
-// 1. Definimos as propriedades (props) que a tabela vai receber da página pai
 interface PlansTableProps {
     plans: Plan[];
     isLoading: boolean;
@@ -10,7 +9,6 @@ interface PlansTableProps {
     refetch: () => void;
 }
 
-// 2. A tabela já não faz a chamada (fetch), apenas renderiza o que recebe
 export function PlansTable({ plans, isLoading, error, refetch }: PlansTableProps) {
     
     const formatCurrency = (value: number) => {

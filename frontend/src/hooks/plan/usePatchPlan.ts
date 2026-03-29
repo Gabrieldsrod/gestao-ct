@@ -1,34 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { type Plan } from '../../types/plan/Plan';
 
 export function usePatchPlan(planId: number) {
-  const [plan, setPlan] = useState<Plan | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [plan] = useState<Plan | null>(null);
+  const [isLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const API_URL = import.meta.env.VITE_API_URL;
-
-  const fetchPlan = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await fetch(`${API_URL}/v1/api/plans/${planId}`);
-      
-      if (!response.ok) throw new Error('Falha ao buscar os dados do plano.');
-      
-      const data = await response.json();
-      setPlan(data);
-    } catch (err: unknown) {
-      setError((err as Error).message || 'Erro de conexão');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [planId, API_URL]);
-
-  useEffect(() => {
-    if (planId) fetchPlan();
-  }, [fetchPlan, planId]);
 
   // Envia a edição (PATCH)
   const updatePlan = async (name: string, price: number) => {

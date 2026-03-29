@@ -14,7 +14,7 @@ export function useGetPlans() {
       if (!response.ok) throw new Error('Erro ao carregar os planos.');
       
       const data = await response.json();
-      setPlans(data);
+      setPlans(data.sort((a: { id: number; }, b: { id: number; }) => a.id - b.id));
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -46,7 +46,7 @@ export function useGetPlansCountedMembers() {
       if (!response.ok) throw new Error('Erro ao carregar os planos.');
       
       const data = await response.json();
-      setPlans(data);
+      setPlans(data.sort((a: { id: number; }, b: { id: number; }) => a.id - b.id));
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);

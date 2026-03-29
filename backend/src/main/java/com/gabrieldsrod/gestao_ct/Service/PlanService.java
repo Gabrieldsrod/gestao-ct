@@ -29,7 +29,7 @@ public class PlanService {
     }
 
     public List<PlanResponseDTO> getAllPlans() {
-        List<Plan> plans = planRepo.findAll();
+        List<Plan> plans = planRepo.findAll(Sort.by(Sort.Direction.ASC, "id"));
         return plans.stream()
                 .map(plan -> {
                     PlanResponseDTO dto = new PlanResponseDTO(plan);
