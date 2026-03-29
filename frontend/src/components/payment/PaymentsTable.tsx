@@ -1,10 +1,12 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Calendar, User, Search, X } from "lucide-react"
 import { useNavigate } from "@tanstack/react-router"
 import { useGetPayments } from "../../hooks/payment/useGetPayments"
+import { useSearchMembers } from "@/hooks/member/useGetMembers";
+import { useDebounce } from "@/hooks/useDebounce"
 import { ConfirmPaymentModal } from "./ConfirmPaymentModal"
 
 function getPaymentStatusBadge(status: string) {
@@ -29,23 +31,81 @@ interface PaymentsTableProps {
 export function PaymentsTable({ currentPage }: PaymentsTableProps) {
     const navigate = useNavigate({ from: '/payments' })
     const [statusFilter, setStatusFilter] = useState<string>("ALL")
-    const { payments, totalPages, totalElements, isLoading, error } = useGetPayments(currentPage, 10, statusFilter)
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [searchMember, setSearchMember] = useState("");
+    const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
+
+    const debouncedSearch = useDebounce(searchMember, 300);
+
+    const { payments, totalPages, totalElements, isLoading, error } = useGetPayments(
+        currentPage, 10, statusFilter, startDate, endDate, selectedMemberId
+    );
+
+    const { suggestions: memberSuggestions, setSuggestions: setMemberSuggestions } = useSearchMembers(
+        selectedMemberId ? "" : debouncedSearch // Se já selecionou um ID, não pesquisa mais
+    );
+
+    useEffect(() => {
+        if (!debouncedSearch || selectedMemberId) {
+            return;
+        }
+
+        async function fetchMembers() {
+            try {
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/v1/api/members/search?name=${debouncedSearch}`);
+
+                if (res.ok) {
+                    const data = await res.json();
+
+                    setMemberSuggestions(data.content || data);
+                }
+            } catch (err) {
+                console.error("Erro ao buscar sugestões de alunos", err);
+            }
+        }
+        fetchMembers();
+    }, [debouncedSearch, selectedMemberId, setMemberSuggestions]);
 
     const handlePageChange = (newPage: number) => {
-        navigate({
-            search: (prev: any) => ({ ...prev, page: newPage })
-        })
+        navigate({ search: (prev: any) => ({ ...prev, page: newPage }) })
     }
 
     const handleTabChange = (newStatus: string) => {
         setStatusFilter(newStatus);
-        navigate({
-            search: (prev: any) => ({ ...prev, page: 0 })
-        });
+        handlePageChange(0);
+    }
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setSearchMember(value);
+
+        if (!value) {
+            setMemberSuggestions([]);
+        }
+
+        if (selectedMemberId) setSelectedMemberId(null);
+        handlePageChange(0);
+    }
+
+    const selectMember = (id: number, name: string) => {
+        setSelectedMemberId(id);
+        setSearchMember(name);
+        setMemberSuggestions([]);
+        handlePageChange(0);
+    }
+
+    const clearMemberFilter = () => {
+        setSelectedMemberId(null);
+        setSearchMember("");
+        setMemberSuggestions([]);
+        handlePageChange(0);
     }
 
     return (
         <div className="flex flex-col gap-4">
+
+            {/* ABAS DE STATUS */}
             <div className="flex space-x-2 overflow-x-auto pb-1">
                 {[
                     { id: "ALL", label: "Todos" },
@@ -67,16 +127,82 @@ export function PaymentsTable({ currentPage }: PaymentsTableProps) {
                 ))}
             </div>
 
-            {/* TABELA DENTRO DO CARD BRANCO */}
-            <div className="rounded-md border border-gray-100 bg-white flex flex-col min-h-[calc(100vh-300px)] shadow-sm">
-                
+            {/* BARRA DE FILTROS (Novo) */}
+            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4 items-end md:items-center justify-start relative z-10">
+
+                {/* Filtro de Datas */}
+                <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <label className="text-sm font-medium text-gray-600">Período:</label>
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => { setStartDate(e.target.value); handlePageChange(0); }}
+                            className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <span className="text-gray-400 text-sm">até</span>
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => { setEndDate(e.target.value); handlePageChange(0); }}
+                            className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                </div>
+
+                {/* Divisor Visual */}
+                <div className="hidden md:block w-px h-8 bg-gray-200 mx-2"></div>
+
+                {/* Filtro de Aluno (Combobox Híbrido) */}
+                <div className="flex items-center gap-2 relative w-full md:w-auto">
+                    <User className="w-4 h-4 text-gray-400" />
+                    <label className="text-sm font-medium text-gray-600">Aluno:</label>
+                    <div className="relative flex-1 md:w-64">
+                        <input
+                            type="text"
+                            placeholder="Buscar por nome..."
+                            value={searchMember}
+                            onChange={handleSearchChange}
+                            className={`w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500 pr-8 ${selectedMemberId ? 'border-blue-300 ring-1 ring-blue-100' : 'border-gray-200'}`}
+                        />
+                        {searchMember ? (
+                            <button onClick={clearMemberFilter} className="absolute right-2 top-2.5 text-gray-400 hover:text-gray-600">
+                                <X className="w-4 h-4" />
+                            </button>
+                        ) : (
+                            <Search className="absolute right-2 top-2.5 w-4 h-4 text-gray-400" />
+                        )}
+
+                        {/* Menu de Sugestões Flutuante */}
+                        {memberSuggestions.length > 0 && (
+                            <div className="absolute top-full left-0 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50 max-h-48 overflow-y-auto">
+                                {memberSuggestions.map(member => (
+                                    <div
+                                        key={member.id}
+                                        onClick={() => selectMember(member.id, member.name)}
+                                        className="px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 cursor-pointer border-b border-gray-50 last:border-0"
+                                    >
+                                        {member.name}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* TABELA PRINCIPAL (Mantida igual, apenas atualizei o z-index para não sobrepor o combobox) */}
+            <div className="rounded-xl border border-gray-100 bg-white flex flex-col min-h-[calc(100vh-400px)] shadow-sm relative z-0">
+
                 {isLoading && payments.length === 0 ? (
                     <div className="p-8 text-center text-gray-500 flex-1 flex items-center justify-center">A carregar mensalidades...</div>
                 ) : error ? (
                     <div className="p-8 text-center text-red-500 flex-1 flex items-center justify-center">Erro: {error}</div>
                 ) : payments.length === 0 ? (
-                    <div className="p-8 text-center text-gray-500 flex-1 flex items-center justify-center">
-                        Nenhum pagamento encontrado nesta categoria.
+                    <div className="p-8 text-center text-gray-500 flex-1 flex items-center justify-center flex-col gap-2">
+                        <p>Nenhum pagamento encontrado.</p>
+                        <p className="text-xs text-gray-400">Tente ajustar os filtros de data, aluno ou status acima.</p>
                     </div>
                 ) : (
                     <div className="flex-1">
@@ -125,7 +251,7 @@ export function PaymentsTable({ currentPage }: PaymentsTableProps) {
                     </div>
                 )}
 
-                {/* RODAPÉ E PAGINAÇÃO IDÊNTICOS */}
+                {/* RODAPÉ E PAGINAÇÃO */}
                 {totalPages > 0 && !isLoading && (
                     <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50/30">
                         <span className="text-sm text-gray-500 font-medium">
