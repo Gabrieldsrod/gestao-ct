@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react';
 import { type Payment } from '../../types/payment/Payment';
 
-export function useGetPayments(page = 0, size = 10, status = 'PENDING') {
+export function useGetPayments(
+    page = 0,
+    size = 10,
+    status = 'ALL',
+    startDate = '',
+    endDate = '',
+    memberId: number | null = null
+) {
     const [payments, setPayments] = useState<Payment[]>([]);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
@@ -14,12 +21,14 @@ export function useGetPayments(page = 0, size = 10, status = 'PENDING') {
         async function fetchPayments() {
             try {
                 setIsLoading(true);
+                setError(null);
 
                 let url = `${import.meta.env.VITE_API_URL}/v1/api/payments?page=${page}&size=${size}`;
 
-                if (status && status !== 'ALL') {
-                    url += `&status=${status}`;
-                }
+                if (status && status !== 'ALL') url += `&status=${status}`;
+                if (startDate) url += `&startDate=${startDate}`;
+                if (endDate) url += `&endDate=${endDate}`;
+                if (memberId) url += `&memberId=${memberId}`;
 
                 const response = await fetch(url, {
                     signal: controller.signal
@@ -36,8 +45,10 @@ export function useGetPayments(page = 0, size = 10, status = 'PENDING') {
                 } else {
                     setPayments([]);
                 }
-            } catch (err: any) {
-                if (err.name !== 'AbortError') setError(err.message);
+            } catch (err) {
+                if (err instanceof Error && err.name !== 'AbortError') {
+                    setError(err.message);
+                }
             } finally {
                 setIsLoading(false);
             }
@@ -45,7 +56,7 @@ export function useGetPayments(page = 0, size = 10, status = 'PENDING') {
 
         fetchPayments();
         return () => controller.abort();
-    }, [page, size, status]);
+    }, [page, size, status, startDate, endDate, memberId]);
 
     return { payments, totalPages, totalElements, isLoading, error };
 }
