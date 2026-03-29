@@ -1,15 +1,7 @@
 import { useState } from "react";
+import { type UseFormRegister } from "react-hook-form";
 import { useGetEligibleDependents } from "@/hooks/member/useGetElegibleDependents";
 import { useDebounce } from "@/hooks/useDebounce";
-
-interface RegisterFn {
-    (name: string, options?: Record<string, unknown>): {
-        onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-        onBlur: () => void;
-        name: string;
-        ref: (instance: HTMLInputElement | HTMLSelectElement | null) => void;
-    };
-}
 
 interface FieldError {
     message?: string;
@@ -23,9 +15,17 @@ interface Errors {
     dependentWhatsapp?: FieldError;
 }
 
+interface DependentFormData {
+    existingDependentId?: number;
+    dependentName?: string;
+    dependentBirthDate?: string;
+    dependentEmail?: string;
+    dependentWhatsapp?: string;
+}
+
 interface DependentSectionProps {
-    register: RegisterFn;
-    errors: Errors;
+    register: UseFormRegister<DependentFormData>;
+    errors: Errors; 
     dependentMode: 'new' | 'existing';
     setDependentMode: (mode: 'new' | 'existing') => void;
     currentMemberId?: number;
