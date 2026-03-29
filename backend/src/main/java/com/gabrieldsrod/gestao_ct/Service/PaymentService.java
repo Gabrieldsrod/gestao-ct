@@ -33,15 +33,10 @@ public class PaymentService {
         this.transactionService = transactionService;
     }
 
-    public Page<PaymentResponseDTO> getAllPayments(PaymentStatus status, Pageable pageable) {
-        Page<MemberPayment> paymentsPage;
-
-        if (status != null) {
-            paymentsPage = paymentRepo.findByStatus(status, pageable);
-        } else {
-            paymentsPage = paymentRepo.findAll(pageable);
-        }
-
+    public Page<PaymentResponseDTO> searchPayments(LocalDate startDate, LocalDate endDate, Long memberId, PaymentStatus status, Pageable pageable) {
+        Page<MemberPayment> paymentsPage = paymentRepo.searchWithFilters(
+                startDate, endDate, memberId, status, pageable
+        );
         return paymentsPage.map(PaymentResponseDTO::new);
     }
 

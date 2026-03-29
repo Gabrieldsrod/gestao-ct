@@ -17,35 +17,39 @@ import java.util.Optional;
 @Repository
 public interface MemberPaymentRepository extends JpaRepository<MemberPayment, Long> {
 
-    // LISTA DE INADIMPLENTES / A RECEBER
-    // Traz tudo onde a Data de Pagamento está vazia (NULL)
-    Page<MemberPayment> findByPaymentDateIsNull(Pageable pageable);
-
-    // LISTA DE PAGOS
-    // Traz tudo onde a Data de Pagamento NÃO está vazia
-    Page<MemberPayment> findByPaymentDateIsNotNull(Pageable pageable);
-
-    // Histórico financeiro de um aluno específico
-    List<MemberPayment> findByMember(Member member);
-
-    // Busca pagamentos que vencem em um mês específico (para gerar boletos)
-    // Ex: Todos os vencimentos entre 01/02 e 28/02
-    List<MemberPayment> findByPaymentDateBetween(LocalDate start, LocalDate end);
-
-    Page<MemberPayment> findByStatus(PaymentStatus status, Pageable pageable);
-
     List<MemberPayment> findByMemberAndStatus(Member member, PaymentStatus status);
 
     Optional<MemberPayment> findTopByMemberOrderByDueDateDesc(Member member);
 
-    @Query("SELECT COUNT(p) > 0 FROM MemberPayment p WHERE p.member = :member AND EXTRACT(MONTH FROM p.dueDate) = :month AND EXTRACT(YEAR FROM p.dueDate) = :year AND p.status != 'CANCELLED'")
+    @Query("SELECT p FROM MemberPayment p WHERE " +
+            "(:status IS NULL OR p.status = :status) AND " +
+            "(:memberId IS NULL OR p.member.id = :memberId) AND " +
+            "(cast(:startDate as date) IS NULL OR p.dueDate >= :startDate) AND " +
+            "(cast(:endDate as date) IS NULL OR p.dueDate <= :endDate)")
+    Page<MemberPayment> searchWithFilters(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("memberId") Long memberId,
+            @Param("status") PaymentStatus status,
+            Pageable pageable
+    );
+
+    @Query("SELECT COUNT(p) > 0 FROM MemberPayment p WHERE " +
+            "p.member = :member AND " +
+            "EXTRACT(MONTH FROM p.dueDate) = :month AND " +
+            "EXTRACT(YEAR FROM p.dueDate) = :year AND " +
+            "p.status != 'CANCELLED'")
     boolean existsByMemberAndMonthAndYear(@Param("member") Member member, @Param("month") Integer month, @Param("year") Integer year);
 
-    @Query("SELECT p FROM MemberPayment p WHERE p.status = 'LATE' AND p.dueDate < :limitDate AND p.member.status = 'DELINQUENT'")
+    @Query("SELECT p FROM MemberPayment p WHERE " +
+            "p.status = 'LATE' AND " +
+            "p.dueDate < :limitDate AND " +
+            "p.member.status = 'DELINQUENT'")
     List<MemberPayment> findPaymentsForInactivation(@Param("limitDate") LocalDate limitDate);
 
-    @Query("SELECT p FROM MemberPayment p WHERE p.status = 'PENDING' AND p.dueDate < :today AND p.member.status IN ('ACTIVE', 'DELINQUENT')")
+    @Query("SELECT p FROM MemberPayment p WHERE " +
+            "p.status = 'PENDING' AND " +
+            "p.dueDate < :today AND " +
+            "p.member.status IN ('ACTIVE', 'DELINQUENT')")
     List<MemberPayment> findOverduePaymentsForActiveOrDelinquentMembers(@Param("today") LocalDate today);
-
-    List<MemberPayment> findByMemberAndPaymentDateIsNull(Member member);
 }

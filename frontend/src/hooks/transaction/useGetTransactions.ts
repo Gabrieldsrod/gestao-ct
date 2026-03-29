@@ -35,7 +35,7 @@ export function useGetTransactions(page: number, month: number, year: number, ty
         } finally {
             setIsLoading(false);
         }
-    }, [page, month, year, type, categoryId]);
+    }, [page, month, year, type, categoryId, API_URL]);
 
     useEffect(() => {
         fetchTransactions();

@@ -69,3 +69,42 @@ export function useGetMembers(page = 0, size = 10, searchTerm = '', status = 'AC
 
   return { members, totalPages, totalElements, isLoading, error };
 }
+
+export function useSearchMembers(searchTerm: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    if (!searchTerm) {
+      setSuggestions([]);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    async function fetchSuggestions() {
+      setIsSearching(true);
+      try {
+        const url = `${import.meta.env.VITE_API_URL}/v1/api/members/search?name=${searchTerm}&size=10`;
+        const res = await fetch(url, { signal: controller.signal });
+        
+        if (res.ok) {
+          const data = await res.json();
+          setSuggestions(data.content || data);
+        }
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          console.error("Erro ao buscar sugestões de alunos", err);
+        }
+      } finally {
+        setIsSearching(false);
+      }
+    }
+
+    fetchSuggestions();
+    return () => controller.abort();
+  }, [searchTerm]);
+
+  return { suggestions, setSuggestions, isSearching };
+}
