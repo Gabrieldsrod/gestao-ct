@@ -3,29 +3,9 @@ import { type UseFormRegister } from "react-hook-form";
 import { useGetEligibleDependents } from "@/hooks/member/useGetElegibleDependents";
 import { useDebounce } from "@/hooks/useDebounce";
 
-interface FieldError {
-    message?: string;
-}
-
-interface Errors {
-    existingDependentId?: FieldError;
-    dependentName?: FieldError;
-    dependentBirthDate?: FieldError;
-    dependentEmail?: FieldError;
-    dependentWhatsapp?: FieldError;
-}
-
-interface DependentFormData {
-    existingDependentId?: number;
-    dependentName?: string;
-    dependentBirthDate?: string;
-    dependentEmail?: string;
-    dependentWhatsapp?: string;
-}
-
 interface DependentSectionProps {
-    register: UseFormRegister<DependentFormData>;
-    errors: Errors; 
+    register: UseFormRegister<any>; 
+    errors: any; 
     dependentMode: 'new' | 'existing';
     setDependentMode: (mode: 'new' | 'existing') => void;
     currentMemberId?: number;
