@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequestMapping("/v1/api/payments")
 @CrossOrigin(origins = "*")
@@ -25,12 +27,16 @@ public class PaymentController {
 
     @GetMapping
     public ResponseEntity<Page<PaymentResponseDTO>> getAllPayments(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Long memberId,
             @RequestParam(required = false) PaymentStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("dueDate"));
 
-        Page<PaymentResponseDTO> payments = paymentService.getAllPayments(status, pageable);
+        Page<PaymentResponseDTO> payments = paymentService.searchPayments(startDate, endDate, memberId, status, pageable);
         return ResponseEntity.ok(payments);
     }
 
