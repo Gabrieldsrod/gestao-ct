@@ -8,8 +8,10 @@ export const Route = createRootRoute({
     <div className="flex h-screen bg-slate-50 font-sans">
       <Sidebar />
       <main className="flex-1 flex flex-col overflow-y-auto">
-        <Header />
-        <Outlet /> {/* <-- As outras páginas (index.tsx) renderizam aqui */}
+        <div className="sticky top-0 z-20 bg-slate-50 shadow-sm">
+          <Header />
+        </div>
+        <Outlet /> 
       </main>
       <TanStackRouterDevtools position="bottom-right" />
     </div>
