@@ -32,10 +32,15 @@ public class TransactionService {
         this.feeService = feeService;
     }
 
-    public Page<TransactionResponseDTO> listTransactions(int month, int year, TransactionType type, Long categoryId, Pageable pageable) {
+    public Page<TransactionResponseDTO> listTransactions(Integer month, Integer year, TransactionType type, Long categoryId, Pageable pageable) {
 
-        LocalDate start = LocalDate.of(year, month, 1);
-        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+        LocalDate start = null;
+        LocalDate end = null;
+
+        if (month != null && year != null) {
+            start = LocalDate.of(year, month, 1);
+            end = start.withDayOfMonth(start.lengthOfMonth());
+        }
 
         Long finalCategoryId = (categoryId != null && categoryId > 0) ? categoryId : null;
 

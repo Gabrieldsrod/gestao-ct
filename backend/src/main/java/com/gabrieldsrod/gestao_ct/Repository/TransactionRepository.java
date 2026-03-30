@@ -26,7 +26,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     BigDecimal sumTotalAmountByType(@Param("type") TransactionType type);
 
     @Query("SELECT t FROM Transaction t WHERE " +
-            "t.transactionDate BETWEEN :start AND :end AND " +
+            "(cast(:start as date) IS NULL OR t.transactionDate >= :start) AND " +
+            "(cast(:end as date) IS NULL OR t.transactionDate <= :end) AND " +
             "(:type IS NULL OR t.type = :type) AND " +
             "(:categoryId IS NULL OR t.category.id = :categoryId)")
     Page<Transaction> findTransactionsWithFilters(
