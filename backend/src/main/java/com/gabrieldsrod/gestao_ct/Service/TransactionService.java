@@ -24,9 +24,12 @@ public class TransactionService {
 
     private final CategoryService categoryService;
 
-    public TransactionService(TransactionRepository transactionRepo, CategoryService categoryService) {
+    private final FeeService feeService;
+
+    public TransactionService(TransactionRepository transactionRepo, CategoryService categoryService, FeeService feeService) {
         this.transactionRepo = transactionRepo;
         this.categoryService = categoryService;
+        this.feeService = feeService;
     }
 
     public Page<TransactionResponseDTO> listTransactions(int month, int year, TransactionType type, Long categoryId, Pageable pageable) {
@@ -47,9 +50,14 @@ public class TransactionService {
 
         Transaction transaction = new Transaction();
         transaction.setDescription(data.description());
-        transaction.setAmount(data.amount());
-        transaction.setType(data.transactionType());
         transaction.setPaymentMethod(data.paymentMethod());
+
+        BigDecimal feeAmount = feeService.calculateFee(data.paymentMethod(), data.amount());
+
+        transaction.setGrossAmount(data.amount());
+        transaction.setFeeAmount(feeAmount);
+        transaction.setNetAmount(data.amount().subtract(feeAmount));
+        transaction.setType(data.transactionType());
         transaction.setCategory(category);
         transaction.setTransactionDate(data.transactionDate());
 
@@ -61,7 +69,11 @@ public class TransactionService {
     public Transaction saveMembershipTransaction(MemberPayment payment, @NotNull PaymentMethod paymentMethod) {
         Transaction income = new Transaction();
         income.setDescription("Mensalidade - %s".formatted(payment.getMember().getName()));
-        income.setAmount(payment.getAmountCharged());
+        income.setGrossAmount(payment.getAmountCharged());
+
+        BigDecimal feeAmount = feeService.calculateFee(paymentMethod, income.getGrossAmount());
+        income.setFeeAmount(feeAmount);
+        income.setNetAmount(income.getGrossAmount().subtract(feeAmount));
         income.setPaymentMethod(paymentMethod);
         income.setType(TransactionType.INCOME);
         income.setTransactionDate(LocalDate.now());
