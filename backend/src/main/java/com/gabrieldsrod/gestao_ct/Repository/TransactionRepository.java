@@ -19,7 +19,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     BigDecimal sumAmountByPeriodAndType(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("type") TransactionType type // Passa o Enum aqui!
+            @Param("type") TransactionType type
     );
 
     @Query("SELECT COALESCE(SUM(t.netAmount), 0) FROM Transaction t WHERE t.type = :type")
