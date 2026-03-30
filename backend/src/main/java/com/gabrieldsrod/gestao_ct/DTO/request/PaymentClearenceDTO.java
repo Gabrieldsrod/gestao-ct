@@ -1,10 +1,9 @@
 package com.gabrieldsrod.gestao_ct.DTO.request;
 
 import com.gabrieldsrod.gestao_ct.Enums.PaymentMethod;
-import lombok.Data;
 
-@Data
-public class PaymentClearenceDTO {
+public record PaymentClearenceDTO (
+        PaymentMethod paymentMethod
+) {
 
-    private PaymentMethod paymentMethod;
 }
