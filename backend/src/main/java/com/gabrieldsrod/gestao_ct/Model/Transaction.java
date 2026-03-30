@@ -18,8 +18,14 @@ public class Transaction extends BaseEntity{
 
     private String description;
 
-    @Column(nullable = false, precision = 19, scale = 2)
-    private BigDecimal amount;
+    @Column(name = "gross_amount", nullable = false, precision = 19, scale = 2)
+    private BigDecimal grossAmount;
+
+    @Column(name = "fee_amount",  nullable = false, precision = 19, scale = 2)
+    private BigDecimal feeAmount;
+
+    @Column(name = "net_amount", nullable = false, precision = 19, scale = 2)
+    private BigDecimal netAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false)
