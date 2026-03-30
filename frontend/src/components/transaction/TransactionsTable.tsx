@@ -47,7 +47,7 @@ export function TransactionsTable({
             'PIX': 'Pix',
             'SLIP': 'Boleto'
         };
-        return map[method] || method; // Se vier algo diferente, mostra como veio
+        return map[method] || method;
     }
 
     const getTypeBadge = (type: string) => {
@@ -81,7 +81,9 @@ export function TransactionsTable({
                                 <TableHead className="font-semibold text-gray-600">Categoria</TableHead>
                                 <TableHead className="font-semibold text-gray-600">Método</TableHead>
                                 <TableHead className="font-semibold text-gray-600 text-center">Tipo</TableHead>
-                                <TableHead className="font-semibold text-gray-600 text-right">Valor</TableHead>
+                                <TableHead className="font-semibold text-gray-600 text-right">Valor Líquido</TableHead>
+                                <TableHead className="font-semibold text-gray-600 text-right">Valor Bruto</TableHead>
+                                <TableHead className="font-semibold text-gray-600 text-right">Taxa</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -104,7 +106,13 @@ export function TransactionsTable({
                                     </TableCell>
                                     <TableCell className={`text-right font-semibold ${transaction.transactionType === 'INCOME' ? 'text-green-600' : 'text-red-600'}`}>
                                         {transaction.transactionType === 'EXPENSE' ? '- ' : '+ '}
-                                        {formatCurrency(transaction.amount)}
+                                        {formatCurrency(transaction.netAmount)}
+                                    </TableCell>
+                                    <TableCell className="text-right font-semibold text-gray-600">
+                                        {formatCurrency(transaction.grossAmount)}
+                                    </TableCell>
+                                    <TableCell className="text-right font-semibold text-red-600">
+                                        - {formatCurrency(transaction.feeAmount)}
                                     </TableCell>
                                 </TableRow>
                             ))}
