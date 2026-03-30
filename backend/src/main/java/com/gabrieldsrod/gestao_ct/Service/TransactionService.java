@@ -50,6 +50,7 @@ public class TransactionService {
 
         Transaction transaction = new Transaction();
         transaction.setDescription(data.description());
+        transaction.setPaymentMethod(data.paymentMethod());
         transaction.setGrossAmount(data.amount());
         transaction.setFeeAmount(BigDecimal.ZERO);
         transaction.setNetAmount(data.amount());
