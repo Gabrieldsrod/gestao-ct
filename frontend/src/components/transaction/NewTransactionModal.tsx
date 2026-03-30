@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { transactionSchema, type TransactionFormValues } from "@/schemas/transactionSchemas"
 
@@ -19,7 +19,7 @@ export function NewTransactionModal({ createTransaction, categories, refetchTran
 
     const hoje = new Date().toISOString().split('T')[0];
 
-    const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<TransactionFormValues>({
+    const { register, handleSubmit, control, reset, setValue, formState: { errors } } = useForm<TransactionFormValues>({
         resolver: zodResolver(transactionSchema),
         defaultValues: {
             transactionType: 'EXPENSE',
@@ -31,7 +31,11 @@ export function NewTransactionModal({ createTransaction, categories, refetchTran
         }
     })
 
-    const watchedType = watch("transactionType");
+    const watchedType = useWatch({
+        control,
+        name: "transactionType"
+    });
+
     const filteredCategories = categories.filter(c => c.type === watchedType);
 
     useEffect(() => {
@@ -88,7 +92,6 @@ export function NewTransactionModal({ createTransaction, categories, refetchTran
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="text-xs font-medium text-gray-700">Tipo *</label>
-                            {/* AQUI ESTÁ A CORREÇÃO DO TIPO: */}
                             <select
                                 {...register("transactionType")}
                                 className={`w-full px-3 py-2 border rounded-md text-sm outline-none focus:ring-2 ${errors.transactionType ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500'}`}
