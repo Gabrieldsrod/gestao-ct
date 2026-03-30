@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Transaction } from '@/types/finances/Transaction';
 
-// 1. Transformamos month e year em opcionais adicionando o '?'
 export function useGetTransactions(page: number, month?: number, year?: number, type?: string, categoryId?: number) {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [totalPages, setTotalPages] = useState(0);
