@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Transaction } from '@/types/finances/Transaction';
 
-export function useGetTransactions(page: number, month: number, year: number, type?: string, categoryId?: number) {
+// 1. Transformamos month e year em opcionais adicionando o '?'
+export function useGetTransactions(page: number, month?: number, year?: number, type?: string, categoryId?: number) {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
@@ -14,7 +15,11 @@ export function useGetTransactions(page: number, month: number, year: number, ty
         setIsLoading(true);
         setError(null);
         try {
-            let url = `${API_URL}/v1/api/transactions?month=${month}&year=${year}&page=${page}&size=10`;
+            let url = `${API_URL}/v1/api/transactions?page=${page}&size=10`;
+
+            if (month !== undefined && year !== undefined) {
+                url += `&month=${month}&year=${year}`;
+            }
 
             if (type && type !== 'ALL')
                 url += `&type=${type}`;

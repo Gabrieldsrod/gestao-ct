@@ -33,7 +33,13 @@ function TransactionsPage() {
         ? categories
         : categories.filter(c => c.type === typeFilter);
 
-    const { transactions, totalPages, totalElements, isLoading: isTransactionsLoading, error, refetchTransactions } = useGetTransactions(currentPage, currentMonth, currentYear, typeFilter, selectedCategory);
+    const fetchMonth = periodMode === 'MONTHLY' ? currentMonth : undefined;
+    const fetchYear = periodMode === 'MONTHLY' ? currentYear : undefined;
+
+    const { transactions, totalPages, totalElements, isLoading: isTransactionsLoading, error, refetchTransactions } = useGetTransactions(
+        currentPage, fetchMonth, fetchYear, typeFilter, selectedCategory
+    );
+    
     const { cashflow, refetchCashflow } = useCashflow(
         periodMode === 'MONTHLY' ? currentMonth : undefined,
         periodMode === 'MONTHLY' ? currentYear : undefined
