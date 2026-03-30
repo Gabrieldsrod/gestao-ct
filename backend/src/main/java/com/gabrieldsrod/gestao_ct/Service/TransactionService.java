@@ -50,13 +50,9 @@ public class TransactionService {
 
         Transaction transaction = new Transaction();
         transaction.setDescription(data.description());
-        transaction.setPaymentMethod(data.paymentMethod());
-
-        BigDecimal feeAmount = feeService.calculateFee(data.paymentMethod(), data.amount());
-
         transaction.setGrossAmount(data.amount());
-        transaction.setFeeAmount(feeAmount);
-        transaction.setNetAmount(data.amount().subtract(feeAmount));
+        transaction.setFeeAmount(BigDecimal.ZERO);
+        transaction.setNetAmount(data.amount());
         transaction.setType(data.transactionType());
         transaction.setCategory(category);
         transaction.setTransactionDate(data.transactionDate());
