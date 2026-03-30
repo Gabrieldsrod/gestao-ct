@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface FeeRepository extends JpaRepository<PaymentFee, Long> {
 
-    public Optional<PaymentFee> findPaymentFeeByPaymentMethod(PaymentMethod paymentMethod);
+    Optional<PaymentFee> findPaymentFeeByPaymentMethod(PaymentMethod paymentMethod);
 }
