@@ -27,8 +27,8 @@ public class TransactionController {
 
     @GetMapping
     public ResponseEntity<Page<TransactionResponseDTO>> getTransactions(
-            @RequestParam int month,
-            @RequestParam int year,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) TransactionType type,

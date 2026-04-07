@@ -3,6 +3,9 @@ package com.gabrieldsrod.gestao_ct.DTO.response;
 import com.gabrieldsrod.gestao_ct.Model.Member;
 import com.gabrieldsrod.gestao_ct.Utils.DateUtils;
 
+import java.time.LocalDate;
+import java.util.List;
+
 public record MemberResponseDTO(
         Long id,
         String name,

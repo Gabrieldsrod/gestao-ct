@@ -5,5 +5,7 @@ export interface Transaction {
     transactionType: 'EXPENSE' | 'INCOME';
     paymentMethod: 'CASH' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'PIX' | 'SLIP';
     transactionDate: string;
-    amount: number;
+    grossAmount: number;
+    feeAmount: number;
+    netAmount: number;
 }

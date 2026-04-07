@@ -12,7 +12,9 @@ public record TransactionResponseDTO(
         String transactionType,
         String paymentMethod,
         String transactionDate,
-        BigDecimal amount
+        BigDecimal grossAmount,
+        BigDecimal feeAmount,
+        BigDecimal netAmount
 ) {
     public TransactionResponseDTO(Transaction transaction) {
         this(transaction.getId(),
@@ -21,6 +23,8 @@ public record TransactionResponseDTO(
                 transaction.getType().name(),
                 transaction.getPaymentMethod().name(),
                 transaction.getTransactionDate().format(DateUtils.BR_FORMATTER_DATE),
-                transaction.getAmount());
+                transaction.getGrossAmount(),
+                transaction.getFeeAmount(),
+                transaction.getNetAmount());
     }
 }
